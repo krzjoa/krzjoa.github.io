@@ -1,9 +1,9 @@
 # Dependencies
 markdown:         kramdown
 highlighter:      rouge
-remote_theme:     fongandrew/hydeout
+remote_theme: fongandrew/hydeout
 # Setup
-title:            Test
+title:            Test2
 tagline:          'A Jekyll theme'
 description:      'The <a href="http://hyde.getpoole.com" target="_blank">Hyde</a> theme for <a href="http://jekyllrb.com" target="_blank">Jekyll</a>, refreshed.'
 url:              https://fongandrew.github.io
