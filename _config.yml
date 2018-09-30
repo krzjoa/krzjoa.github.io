@@ -26,6 +26,7 @@ plugins:
   - jekyll-feed
   - jekyll-gist
   - jekyll-paginate
+  - jekyll-theme-hydeout
 
 # Sidebar link settings
 sidebar_home_link:  true
