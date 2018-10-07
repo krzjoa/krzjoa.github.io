@@ -1,0 +1,16 @@
+.card {
+  width: 256px;
+  height: 80px !important;
+}
+
+.card-title{
+  text-align: center;;
+}
+
+.network{
+  margin-left: 10%;
+}
+
+.size-window{
+  width: 50px;
+}
