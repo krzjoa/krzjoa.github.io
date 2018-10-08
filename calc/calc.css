@@ -9,8 +9,21 @@
 
 .network{
   margin-left: 10%;
+  float: left;
+  background-color: green;
 }
 
 .size-window{
   width: 50px;
+}
+
+.layers-panel{
+  width: 25%;
+  height: 100%;
+  background-color: yellow;
+  float: right;
+}
+
+.network-objects{
+  display: none;
 }

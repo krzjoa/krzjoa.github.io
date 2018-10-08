@@ -9,55 +9,91 @@
 
 <body>
 
-<h1>Neural Network Calculator</h1>
+<!--- List of network objects to be copied -->
+<div class="network-objects">
 
-<div>
-<!-- DRAWING NETWORK -->
-<div class="network" draggable="true">
 
-<div class="mdl-shadow--2dp card">
-  <div class="card-title">
-    <h4>Input 4D</h4>
-    <form action="#">
-  <div>
-    <input type="text" class="size-window">
-    <input type="text" class="size-window">
-    <input type="text" class="size-window">
-    <input type="text" class="size-window">
+  <div class="mdl-shadow--2dp card">
+    <div class="card-title">
+      <h4>Input 4D</h4>
+      <form action="#">
+    <div>
+      <input type="text" class="size-window">
+      <input type="text" class="size-window">
+      <input type="text" class="size-window">
+      <input type="text" class="size-window">
+    </div>
   </div>
 </div>
 
-<div class="mdl-shadow--2dp card">
-  <div class="card-title">
-    <h4>Conv2D</h4>
-    <form action="#">
-  <div>
-    <input type="text" class="size-window">
-    <input type="text" class="size-window">
-    <input type="text" class="size-window">
-    <input type="text" class="size-window">
+  <div class="mdl-shadow--2dp card">
+    <div class="card-title">
+      <h4>Conv2D</h4>
+      <form action="#">
+    <div>
+      <input type="text" class="size-window">
+      <input type="text" class="size-window">
+      <input type="text" class="size-window">
+      <input type="text" class="size-window">
+    </div>
   </div>
+
+</div>
 </div>
 
 
+
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+      <!-- Title -->
+      <span class="mdl-layout-title">Neural Network Calculator</span>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation. We hide it in small screens. -->
+      <nav class="mdl-navigation mdl-layout--large-screen-only">
+        <a class="mdl-navigation__link" href="">Receptive field: </a>
+        <a class="mdl-navigation__link" href="">Output:</a>
+      </nav>
+    </div>
+  </header>
+  <div class="mdl-layout__drawer">
+    <span class="mdl-layout-title">Layers</span>
+    <nav class="mdl-navigation">
+      <a class="mdl-navigation__link" href="">Input 3D</a>
+      <a class="mdl-navigation__link" href="">Input 4D</a>
+      <a class="mdl-navigation__link" href="">Conv1D</a>
+      <a class="mdl-navigation__link" href="">Conv2D</a>
+      <a class="mdl-navigation__link" href="">Pooling</a>
+    </nav>
+
+    </nav>
+  </div>
+  <main class="mdl-layout__content">
+    <div class="page-content"><!-- Your content goes here --></div>
+  </main>
 </div>
 
-<!-- SIDE MENU -->
-<div align="right">
 
 <div>
 
+<div>
+Output shape: <br>
+Receptive field:
 
 </div>
+
+
+<!-- SIDE MENU WITH DIFFERENT LAYERS -->
+<!--div class="layers-panel">
+
 
 <button class="mdl-button mdl-js-button mdl-button--raised" onclick="myFunction()">Compute</button>
 <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
   <i class="material-icons">add</i>
 </button>
 
-
-</div>
-
+</div-->
 
 <p id="demo"></p>
 
