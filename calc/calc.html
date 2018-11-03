@@ -6,7 +6,6 @@
 
 <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 
-
 <body>
 
 <!--- List of network objects to be copied -->
@@ -51,16 +50,16 @@
       <!-- Add spacer, to align navigation to the right -->
       <div class="mdl-layout-spacer"></div>
       <!-- Navigation. We hide it in small screens. -->
-      <nav class="mdl-navigation mdl-layout--large-screen-only">
+      <!--nav class="mdl-navigation mdl-layout--large-screen-only">
         <a class="mdl-navigation__link" href="">Receptive field: </a>
         <a class="mdl-navigation__link" href="">Output:</a>
-      </nav>
+      </nav-->
     </div>
   </header>
   <div class="mdl-layout__drawer">
     <span class="mdl-layout-title">Layers</span>
     <nav class="mdl-navigation">
-      <a class="mdl-navigation__link" href="">Input 3D</a>
+      <a class="mdl-navigation__link" href="" onclick="fun()">Input 3D</a>
       <a class="mdl-navigation__link" href="">Input 4D</a>
       <a class="mdl-navigation__link" href="">Conv1D</a>
       <a class="mdl-navigation__link" href="">Conv2D</a>
@@ -70,18 +69,7 @@
     </nav>
   </div>
   <main class="mdl-layout__content">
-    <div class="page-content"><!-- Your content goes here --></div>
-  </main>
-</div>
-
-
-<div>
-
-<div>
-Output shape: <br>
-Receptive field:
-
-</div>
+    <div class="page-content" id="cont">
 
 
 <!-- SIDE MENU WITH DIFFERENT LAYERS -->
@@ -95,17 +83,25 @@ Receptive field:
 
 </div-->
 
-<p id="demo"></p>
-
 <script>
-function myFunction() {
-  document.getElementById("demo").innerHTML = "Hello World";
+function fun() {
+    document.getElementById("cont").innerHTML = "<div>TROLOLOLO</div>";
+}
+
+</script>
+
+
+
+<!--script>
+function fun() {
+  //document.getElementById("demo").innerHTML = "Hello World";
+  alert("sasasa");
 }
 
 function addLayer() {
   document.getElementById("demo").innerHTML = ;
 }
-</script>
+</script-->
 
 </body>
 </html>
