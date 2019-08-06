@@ -3,6 +3,12 @@
   height: 80px !important;
 }
 
+.calc-title{
+  font-family: 'Roboto Slab';
+  font-size: 40px;
+  color: white;
+}
+
 .card-title{
   text-align: center;;
 }
@@ -26,4 +32,15 @@
 
 .network-objects{
   display: none;
+}
+
+.panel-left{
+  float: left;
+  width: 100px;
+  height: 50px;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+ z-index: 999
 }

@@ -6,9 +6,9 @@
 <link rel="stylesheet" href="calc.css">
 
 <script type="text/javascript">
-  mxBasePath = 'node_modules/mxgraph/javascript/src'
+  mxBasePath = 'mxgraph/src'
 </script>
-<script type="text/javascript" src="node_modules/mxgraph/javascript/mxClient.js"/>
+<script type="text/javascript" src="mxgraph/mxClient.js"/>
 <script type="text/ text/javascript">
 function main(container){
   if(!mxClient.isBrowserSupported()){
@@ -34,7 +34,9 @@ function main(container){
 
 <body onload="main(document.getElementById("graphContainer"))">
 
-<div id="graphContainer" style="overflow: hidden; width: 321px; height: 241px;"/>
+<div id="graphContainer" style="overflow: hidden; width: 321px; height: 241px;">
+
+</div>
 
 <!--- List of network objects to be copied -->
 <div class="network-objects">
@@ -100,31 +102,9 @@ function main(container){
     <div class="page-content" id="cont">
 
 
-<!-- SIDE MENU WITH DIFFERENT LAYERS -->
-<!--div class="layers-panel">
-https://www.youtube.com/watch?v=0_Kg4Q1gxnk
-<button class="mdl-button mdl-js-button mdl-button--raised" onclick="myFunction()">Compute</button>
-<button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
-  <i class="material-icons">add</i> <!-- TODO: https://www.youtube.com/watch?v=0_Kg4Q1gxnk -->
 </button>
 
-</div-->
 
-
-
-
-
-
-<!--script>
-function fun() {
-  //document.getElementById("demo").innerHTML = "Hello World";
-  alert("sasasa");
-}
-
-function addLayer() {
-  document.getElementById("demo").innerHTML = ;
-}
-</script-->
 
 </body>
 </html>
