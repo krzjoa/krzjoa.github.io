@@ -3,9 +3,9 @@ markdown:         kramdown
 highlighter:      rouge
 remote_theme: fongandrew/hydeout
 # Setup
-title:            Retifex
+title:            krzjoa
 tagline:          'Blog about AI'
-description:      'AI and all that stuff'
+description:      'We're getting at the truth with a tiny steps'
 url:              https://krzjoa.github.io
 baseurl:          ''
                   # the optional subpath of your site, e.g. "/blog"
