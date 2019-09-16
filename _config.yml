@@ -5,7 +5,7 @@ remote_theme: fongandrew/hydeout
 # Setup
 title:            krzjoa
 tagline:          'Blog about AI'
-description:      'We're getting at the truth with a tiny steps'
+description:      'Getting at the truth'
 url:              https://krzjoa.github.io
 baseurl:          ''
                   # the optional subpath of your site, e.g. "/blog"
@@ -21,14 +21,17 @@ author:
   name:           'Krzysztof Joachimiak'
   url:            https://krzjoa.github.io
 
-paginate:         5
 # paginate_path:    '/page:num'
                     # Or '/blog/page:num' if you want to move your index pages
 
-plugins:
+plugins_dir:
   - jekyll-feed
   - jekyll-gist
+
+gems:
   - jekyll-paginate
+
+paginate:         5
 
 # Sidebar link settings
 sidebar_home_link:  true

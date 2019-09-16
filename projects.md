@@ -4,19 +4,16 @@ title: Projects
 sidebar_link: true
 ---
 
-# Python
-[**awesome-python-data-science**](https://krzjoa.github.io/awesome-python-data-science)
-<br>List of best Python libraries for doing Data Science
-
-[**bace**](https://github.com/krzjoa/bace)
+### Python
+* [**awesome-python-data-science**](https://krzjoa.github.io/awesome-python-data-science)
+<br>_List of best Python libraries for doing Data Science_
+* [**bace**](https://github.com/krzjoa/bace)
 <br>Python implementations of Naive Bayes algorithm variants
+* [**kaggle-metrics**](https://github.com/krzjoa/kaggle-metrics)
+<br>_Metrics for Kaggle competitions_
+* [**sciquence**](https://github.com/krzjoa/sciquence)
+<br>_Miscellaneous algorithms for processing sequences and time series_
 
-[**kaggle-metrics**](https://github.com/krzjoa/kaggle-metrics)
-<br>Metrics for Kaggle competitions
-
-[**sciquence**](https://github.com/krzjoa/sciquence)
-<br>Miscellaneous algorithms for processing sequences and time series
-
-# R
-[**wayfarer**](https://krzjoa.github.io/wayfarer)
-<br>Tools for working with Awesome Lists
+### R
+* [**wayfarer**](https://krzjoa.github.io/wayfarer)
+<br>_Tools for working with Awesome Lists_
