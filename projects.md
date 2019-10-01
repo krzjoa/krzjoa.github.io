@@ -22,4 +22,5 @@ sidebar_link: true
 
 ### Datasets
 * [**Komentarze**](https://github.com/krzjoa/Kometarze)
-<br>_A NLP dataset of Internet comments to filter the hateful ones. Gathered for my master's thesis project in 2015/2016_
+<br>_A NLP dataset of Internet comments to filter the hateful ones. 
+Gathered for my master's thesis project in 2015/2016_
