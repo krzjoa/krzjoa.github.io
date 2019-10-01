@@ -17,3 +17,5 @@ sidebar_link: true
 ### R
 * [**wayfarer**](https://krzjoa.github.io/wayfarer)
 <br>_Tools for working with Awesome Lists_
+* [**awesome-r-dataviz**](https://krzjoa.github.io/awesome-r-dataviz)
+<br>_Curated resources for Data Visualization in R._
