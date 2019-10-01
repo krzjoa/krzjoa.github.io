@@ -19,3 +19,7 @@ sidebar_link: true
 <br>_Tools for working with Awesome Lists_
 * [**awesome-r-dataviz**](https://krzjoa.github.io/awesome-r-dataviz)
 <br>_Curated resources for Data Visualization in R._
+
+### Datasets
+* [**Komentarze**](https://github.com/krzjoa/Kometarze)
+<br>_A NLP dataset of Internet comments to filter the hateful ones. Gathered for my master's thesis project in 2015/2016_
