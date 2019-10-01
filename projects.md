@@ -21,6 +21,6 @@ sidebar_link: true
 <br>_Curated resources for Data Visualization in R._
 
 ### Datasets
-* [**Komentarze**](https://github.com/krzjoa/Kometarze)
-<br>_A NLP dataset of Internet comments to filter the hateful ones. 
+* [**Komentarze**](https://github.com/krzjoa/Komentarze)
+<br>_A NLP dataset of Internet comments (in Polish) to filter the hateful ones. 
 <br>Gathered for my master's thesis project in 2015/2016_
