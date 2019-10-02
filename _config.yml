@@ -5,7 +5,7 @@ remote_theme: fongandrew/hydeout
 # Setup
 title:            krzjoa
 tagline:          'Blog about AI'
-description:      'Getting at the truth'
+description:      'Getting at the Truth'
 url:              https://krzjoa.github.io
 baseurl:          ''
                   # the optional subpath of your site, e.g. "/blog"
