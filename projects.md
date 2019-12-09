@@ -17,7 +17,7 @@ sidebar_link: true
 ### R
 * [**awesome-r-dataviz**](https://krzjoa.github.io/awesome-r-dataviz)
 <br>_Curated resources for Data Visualization in R._
-* [**matricks**](https://krzjoa.github.io/wayfarer)
+* [**matricks**](https://github.com/krzjoa/matricks)
 <br>_Useful tools for matrix manipulation_
 * [**wayfarer**](https://krzjoa.github.io/wayfarer)
 <br>_Tools for working with Awesome Lists_
