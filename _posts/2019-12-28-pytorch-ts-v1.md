@@ -25,7 +25,7 @@ data = pd.read_csv("shampoo.csv")
 plt.plot(data['Sales'])
 plt.show()         
 ```
-![png]({{ site.url }}/assets/img/2019-12-28-pytorch-ts-v1/plot.png)
+![png](/assets/img/2019-12-28-pytorch-ts-v1/plot.png)
 
 In this plot we can see an increasing trend, but in this excercise, data characterics make no diffeence for us.
 
@@ -55,6 +55,7 @@ ts.head(10)
     8    192.8
     9    122.9
     Name: Sales, dtype: float64
+
 Using `pandas`, we can compute moving average by combining `rolling` and `mean` method calls. We use `head` method as well, to limit the output. By the way, this example shows the object-oriented nature of `pandas`, which allows us to chain following methodc calls. Other fact that is worth to mention is a **NaN** occurrence in the first row. It's because we can't compute moving avearge for the first element if we haven't added any padding on the beginnng of the array; moreover, `pandas` keeps the input's length, so the first element has no value.
 
 ```python
@@ -86,6 +87,7 @@ import torch.nn.functional as F
 print(len(ts))
 ```
     36
+
 ```python
 ts_tensor = torch.Tensor(ts).reshape(1, 1, -1)
 ```

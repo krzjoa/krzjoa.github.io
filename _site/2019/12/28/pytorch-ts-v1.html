@@ -250,7 +250,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">'Sales'</span><span class="p">])</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>         
 </code></pre></div></div>
-<p><img src="https://krzjoa.github.io/assets/img/2019-12-28-pytorch-ts-v1/plot.png" alt="png" /></p>
+<p><img src="/assets/img/2019-12-28-pytorch-ts-v1/plot.png" alt="png" /></p>
 
 <p>In this plot we can see an increasing trend, but in this excercise, data characterics make no diffeence for us.</p>
 
@@ -278,8 +278,10 @@ Source: https://blog.floydhub.com/reading-minds-with-deep-learning/</p>
 7    224.5
 8    192.8
 9    122.9
-Name: Sales, dtype: float64 Using `pandas`, we can compute moving average by combining `rolling` and `mean` method calls. We use `head` method as well, to limit the output. By the way, this example shows the object-oriented nature of `pandas`, which allows us to chain following methodc calls. Other fact that is worth to mention is a **NaN** occurrence in the first row. It's because we can't compute moving avearge for the first element if we haven't added any padding on the beginnng of the array; moreover, `pandas` keeps the input's length, so the first element has no value.
+Name: Sales, dtype: float64
 </code></pre></div></div>
+
+<p>Using <code class="highlighter-rouge">pandas</code>, we can compute moving average by combining <code class="highlighter-rouge">rolling</code> and <code class="highlighter-rouge">mean</code> method calls. We use <code class="highlighter-rouge">head</code> method as well, to limit the output. By the way, this example shows the object-oriented nature of <code class="highlighter-rouge">pandas</code>, which allows us to chain following methodc calls. Other fact that is worth to mention is a <strong>NaN</strong> occurrence in the first row. It’s because we can’t compute moving avearge for the first element if we haven’t added any padding on the beginnng of the array; moreover, <code class="highlighter-rouge">pandas</code> keeps the input’s length, so the first element has no value.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># rolling(2) means that we use a sliding window of length 2</span>
 <span class="n">ts</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
@@ -306,8 +308,12 @@ Name: Sales, dtype: float64 ### 5. Computing moving average with PyTorch
 </code></pre></div></div>
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">))</span>
 </code></pre></div></div>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>36 ```python ts_tensor = torch.Tensor(ts).reshape(1, 1, -1) ``` Let's stop here for a moment. If you are not familiar with deep learning frameworks, you would be quite confused because of this `reshape` operation. What did we do above? We created a **3-dimensional tensor**; each number in `reshape` function describes respectively:
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>36
 </code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ts_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+<p>Let’s stop here for a moment. If you are not familiar with deep learning frameworks, you would be quite confused because of this <code class="highlighter-rouge">reshape</code> operation. What did we do above? We created a <strong>3-dimensional tensor</strong>; each number in <code class="highlighter-rouge">reshape</code> function describes respectively:</p>
 
 <ol>
   <li>number of samples</li>
