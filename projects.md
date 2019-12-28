@@ -15,10 +15,12 @@ sidebar_link: true
 <br>_Miscellaneous algorithms for processing sequences and time series_
 
 ### R
-* [**wayfarer**](https://krzjoa.github.io/wayfarer)
-<br>_Tools for working with Awesome Lists_
 * [**awesome-r-dataviz**](https://krzjoa.github.io/awesome-r-dataviz)
 <br>_Curated resources for Data Visualization in R._
+* [**matricks**](https://github.com/krzjoa/matricks)
+<br>_Useful tools for matrix manipulation_
+* [**wayfarer**](https://krzjoa.github.io/wayfarer)
+<br>_Tools for working with Awesome Lists_
 
 ### Datasets
 * [**Komentarze**](https://github.com/krzjoa/Komentarze)
