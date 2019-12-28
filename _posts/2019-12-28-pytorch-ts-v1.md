@@ -25,7 +25,7 @@ data = pd.read_csv("shampoo.csv")
 plt.plot(data['Sales'])
 plt.show()         
 ```
-![png](/assets/img/2019-12-28-pytorch-ts-v1/plot.png)
+![png](/assets/plot.png)
 
 In this plot we can see an increasing trend, but in this excercise, data characterics make no diffeence for us.
 
@@ -33,7 +33,7 @@ In this plot we can see an increasing trend, but in this excercise, data charact
 
 In the case of **univariate time series**, one-dimensional convolution is a sliding window applied over time series, an operation which consist of multiplications and additions. It was intuitively illustrated on the gif below.
 
-<img src="{{ site.url }}/assets/img/2019-12-28-pytorch-ts-v1/conv1d.gif" width="400">
+<img src="/assets/conv1d.gif" width="400">
 Source: https://blog.floydhub.com/reading-minds-with-deep-learning/
 
 As you can see, output depend on input and **kernel** values. Defining proper kernel, we can apply the operation we want. For example, using a **(0.5, 0.5)** kernel, it will give us a two-element moving average. To test that, let's do a simple experiment.
@@ -86,7 +86,9 @@ import torch.nn.functional as F
 ```python
 print(len(ts))
 ```
+
     36
+
 
 ```python
 ts_tensor = torch.Tensor(ts).reshape(1, 1, -1)
