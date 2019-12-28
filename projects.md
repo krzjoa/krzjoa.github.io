@@ -18,11 +18,11 @@ sidebar_link: true
 * [**awesome-r-dataviz**](https://krzjoa.github.io/awesome-r-dataviz)
 <br>_Curated resources for Data Visualization in R._
 * [**matricks**](https://github.com/krzjoa/matricks)
-<br>_Useful tools for matrix manipulation_
+<br>_Useful tricks for matrix manipulation_
 * [**wayfarer**](https://krzjoa.github.io/wayfarer)
 <br>_Tools for working with Awesome Lists_
 
 ### Datasets
 * [**Komentarze**](https://github.com/krzjoa/Komentarze)
-<br>_A NLP dataset of Internet comments (in Polish) to filter the hateful ones. 
+<br>_A NLP dataset of Internet comments (in Polish) to filter the hateful ones.
 <br>Gathered for my master's thesis project in 2015/2016._
