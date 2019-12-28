@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Time Series & PyTorch - Training network to compute moving average"
-categories: [EN, Python, PyTorch, Time Series]
+tags: [EN, Python, PyTorch, Time Series]
 
 ---
 
@@ -10,7 +10,6 @@ When it comes to applying neural networks to Time Series processing (or other ki
 ### 1. Downloading the data
 First thing we have to do is to download or create fake time serie dataset. Let get a Shampoo sales dataset published by Rob Hyndman in his **R package** `fma` (which was a software appedix for the book *Forecasting: Methods and Applications*). Originally this dataset can be found inside R script, but as we work with a Python libary PyTorch, it be better for us to load this data from csv file. Such file can be found, for instance, [here](https://raw.githubusercontent.com/jbrownlee/Datasets/master/shampoo.csv). Supposing we work in **Jupyter Notebook** on Linux, we can fetch this data running following command:
 
-
 ```python
 ## Download dataset
 !wget https://raw.githubusercontent.com/jbrownlee/Datasets/master/shampoo.csv
@@ -18,22 +17,15 @@ First thing we have to do is to download or create fake time serie dataset. Let 
 
 ### 2. Loading data and simple visualization
 
-
 ```python
 import pandas as pd
 import matplotlib.pyplot as plt
-```
 
-
-```python
 data = pd.read_csv("shampoo.csv")
 plt.plot(data['Sales'])
 plt.show()         
 ```
-
-
-![png](Time%20Series%20%26%20PyTorch%20-%20Training%20network%20to%20compute%20moving%20average_files/Time%20Series%20%26%20PyTorch%20-%20Training%20network%20to%20compute%20moving%20average_5_0.png)
-
+![png]({{ site.url }}/assets/img/2019-12-28-pytorch-ts-v1/plot.png)
 
 In this plot we can see an increasing trend, but in this excercise, data characterics make no diffeence for us.
 
@@ -41,22 +33,17 @@ In this plot we can see an increasing trend, but in this excercise, data charact
 
 In the case of **univariate time series**, one-dimensional convolution is a sliding window applied over time series, an operation which consist of multiplications and additions. It was intuitively illustrated on the gif below.
 
-<img src="conv1d.gif" width="400">
+<img src="{{ site.url }}/assets/img/2019-12-28-pytorch-ts-v1/conv1d.gif" width="400">
 Source: https://blog.floydhub.com/reading-minds-with-deep-learning/
 
 As you can see, output depend on input and **kernel** values. Defining proper kernel, we can apply the operation we want. For example, using a **(0.5, 0.5)** kernel, it will give us a two-element moving average. To test that, let's do a simple experiment.
 
 ### 4. Computing moving average with `pandas`
 
-
 ```python
 ts = data.Sales
 ts.head(10)
 ```
-
-
-
-
     0    266.0
     1    145.9
     2    183.1
@@ -68,20 +55,12 @@ ts.head(10)
     8    192.8
     9    122.9
     Name: Sales, dtype: float64
-
-
-
 Using `pandas`, we can compute moving average by combining `rolling` and `mean` method calls. We use `head` method as well, to limit the output. By the way, this example shows the object-oriented nature of `pandas`, which allows us to chain following methodc calls. Other fact that is worth to mention is a **NaN** occurrence in the first row. It's because we can't compute moving avearge for the first element if we haven't added any padding on the beginnng of the array; moreover, `pandas` keeps the input's length, so the first element has no value.
-
 
 ```python
 # rolling(2) means that we use a sliding window of length 2
 ts.rolling(2).mean().head(10)
 ```
-
-
-
-
     0       NaN
     1    205.95
     2    164.50
@@ -93,13 +72,9 @@ ts.rolling(2).mean().head(10)
     8    208.65
     9    157.85
     Name: Sales, dtype: float64
-
-
-
 ### 5. Computing moving average with PyTorch
 
 Now, let's reproduce this result using 1-dimensional convolution from PyTorch.
-
 
 ```python
 import torch
@@ -107,20 +82,13 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 ```
-
-
 ```python
 print(len(ts))
 ```
-
     36
-
-
-
 ```python
 ts_tensor = torch.Tensor(ts).reshape(1, 1, -1)
 ```
-
 Let's stop here for a moment. If you are not familiar with deep learning frameworks, you would be quite confused because of this `reshape` operation. What did we do above? We created a **3-dimensional tensor**; each number in `reshape` function describes respectively:
 
 1. number of samples
@@ -135,19 +103,11 @@ Meaning of this values requires some explanation.
 
 We have to do the same with the kernel.
 
-
 ```python
 kernel = [0.5, 0.5]
 kernel_tensor = torch.Tensor(kernel).reshape(1, 1, -1)
-```
-
-
-```python
 F.conv1d(ts_tensor, kernel_tensor)
 ```
-
-
-
 
     tensor([[[205.9500, 164.5000, 151.2000, 149.8000, 174.4000, 200.1500, 228.1500,
               208.6500, 157.8500, 229.7000, 261.2000, 190.1000, 171.9000, 179.8000,
@@ -155,14 +115,11 @@ F.conv1d(ts_tensor, kernel_tensor)
               343.0500, 303.4000, 341.0000, 390.0500, 378.1500, 377.6000, 420.3000,
               419.3500, 506.4500, 491.5500, 544.8000, 578.6500, 528.3000, 614.1000]]])
 
-
-
 As we can observe, the result is identical with values returned by `pandas` methods. The only difference is lack of **NaN** on the beginning.
 
 ### 6. Learning a network, which computes moving average
 
 Now, let's get to the point and train the network on the fully controllable example. I've called in this manner to distinguish it from the real-life ones. In most cases, when we train a machine learning model, we don't know the optimal parameter values. We are just trying to choose the best ones, but have no guarantee that they are globally optimal. Here, the optimal kernel value is known and should equal **[0.2, 0.2, 0.2, 0.2, 0.2]**.
-
 
 ```python
 X = data.Sales
@@ -171,7 +128,6 @@ X_tensor = torch.Tensor(X).reshape(1,1,-1)
 
 In the step below, we are preparing **targets** (**labels**), which equals to the five-element moving average.
 
-
 ```python
 y = data.Sales.rolling(5).mean()
 y = y[4:, ].to_numpy()
@@ -179,62 +135,38 @@ y_tensor = torch.Tensor(y).reshape(1,1,-1)
 y_tensor
 ```
 
-
-
-
     tensor([[[178.9200, 159.4200, 176.6000, 184.8800, 199.5800, 188.1000, 221.7000,
               212.5200, 206.4800, 197.8200, 215.2600, 202.6200, 203.7200, 222.2600,
               237.5600, 256.2600, 259.5800, 305.6200, 301.1200, 324.3800, 331.6000,
               361.7000, 340.5600, 375.5200, 387.3200, 406.8600, 433.8800, 452.2200,
               500.7600, 515.5600, 544.3400, 558.6200]]])
 
-
-
 We are building a one-layer convlutional neural network. It's good to highlight, that **we don't use any nonlinear activation function**. Last numerical value describes the length of the kernel, *padding_mode = 'valid'* means that we don't add any padding to the input, so we have to expect that output will be "trimmed".
-
 
 ```python
 # Building a network
 net = nn.Conv1d(1, 1, 5, padding_mode = "valid", bias = False)
 ```
-
 Kernel is already initialized with, assume it for simplicity, *random* values.
-
 
 ```python
 # Initial values
 net.weight.data.numpy()
 ```
-
-
-
-
     array([[[-0.26035744, -0.03702363,  0.36730862, -0.02416185,
               0.13382941]]], dtype=float32)
 
-
-
 We can perfom a convolution operation using this random value, calling **net.forward()** or simply **net()** (because Conv1d layer is a [callable object](https://stackoverflow.com/questions/5824881/python-call-special-method-practical-example/5826283)). This two operations are equivalent.
-
-
 ```python
 net(X_tensor)
 ```
-
-
-
-
     tensor([[[ 13.8443,  17.2486,  41.0878,  48.5995,  52.3392,  41.7977,  44.2186,
                -3.6977,  90.3636,  39.1391,   1.3805,  30.8177,  40.0606,  87.4678,
                28.7942,  62.3456,  54.0152,  77.8429,  61.6129, 104.4986,  43.2576,
                56.9010,  74.8728, 111.2240,  54.3756,  83.8423, 115.3400,  72.0719,
               172.1338,  61.6583, 151.8888, 115.7389]]],
            grad_fn=<SqueezeBackward1>)
-
-
-
 We are initializing an optimizer object. I highly encourage you to experiment and start with **SGD** which may do not converge.
-
 
 ```python
 # Training a network
@@ -243,7 +175,6 @@ optimizer = optim.Adam(net.parameters(), lr=0.01)
 ```
 
 Here, he have only one example so it does not make sense to divide training into epochs
-
 
 ```python
 running_loss = 0.0
@@ -315,7 +246,6 @@ for iteration in range(1001):
     [[[0.17915842 0.19239034 0.21672578 0.20961851 0.19960271]]]
     [1000] loss: 1.178
     [[[0.18355425 0.19356234 0.21304895 0.20796107 0.19985096]]]
-
 
 As we can see in this example, algorithm converges and parameter values are becoming close to the **true solution**, i.e.
 **[0.2, 0.2, 0.2, 0.2, 0.2]**.
