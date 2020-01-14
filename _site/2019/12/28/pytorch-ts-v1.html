@@ -211,7 +211,7 @@
 </nav>
 
   <p>
-  &copy; 2019.
+  &copy; 2020.
   <a href="/LICENSE.md">MIT License.</a>
 </p>
 
@@ -250,7 +250,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">'Sales'</span><span class="p">])</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>         
 </code></pre></div></div>
-<p><img src="/assets/plot.png" alt="png" /></p>
+<p><img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/blob/master/assets/img/2019-19-28-pytorch-ts-v1/plot.png" alt="png" /></p>
 
 <p>In this plot we can see an increasing trend, but in this excercise, data characterics make no diffeence for us.</p>
 
@@ -258,7 +258,7 @@
 
 <p>In the case of <strong>univariate time series</strong>, one-dimensional convolution is a sliding window applied over time series, an operation which consist of multiplications and additions. It was intuitively illustrated on the gif below.</p>
 
-<p><img src="https://github.com/krzjoa/krzjoa.github.io/blob/master/assets/img/2019-19-28-pytorch-ts-v1/conv1d.gif" width="400" />
+<p><img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/blob/master/assets/img/2019-19-28-pytorch-ts-v1/conv1d.gif" width="400" />
 Source: https://blog.floydhub.com/reading-minds-with-deep-learning/</p>
 
 <p>As you can see, output depend on input and <strong>kernel</strong> values. Defining proper kernel, we can apply the operation we want. For example, using a <strong>(0.5, 0.5)</strong> kernel, it will give us a two-element moving average. To test that, let’s do a simple experiment.</p>
@@ -308,7 +308,6 @@ Name: Sales, dtype: float64 ### 5. Computing moving average with PyTorch
 </code></pre></div></div>
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">))</span>
 </code></pre></div></div>
-
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>36
 </code></pre></div></div>
 
@@ -336,7 +335,6 @@ Name: Sales, dtype: float64 ### 5. Computing moving average with PyTorch
 <span class="n">kernel_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">F</span><span class="o">.</span><span class="n">conv1d</span><span class="p">(</span><span class="n">ts_tensor</span><span class="p">,</span> <span class="n">kernel_tensor</span><span class="p">)</span>
 </code></pre></div></div>
-
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>tensor([[[205.9500, 164.5000, 151.2000, 149.8000, 174.4000, 200.1500, 228.1500,
           208.6500, 157.8500, 229.7000, 261.2000, 190.1000, 171.9000, 179.8000,
           241.7000, 232.3500, 239.2000, 256.5000, 264.8000, 296.7500, 355.7500,
@@ -361,7 +359,6 @@ Name: Sales, dtype: float64 ### 5. Computing moving average with PyTorch
 <span class="n">y_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">y_tensor</span>
 </code></pre></div></div>
-
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>tensor([[[178.9200, 159.4200, 176.6000, 184.8800, 199.5800, 188.1000, 221.7000,
           212.5200, 206.4800, 197.8200, 215.2600, 202.6200, 203.7200, 222.2600,
           237.5600, 256.2600, 259.5800, 305.6200, 301.1200, 324.3800, 331.6000,
@@ -427,7 +424,6 @@ Name: Sales, dtype: float64 ### 5. Computing moving average with PyTorch
         <span class="k">print</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
 
 </code></pre></div></div>
-
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[0] loss: 65233.992
 [[[-0.25035745 -0.02702364  0.3773086  -0.01416185  0.14382942]]]
 [50] loss: 766.905
