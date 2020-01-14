@@ -25,7 +25,7 @@ data = pd.read_csv("shampoo.csv")
 plt.plot(data['Sales'])
 plt.show()         
 ```
-![png](/assets/plot.png)
+![png](https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/blob/master/assets/img/2019-19-28-pytorch-ts-v1/plot.png)
 
 In this plot we can see an increasing trend, but in this excercise, data characterics make no diffeence for us.
 
@@ -33,7 +33,7 @@ In this plot we can see an increasing trend, but in this excercise, data charact
 
 In the case of **univariate time series**, one-dimensional convolution is a sliding window applied over time series, an operation which consist of multiplications and additions. It was intuitively illustrated on the gif below.
 
-<img src="https://github.com/krzjoa/krzjoa.github.io/blob/master/assets/img/2019-19-28-pytorch-ts-v1/conv1d.gif" width="400">
+<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/blob/master/assets/img/2019-19-28-pytorch-ts-v1/conv1d.gif" width="400">
 Source: https://blog.floydhub.com/reading-minds-with-deep-learning/
 
 As you can see, output depend on input and **kernel** values. Defining proper kernel, we can apply the operation we want. For example, using a **(0.5, 0.5)** kernel, it will give us a two-element moving average. To test that, let's do a simple experiment.
@@ -86,9 +86,7 @@ import torch.nn.functional as F
 ```python
 print(len(ts))
 ```
-
     36
-
 
 ```python
 ts_tensor = torch.Tensor(ts).reshape(1, 1, -1)
@@ -112,7 +110,6 @@ kernel = [0.5, 0.5]
 kernel_tensor = torch.Tensor(kernel).reshape(1, 1, -1)
 F.conv1d(ts_tensor, kernel_tensor)
 ```
-
     tensor([[[205.9500, 164.5000, 151.2000, 149.8000, 174.4000, 200.1500, 228.1500,
               208.6500, 157.8500, 229.7000, 261.2000, 190.1000, 171.9000, 179.8000,
               241.7000, 232.3500, 239.2000, 256.5000, 264.8000, 296.7500, 355.7500,
@@ -138,7 +135,6 @@ y = y[4:, ].to_numpy()
 y_tensor = torch.Tensor(y).reshape(1,1,-1)
 y_tensor
 ```
-
     tensor([[[178.9200, 159.4200, 176.6000, 184.8800, 199.5800, 188.1000, 221.7000,
               212.5200, 206.4800, 197.8200, 215.2600, 202.6200, 203.7200, 222.2600,
               237.5600, 256.2600, 259.5800, 305.6200, 301.1200, 324.3800, 331.6000,
@@ -207,7 +203,6 @@ for iteration in range(1001):
         print(net.weight.data.numpy())
 
 ```
-
     [0] loss: 65233.992
     [[[-0.25035745 -0.02702364  0.3773086  -0.01416185  0.14382942]]]
     [50] loss: 766.905
