@@ -19,6 +19,8 @@ sidebar_link: true
 <br>_Curated resources for Data Visualization in R._
 * [**matricks**](https://github.com/krzjoa/matricks)
 <br>_Useful tricks for matrix manipulation_
+* [**sponge**](https://github.com/krzjoa/sponge)
+<br>_A small utility which makes selective objects removing easier_
 * [**wayfarer**](https://krzjoa.github.io/wayfarer)
 <br>_Tools for working with Awesome Lists_
 
