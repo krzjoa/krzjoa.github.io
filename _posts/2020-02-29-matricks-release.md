@@ -189,7 +189,7 @@ print(rmat)
 plot(rmat)
 ```
 
-![png](https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-02-29-matricks-release/matricks.runifm-1.png)
+![png](https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-02-29-matricks-release/runifm_print.png)
 
 
 And here the same using a matrix of random boolean values (`rboolm`).
@@ -208,7 +208,7 @@ print(rmat)
 ``` r
 plot(rmat)
 ```
-![png](https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-02-29-matricks-release/matricks.rboolm-1.png)
+![png](https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-02-29-matricks-release/rboolm_print.png)
 
 ### Operators
 
