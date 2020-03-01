@@ -3,6 +3,17 @@ layout: page
 title: Projects
 sidebar_link: true
 ---
+### R
+* [**awesome-r-dataviz**](https://krzjoa.github.io/awesome-r-dataviz)
+<br>_Curated resources for Data Visualization in R._
+* [**matricks**](https://github.com/krzjoa/matricks)
+<br>_Useful tricks for matrix manipulation_
+* [**eponge**](https://github.com/krzjoa/eponge)
+<br>_A small utility which makes selective objects removing easier_
+* [**path.chain**](https://github.com/krzjoa/path.chain)
+<br>_Concise structure for path chaining_
+* [**wayfarer**](https://krzjoa.github.io/wayfarer)
+<br>_Tools for working with Awesome Lists_
 
 ### Python
 * [**awesome-python-data-science**](https://krzjoa.github.io/awesome-python-data-science)
@@ -13,16 +24,6 @@ sidebar_link: true
 <br>_Metrics for Kaggle competitions_
 * [**sciquence**](https://github.com/krzjoa/sciquence)
 <br>_Miscellaneous algorithms for processing sequences and time series_
-
-### R
-* [**awesome-r-dataviz**](https://krzjoa.github.io/awesome-r-dataviz)
-<br>_Curated resources for Data Visualization in R._
-* [**matricks**](https://github.com/krzjoa/matricks)
-<br>_Useful tricks for matrix manipulation_
-* [**sponge**](https://github.com/krzjoa/sponge)
-<br>_A small utility which makes selective objects removing easier_
-* [**wayfarer**](https://krzjoa.github.io/wayfarer)
-<br>_Tools for working with Awesome Lists_
 
 ### Datasets
 * [**Komentarze**](https://github.com/krzjoa/Komentarze)

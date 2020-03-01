@@ -7,7 +7,7 @@ tags: [EN, R, matricks, algebra]
 
 <a href="https://krzjoa.github.io/matricks"><img src='https://raw.githubusercontent.com/krzjoa/matricks/master/man/figures/logo.png' align="right" height="139" style="height:139px;" /></a>
 `matricks` package in **0.8.2** version has been released on CRAN! In
-this post I will present you, what are advantagese of using `matricks`
+this post I will present you, what are advantages of using `matricks`
 and how you can use it.
 
 
@@ -135,7 +135,7 @@ inconvenient. Consider situation shown below:
 
 ``` r
 sample.matrix <- matrix(1, 3, 3)
-matrix.indices <- list(c(1, 1), c(1, 2), 
+matrix.indices <- list(c(1, 1), c(1, 2),
                        c(1, 3), c(2, 2),
                        c(3, 1), c(3, 3))
 
@@ -155,7 +155,7 @@ It can be expressed conciser using matrix `at` function.
 
 ``` r
 sample.matrix <- matrix(1, 3, 3)
-matrix.indices <- list(c(1, 1), c(1, 2), 
+matrix.indices <- list(c(1, 1), c(1, 2),
                        c(1, 3), c(2, 2),
                        c(3, 1), c(3, 3))
 
