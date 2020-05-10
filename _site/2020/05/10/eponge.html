@@ -11,7 +11,7 @@
 
   <title>
     
-      krzjoa &middot; Blog about AI
+      eponge: Keep Your Environment Clean &middot; krzjoa
     
   </title>
 
@@ -35,21 +35,26 @@
 </head>
 
 
-  <body class="index home">
+  <body class="post">
 
     <div id="sidebar">
   <header>
-    <h1 class="site-title">
+    <div class="site-title">
       <a href="/">
+        
+          <span class="back-arrow icon"><svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0 0h24v24H0z" fill="none"/>
+  <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+</svg></span>
         
         krzjoa
       </a>
-    </h1>
+    </div>
     <p class="lead">Getting at the Truth</p>
   </header>
   <nav id="sidebar-nav-links">
   
-    <a class="home-link  active"
+    <a class="home-link "
         href="/">Home</a>
   
   
@@ -278,20 +283,11 @@
 
 
     <main class="container">
-      <div class="content">
-  
-
-
-  
-
-  
-  <article class="post-body">
-    <h2 class="post-title">
-      <a href="/2020/05/10/eponge.html">
-        eponge: Keep Your Environment Clean
-      </a>
-    </h2>
-    <div class="post-meta">
+      <header>
+  <h1 class="post-title">eponge: Keep Your Environment Clean</h1>
+</header>
+<div class="content">
+  <div class="post-meta">
   <span class="post-date">10 May 2020</span>
   <span class="post-categories">
     
@@ -299,90 +295,167 @@
 </div>
 
 
+  <div class="post-body">
+    <p><a href="https://krzjoa.github.io/matricks"><img src="https://raw.githubusercontent.com/krzjoa/eponge/master/man/figures/logo.png" align="right" height="139" style="height:139px;" /></a></p>
+
+<p><code class="highlighter-rouge">eponge</code> is a small package, which facilitates selective object removal.
+It was released on
+<a href="https://cran.r-project.org/web/packages/eponge/index.html">CRAN</a> at
+23th March 2020. Initially, the package was named <code class="highlighter-rouge">sponge</code>, but during
+first submission trial I found out, that currently there exists the
+<a href="https://www.bioconductor.org/packages/release/bioc/html/SPONGE.html">SPONGE</a>
+package, availbale on BioConductor. Because of that, I decided to rename
+my package, changing only one letter. The package was given a new name:
+<code class="highlighter-rouge">eponge</code>, which simply means <em>sponge</em> in
+<a href="https://en.wiktionary.org/wiki/%C3%A9ponge">French</a>. Let me present,
+what the package was created for.</p>
+
+<h2 id="removing-objects-by-name">Removing objects by name</h2>
+
+<p>Typically, when we want to remove all objects from the <strong>global
+environment</strong>, we can use click the broom icon in RStudio (supposing we
+use this IDE - but in most cases, we do). Alternatively, we can obtain
+the same results combining <code class="highlighter-rouge">rm</code> with <code class="highlighter-rouge">ls</code>.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Remove all the objects</span><span class="w">
+</span><span class="n">rm</span><span class="p">(</span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ls</span><span class="p">())</span><span class="w">
+</span><span class="c1"># Remove object with 'iris' in its name</span><span class="w">
+</span><span class="n">rm</span><span class="p">(</span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ls</span><span class="p">(</span><span class="n">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"iris"</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="highlighter-rouge">eponge</code> offers a an equivalent shortcut: <code class="highlighter-rouge">erase</code> function. It’s
+particularly handy when we want to select some set of objects using
+regex pattern.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Remove all the objects</span><span class="w">
+</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase</span><span class="p">()</span><span class="w"> 
+</span><span class="c1"># Remove object with 'iris' in its name</span><span class="w">
+</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase</span><span class="p">(</span><span class="s2">"iris"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="removing-objects-by-type">Removing objects by type</h2>
+
+<p><code class="highlighter-rouge">epnoge</code> becomes even more useful, when we want to precisely remove a
+tiny subset of objects. Normally, we would use a combination of <code class="highlighter-rouge">ls</code>,
+<code class="highlighter-rouge">get</code> and <code class="highlighter-rouge">rm</code> functions. If we don’t want to recreate such code from
+scratch, <code class="highlighter-rouge">eponge</code> do it for us:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Erasing by type</span><span class="w">
+</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase_if</span><span class="p">(</span><span class="n">is.character</span><span class="p">)</span><span class="w">
+</span><span class="c1"># We can use a regex pattern to identify the objects we want</span><span class="w">
+</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase_functions</span><span class="p">(</span><span class="s2">"prepare_"</span><span class="p">)</span><span class="w">
+</span><span class="c1"># We can clean whole section in RStudio Envitonment tab</span><span class="w">
+</span><span class="c1"># Remove all the objects named in RStudio as "Data"</span><span class="w">
+</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase_data</span><span class="p">()</span><span class="w">
+</span><span class="c1"># Remove all the "Values" in RStidio</span><span class="w">
+</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase_values</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="removing-masking-objects">Removing masking objects</h2>
+
+<p>As we know, homonime objects mask each other. If we want to get rid of
+such objects from our environment, the most convenient way to do that is
+<code class="highlighter-rouge">eponge</code>’s <code class="highlighter-rouge">erase_masking_*</code> function family. At the moment, it embraces
+two functions:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">erase_masking</code></li>
+  <li><code class="highlighter-rouge">erase_masking_functions</code></li>
+</ul>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">log</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="n">print</span><span class="p">(</span><span class="n">paste0</span><span class="p">(</span><span class="s2">"Logging:"</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">))</span><span class="w">
+</span><span class="n">cars</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">idx</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="m">10</span><span class="p">,</span><span class="w">
+                   </span><span class="n">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">runif</span><span class="p">(</span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="m">30</span><span class="p">,</span><span class="w"> </span><span class="m">50</span><span class="p">))</span><span class="w">
+</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase_masking</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="highlighter-rouge">eponge</code> allows you to keep your R environments clean in easy way. Try
+it yourself!</p>
+
     
-      <p><a href="https://krzjoa.github.io/matricks"><img src="https://raw.githubusercontent.com/krzjoa/eponge/master/man/figures/logo.png" align="right" height="139" style="height:139px;" /></a></p>
 
 
-    
 
-    
-      
-      
-      
-
-      
-        <a href="/2020/05/10/eponge.html">More &hellip;</a>
-      
-    
-  </article>
+<div class="post-tags">
   
-  <article class="post-body">
-    <h2 class="post-title">
-      <a href="/2020/02/29/matricks-release.html">
-        matricks 0.8.2 available on CRAN
-      </a>
-    </h2>
-    <div class="post-meta">
-  <span class="post-date">29 Feb 2020</span>
-  <span class="post-categories">
     
-  </span>
+    <a href="/tags.html#en">
+    
+      <span class="icon">
+        <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 0h24v24H0z" fill="none"/>
+    <path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z"/>
+</svg>
+      </span>&nbsp;<span class="tag-name">EN</span>
+    </a>
+  
+    
+    <a href="/tags.html#r">
+    
+      <span class="icon">
+        <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 0h24v24H0z" fill="none"/>
+    <path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z"/>
+</svg>
+      </span>&nbsp;<span class="tag-name">R</span>
+    </a>
+  
+    
+    <a href="/tags.html#eponge">
+    
+      <span class="icon">
+        <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 0h24v24H0z" fill="none"/>
+    <path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z"/>
+</svg>
+      </span>&nbsp;<span class="tag-name">eponge</span>
+    </a>
+  
 </div>
-
-
-    
-      <p><a href="https://krzjoa.github.io/matricks"><img src="https://raw.githubusercontent.com/krzjoa/matricks/master/man/figures/logo.png" align="right" height="139" style="height:139px;" /></a>
-<code class="highlighter-rouge">matricks</code> package in <strong>0.8.2</strong> version has been released on CRAN! In
-this post I will present you, what are advantages of using <code class="highlighter-rouge">matricks</code>
-and how you can use it.</p>
-
-
-    
-
-    
-      
-      
-      
-
-      
-        <a href="/2020/02/29/matricks-release.html">More &hellip;</a>
-      
-    
-  </article>
-  
-  <article class="post-body">
-    <h2 class="post-title">
-      <a href="/2019/12/28/pytorch-ts-v1.html">
-        Time Series & PyTorch - Training network to compute moving average
-      </a>
-    </h2>
-    <div class="post-meta">
-  <span class="post-date">28 Dec 2019</span>
-  <span class="post-categories">
-    
-  </span>
-</div>
-
-
-    
-      <p>When it comes to applying neural networks to Time Series processing (or other kind of sequential data), first words that we’ll probably think of are <strong>recurrent</strong> and <strong>convolutional</strong> layers. That’s absolutely right! In this post we’ll pass, step-by-step, through one of the simpliest examples of convolutional layer application i.e. training network to compute moving average. Such example may seem to not be practical, however its simplicity allows us to trace whole process and understand, how to control network’s behaviour, to model the way the network works.</p>
-
-
-    
-
-    
-      
-      
-      
-
-      
-        <a href="/2019/12/28/pytorch-ts-v1.html">More &hellip;</a>
-      
-    
-  </article>
-  
+  </div>
 
   
+  <section class="comments">
+    <h2>Comments</h2>
+    
+  <p>
+    You are seeing this because your Disqus shortname is not properly set. To
+    configure Disqus, you should edit your <code>_config.yml</code> to include
+    either a <code>disqus.shortname</code> variable.
+  </p>
+
+  <p>
+    If you do not wish to use Disqus, override the
+    <code>comments.html</code> partial for this theme.
+  </p>
+
+
+  </section>
+
+  <section class="related">
+  <h2>Related Posts</h2>
+  <ul class="posts-list">
+    
+      <li>
+        <h3>
+          <a href="/2020/02/29/matricks-release.html">
+            matricks 0.8.2 available on CRAN
+            <small>29 Feb 2020</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/2019/12/28/pytorch-ts-v1.html">
+            Time Series & PyTorch - Training network to compute moving average
+            <small>28 Dec 2019</small>
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</section>
 
 </div>
 
