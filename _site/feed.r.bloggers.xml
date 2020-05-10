@@ -5,16 +5,15 @@
         <description>Getting at the Truth</description>
         <link>https://krzjoa.github.io/</link>
         <atom:link href="https://krzjoa.github.io/feed.rbloggers.xml" rel="self" type="application/rss+xml"/>
-        <pubDate>Sun, 10 May 2020 21:54:18 +0200</pubDate>
-        <lastBuildDate>Sun, 10 May 2020 21:54:18 +0200</lastBuildDate>
+        <pubDate>Sun, 10 May 2020 21:57:35 +0200</pubDate>
+        <lastBuildDate>Sun, 10 May 2020 21:57:35 +0200</lastBuildDate>
         <generator>Jekyll v3.1.6</generator>
         
             <item>
                 <title>eponge: Keep Your Environment Clean</title>
                 <author>your_blog_email@host.com (Your Name)</author>
-                <description>&lt;p&gt;&lt;a href=&quot;https://krzjoa.github.io/matricks&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/krzjoa/eponge/master/man/figures/logo.png&quot; align=&quot;right&quot; height=&quot;139&quot; style=&quot;height:139px;&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;eponge&lt;/code&gt; is a small package, which facilitates selective object removal.
+                <description>&lt;p&gt;&lt;a href=&quot;https://krzjoa.github.io/matricks&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/krzjoa/eponge/master/man/figures/logo.png&quot; align=&quot;right&quot; height=&quot;139&quot; style=&quot;height:139px;&quot; /&gt;&lt;/a&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;eponge&lt;/code&gt; is a small package, which facilitates selective object removal.
 It was released on
 &lt;a href=&quot;https://cran.r-project.org/web/packages/eponge/index.html&quot;&gt;CRAN&lt;/a&gt; at
 23th March 2020. Initially, the package was named &lt;code class=&quot;highlighter-rouge&quot;&gt;sponge&lt;/code&gt;, but during
