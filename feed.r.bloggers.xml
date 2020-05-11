@@ -14,7 +14,7 @@ layout: null
         {% for post in site.tags["R"] %}
             <item>
                 <title>{{ post.title | xml_escape }}</title>
-                <author>your_blog_email@host.com (Your Name)</author>
+                <author>https://krzjoa.github.io (Krzysztof Joachimiak)</author>
                 <description>{{ post.content | xml_escape }}</description>
                 <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
                 <link>{{ post.url | prepend: site.baseurl | prepend: site.url }}</link>
