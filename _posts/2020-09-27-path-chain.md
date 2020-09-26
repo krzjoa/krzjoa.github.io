@@ -4,12 +4,10 @@ title: "path.chain: Concise Structure for Chainable Paths"
 tags: [EN, R, eponge]
 
 ---
-
+<a href="https://krzjoa.github.io/path.chain"><img src='https://raw.githubusercontent.com/krzjoa/path.chain/master/man/figures/logo.png' align="right" height="139" style="height:139px;" /></a>
 `path.chain` package provides an intuitive and easy-to-use system of
 nested objects, which represents different levels of some directory’s
 structure in the file system. It allows us to
-
-<a href="https://krzjoa.github.io/path.chain"><img src='https://raw.githubusercontent.com/krzjoa/path.chain/master/man/figures/logo.png' align="right" height="139" style="height:139px;" /></a>
 
 Look at the `path.chain`
 ------------------------
