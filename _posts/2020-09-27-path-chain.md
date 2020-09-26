@@ -105,5 +105,5 @@ on_validate_path(
 on_path_not_exists(~ log_error("Path {.x} not exists"))
 ```
 
-To learn mor, read the [package
+To learn more, read the [package
 documentation](https://krzjoa.github.io/path.chain/index.html).
