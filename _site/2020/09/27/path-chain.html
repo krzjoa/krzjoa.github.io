@@ -11,7 +11,7 @@
 
   <title>
     
-      eponge: Keep Your Environment Clean &middot; krzjoa
+      path.chain: Concise Structure for Chainable Paths &middot; krzjoa
     
   </title>
 
@@ -284,11 +284,11 @@
 
     <main class="container">
       <header>
-  <h1 class="post-title">eponge: Keep Your Environment Clean</h1>
+  <h1 class="post-title">path.chain: Concise Structure for Chainable Paths</h1>
 </header>
 <div class="content">
   <div class="post-meta">
-  <span class="post-date">10 May 2020</span>
+  <span class="post-date">27 Sep 2020</span>
   <span class="post-categories">
     
   </span>
@@ -296,80 +296,104 @@
 
 
   <div class="post-body">
-    <p><a href="https://krzjoa.github.io/matricks"><img src="https://raw.githubusercontent.com/krzjoa/eponge/master/man/figures/logo.png" align="right" height="139" style="height:139px;" /></a>
-<code class="highlighter-rouge">eponge</code> is a small package, which facilitates selective object removal.
-It was released on
-<a href="https://cran.r-project.org/web/packages/eponge/index.html">CRAN</a> at
-23th March 2020. Initially, the package was named <code class="highlighter-rouge">sponge</code>, but during
-first submission trial I found out, that currently there exists the
-<a href="https://www.bioconductor.org/packages/release/bioc/html/SPONGE.html">SPONGE</a>
-package, availbale on BioConductor. Because of that, I decided to rename
-my package, changing only one letter. The package was given a new name:
-<code class="highlighter-rouge">eponge</code>, which simply means <em>sponge</em> in
-<a href="https://en.wiktionary.org/wiki/%C3%A9ponge">French</a>. Let me present,
-what the package was created for.</p>
+    <p><code class="highlighter-rouge">path.chain</code> package provides an intuitive and easy-to-use system of
+nested objects, which represents different levels of some directory’s
+structure in the file system. It allows us to</p>
 
-<h2 id="removing-objects-by-name">Removing objects by name</h2>
+<p><a href="https://krzjoa.github.io/path.chain"><img src="https://raw.githubusercontent.com/krzjoa/path.chain/master/man/figures/logo.png" align="right" height="139" style="height:139px;" /></a></p>
 
-<p>Typically, when we want to remove all objects from the <strong>global
-environment</strong>, we can use click the broom icon in RStudio (supposing we
-use this IDE - but in most cases, we do). Alternatively, we can obtain
-the same results combining <code class="highlighter-rouge">rm</code> with <code class="highlighter-rouge">ls</code>.</p>
+<h2 id="look-at-the-pathchain">Look at the <code class="highlighter-rouge">path.chain</code></h2>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Remove all the objects</span><span class="w">
-</span><span class="n">rm</span><span class="p">(</span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ls</span><span class="p">())</span><span class="w">
-</span><span class="c1"># Remove object with 'iris' in its name</span><span class="w">
-</span><span class="n">rm</span><span class="p">(</span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ls</span><span class="p">(</span><span class="n">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"iris"</span><span class="p">))</span><span class="w">
+<p>Sometimes one picture can say more, than a thousand words, and this is
+exactly the case.</p>
+
+<center>
+<img src="https://raw.githubusercontent.com/krzjoa/path.chain/master/man/figures/path_chain.gif" />
+</center>
+<p>Motivation
+———-</p>
+
+<p>I’ve been working on the ML project, when we decided to keep strcture of
+the input data in the <strong>YAML</strong> config. The structure were getting
+complicated, and at some point on this history ou config get a form like
+this:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">default</span><span class="pi">:</span>
+  <span class="na">kData</span><span class="pi">:</span>
+    <span class="na">kRoot</span><span class="pi">:</span> <span class="s1">'</span><span class="s">our/super/dir'</span>
+    <span class="na">kTerroir</span><span class="pi">:</span>
+      <span class="na">kRoot</span><span class="pi">:</span> <span class="s1">'</span><span class="s">terroir'</span>
+      <span class="na">kSoils</span><span class="pi">:</span> <span class="s1">'</span><span class="s">soils.fst'</span>
+      <span class="na">kTemperature</span><span class="pi">:</span> <span class="s1">'</span><span class="s">temperature.fst'</span>
+      <span class="na">kRains</span><span class="pi">:</span> <span class="s1">'</span><span class="s">rains.fst'</span>
+    <span class="na">kWineQuality</span><span class="pi">:</span>
+      <span class="na">kChemicalParams</span><span class="pi">:</span> <span class="s1">'</span><span class="s">chemical_params.fst'</span>
+      <span class="na">kContestResults</span><span class="pi">:</span> <span class="s1">'</span><span class="s">contest_results.fst'</span>
+</code></pre></div></div>
+
+<p>For your infomation: the example above is totally fictitious and has
+nothing to do with the actual project I’ve been woking on. Moreover, in
+our project, several times more of paths were defined. As you can
+imagine, such structure forced us to load data in the following manner:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">config</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">config</span><span class="o">::</span><span class="n">get</span><span class="p">(</span><span class="w">
+  </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"default"</span><span class="w">
+  </span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"path/to/config"</span><span class="p">,</span><span class="w">
+  </span><span class="n">use_parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="w">  
+</span><span class="p">)</span><span class="w">
+
+</span><span class="n">path</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">file.path</span><span class="p">(</span><span class="w">
+  </span><span class="n">config</span><span class="o">$</span><span class="n">kData</span><span class="o">$</span><span class="n">kRoot</span><span class="p">,</span><span class="w">
+  </span><span class="n">config</span><span class="o">$</span><span class="n">kData</span><span class="o">$</span><span class="n">kTerroir</span><span class="o">$</span><span class="n">kRoot</span><span class="p">,</span><span class="w">
+  </span><span class="n">config</span><span class="o">$</span><span class="n">kData</span><span class="o">$</span><span class="n">kTerroir</span><span class="o">$</span><span class="n">kSoils</span><span class="w">
+</span><span class="p">)</span><span class="w">
+
+</span><span class="n">vineyard_soils</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">fst</span><span class="o">::</span><span class="n">read_fst</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="w">
 </span></code></pre></div></div>
 
-<p><code class="highlighter-rouge">eponge</code> offers a an equivalent shortcut: <code class="highlighter-rouge">erase</code> function. It’s
-particularly handy when we want to select some set of objects using
-regex pattern.</p>
+<p>Doesn’t it look redundant? So, I’ve written a <code class="highlighter-rouge">path.chain</code> package:
+using it we can perform the same action with less code:</p>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Remove all the objects</span><span class="w">
-</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase</span><span class="p">()</span><span class="w"> 
-</span><span class="c1"># Remove object with 'iris' in its name</span><span class="w">
-</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase</span><span class="p">(</span><span class="s2">"iris"</span><span class="p">)</span><span class="w">
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">path.chain</span><span class="p">)</span><span class="w">
+
+</span><span class="n">vineyard_soils</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">fst</span><span class="o">::</span><span class="n">read_fst</span><span class="p">(</span><span class="w">
+  </span><span class="n">config</span><span class="o">$</span><span class="n">kData</span><span class="o">$</span><span class="n">kTerroir</span><span class="o">$</span><span class="n">kSoils</span><span class="w">
+</span><span class="p">)</span><span class="w">
 </span></code></pre></div></div>
 
-<h2 id="removing-objects-by-type">Removing objects by type</h2>
+<p>Isn’t it nice for your eyes?</p>
 
-<p><code class="highlighter-rouge">epnoge</code> becomes even more useful, when we want to precisely remove a
-tiny subset of objects. Normally, we would use a combination of <code class="highlighter-rouge">ls</code>,
-<code class="highlighter-rouge">get</code> and <code class="highlighter-rouge">rm</code> functions. If we don’t want to recreate such code from
-scratch, <code class="highlighter-rouge">eponge</code> do it for us:</p>
+<p>If I would like to modify the config, say, with the following change,</p>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Erasing by type</span><span class="w">
-</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase_if</span><span class="p">(</span><span class="n">is.character</span><span class="p">)</span><span class="w">
-</span><span class="c1"># We can use a regex pattern to identify the objects we want</span><span class="w">
-</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase_functions</span><span class="p">(</span><span class="s2">"prepare_"</span><span class="p">)</span><span class="w">
-</span><span class="c1"># We can clean whole section in RStudio Envitonment tab</span><span class="w">
-</span><span class="c1"># Remove all the objects named in RStudio as "Data"</span><span class="w">
-</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase_data</span><span class="p">()</span><span class="w">
-</span><span class="c1"># Remove all the "Values" in RStidio</span><span class="w">
-</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase_values</span><span class="p">()</span><span class="w">
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">default</span><span class="pi">:</span>
+  <span class="na">kData</span><span class="pi">:</span>
+    <span class="na">kRoot</span><span class="pi">:</span> <span class="s1">'</span><span class="s">our/super/dir'</span>
+    <span class="na">kTerroir</span><span class="pi">:</span>
+      <span class="na">kRoot</span><span class="pi">:</span> <span class="s1">'</span><span class="s">terroir'</span>
+      <span class="na">kSoils</span><span class="pi">:</span> <span class="s1">'</span><span class="s">vineyard_soils.fst'</span> <span class="c1"># &lt;- This is the change</span>
+      <span class="na">kTemperature</span><span class="pi">:</span> <span class="s1">'</span><span class="s">temperature.fst'</span>
+      <span class="na">kRains</span><span class="pi">:</span> <span class="s1">'</span><span class="s">rains.fst'</span>
+    <span class="na">kWineQuality</span><span class="pi">:</span>
+      <span class="na">kChemicalParams</span><span class="pi">:</span> <span class="s1">'</span><span class="s">chemical_params.fst'</span>
+      <span class="na">kContestResults</span><span class="pi">:</span> <span class="s1">'</span><span class="s">contest_results.fst'</span>
+</code></pre></div></div>
+
+<p>the code is still working.</p>
+
+<p>What if we would like to reconfigure our list of paths wthout changing
+the code? It may probably break desired behaviour of our scripts, but
+with <code class="highlighter-rouge">path.chain</code> we can easily detect the cause looking into logs.
+Simply use <code class="highlighter-rouge">on_path_not_exists</code> or <code class="highlighter-rouge">on_validate_path</code></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">on_validate_path</span><span class="p">(</span><span class="w">
+  </span><span class="o">~</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="n">tools</span><span class="o">::</span><span class="n">file_ext</span><span class="p">(</span><span class="n">.x</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">'.fst'</span><span class="p">)</span><span class="w"> </span><span class="n">print</span><span class="p">(</span><span class="s2">"Invalid file"</span><span class="p">)</span><span class="w">
+</span><span class="p">)</span><span class="w">
+
+</span><span class="n">on_path_not_exists</span><span class="p">(</span><span class="o">~</span><span class="w"> </span><span class="n">log_error</span><span class="p">(</span><span class="s2">"Path {.x} not exists"</span><span class="p">))</span><span class="w">
 </span></code></pre></div></div>
 
-<h2 id="removing-masking-objects">Removing masking objects</h2>
-
-<p>As we know, homonime objects mask each other. If we want to get rid of
-such objects from our environment, the most convenient way to do that is
-<code class="highlighter-rouge">eponge</code>’s <code class="highlighter-rouge">erase_masking_*</code> function family. At the moment, it embraces
-two functions:</p>
-
-<ul>
-  <li><code class="highlighter-rouge">erase_masking</code></li>
-  <li><code class="highlighter-rouge">erase_masking_functions</code></li>
-</ul>
-
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">log</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="n">print</span><span class="p">(</span><span class="n">paste0</span><span class="p">(</span><span class="s2">"Logging:"</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">))</span><span class="w">
-</span><span class="n">cars</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="n">idx</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="m">10</span><span class="p">,</span><span class="w">
-                   </span><span class="n">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">runif</span><span class="p">(</span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="m">30</span><span class="p">,</span><span class="w"> </span><span class="m">50</span><span class="p">))</span><span class="w">
-</span><span class="n">eponge</span><span class="o">::</span><span class="n">erase_masking</span><span class="p">()</span><span class="w">
-</span></code></pre></div></div>
-
-<p><code class="highlighter-rouge">eponge</code> allows you to keep your R environments clean in easy way. Try
-it yourself!</p>
+<p>To learn mor, read the <a href="https://krzjoa.github.io/path.chain/index.html">package
+documentation</a>.</p>
 
     
 
@@ -437,18 +461,18 @@ it yourself!</p>
     
       <li>
         <h3>
-          <a href="/2020/09/27/path-chain.html">
-            path.chain: Concise Structure for Chainable Paths
-            <small>27 Sep 2020</small>
+          <a href="/2020/09/17/s4-vs-vctrs.html">
+            S4 Vs Vctrs
+            <small>17 Sep 2020</small>
           </a>
         </h3>
       </li>
     
       <li>
         <h3>
-          <a href="/2020/09/17/s4-vs-vctrs.html">
-            S4 Vs Vctrs
-            <small>17 Sep 2020</small>
+          <a href="/2020/05/10/eponge.html">
+            eponge: Keep Your Environment Clean
+            <small>10 May 2020</small>
           </a>
         </h3>
       </li>

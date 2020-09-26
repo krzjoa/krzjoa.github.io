@@ -5,9 +5,124 @@
         <description>Getting at the Truth</description>
         <link>https://krzjoa.github.io/</link>
         <atom:link href="https://krzjoa.github.io/feed.rbloggers.xml" rel="self" type="application/rss+xml"/>
-        <pubDate>Fri, 18 Sep 2020 23:40:27 +0200</pubDate>
-        <lastBuildDate>Fri, 18 Sep 2020 23:40:27 +0200</lastBuildDate>
+        <pubDate>Sun, 27 Sep 2020 00:16:38 +0200</pubDate>
+        <lastBuildDate>Sun, 27 Sep 2020 00:16:38 +0200</lastBuildDate>
         <generator>Jekyll v3.1.6</generator>
+        
+            <item>
+                <title>path.chain: Concise Structure for Chainable Paths</title>
+                <author>your_blog_email@host.com (Your Name)</author>
+                <description>&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;path.chain&lt;/code&gt; package provides an intuitive and easy-to-use system of
+nested objects, which represents different levels of some directory’s
+structure in the file system. It allows us to&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://krzjoa.github.io/path.chain&quot;&gt;&lt;img src=&quot;https://raw.githubusercontent.com/krzjoa/path.chain/master/man/figures/logo.png&quot; align=&quot;right&quot; height=&quot;139&quot; style=&quot;height:139px;&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;look-at-the-pathchain&quot;&gt;Look at the &lt;code class=&quot;highlighter-rouge&quot;&gt;path.chain&lt;/code&gt;&lt;/h2&gt;
+
+&lt;p&gt;Sometimes one picture can say more, than a thousand words, and this is
+exactly the case.&lt;/p&gt;
+
+&lt;center&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/krzjoa/path.chain/master/man/figures/path_chain.gif&quot; /&gt;
+&lt;/center&gt;
+&lt;p&gt;Motivation
+———-&lt;/p&gt;
+
+&lt;p&gt;I’ve been working on the ML project, when we decided to keep strcture of
+the input data in the &lt;strong&gt;YAML&lt;/strong&gt; config. The structure were getting
+complicated, and at some point on this history ou config get a form like
+this:&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;na&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;kData&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;kRoot&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;our/super/dir&#39;&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;kTerroir&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;kRoot&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;terroir&#39;&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;kSoils&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;soils.fst&#39;&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;kTemperature&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;temperature.fst&#39;&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;kRains&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rains.fst&#39;&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;kWineQuality&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;kChemicalParams&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;chemical_params.fst&#39;&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;kContestResults&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;contest_results.fst&#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;For your infomation: the example above is totally fictitious and has
+nothing to do with the actual project I’ve been woking on. Moreover, in
+our project, several times more of paths were defined. As you can
+imagine, such structure forced us to load data in the following manner:&lt;/p&gt;
+
+&lt;div class=&quot;language-r highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;-&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;default&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;file&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;path/to/config&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;use_parent&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;FALSE&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;  
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;-&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;file.path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kData&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kRoot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kData&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kTerroir&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kRoot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kData&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kTerroir&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kSoils&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;vineyard_soils&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;-&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fst&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read_fst&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Doesn’t it look redundant? So, I’ve written a &lt;code class=&quot;highlighter-rouge&quot;&gt;path.chain&lt;/code&gt; package:
+using it we can perform the same action with less code:&lt;/p&gt;
+
+&lt;div class=&quot;language-r highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;library&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path.chain&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;vineyard_soils&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;-&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fst&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read_fst&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kData&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kTerroir&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kSoils&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Isn’t it nice for your eyes?&lt;/p&gt;
+
+&lt;p&gt;If I would like to modify the config, say, with the following change,&lt;/p&gt;
+
+&lt;div class=&quot;language-yaml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;na&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;na&quot;&gt;kData&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;kRoot&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;our/super/dir&#39;&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;kTerroir&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;kRoot&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;terroir&#39;&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;kSoils&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;vineyard_soils.fst&#39;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# &amp;lt;- This is the change&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;kTemperature&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;temperature.fst&#39;&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;kRains&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;rains.fst&#39;&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;kWineQuality&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;kChemicalParams&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;chemical_params.fst&#39;&lt;/span&gt;
+      &lt;span class=&quot;na&quot;&gt;kContestResults&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;contest_results.fst&#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;the code is still working.&lt;/p&gt;
+
+&lt;p&gt;What if we would like to reconfigure our list of paths wthout changing
+the code? It may probably break desired behaviour of our scripts, but
+with &lt;code class=&quot;highlighter-rouge&quot;&gt;path.chain&lt;/code&gt; we can easily detect the cause looking into logs.
+Simply use &lt;code class=&quot;highlighter-rouge&quot;&gt;on_path_not_exists&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;on_validate_path&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-r highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;on_validate_path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;~&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tools&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;file_ext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;.x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;.fst&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Invalid file&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;on_path_not_exists&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;~&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;log_error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Path {.x} not exists&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;To learn mor, read the &lt;a href=&quot;https://krzjoa.github.io/path.chain/index.html&quot;&gt;package
+documentation&lt;/a&gt;.&lt;/p&gt;
+</description>
+                <pubDate>Sun, 27 Sep 2020 00:00:00 +0200</pubDate>
+                <link>https://krzjoa.github.io/2020/09/27/path-chain.html</link>
+                <guid isPermaLink="true">https://krzjoa.github.io/2020/09/27/path-chain.html</guid>
+                
+                <category>EN</category>
+                
+                <category>R</category>
+                
+                <category>eponge</category>
+                
+                
+            </item>
         
             <item>
                 <title>eponge: Keep Your Environment Clean</title>
