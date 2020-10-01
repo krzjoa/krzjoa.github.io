@@ -5,7 +5,7 @@ tags: [EN, R, vctrs, S4]
 
 ---
 
-<a><img src='https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-09-17-S4-vs-vctrs-remake/S4_vs_vctrs_remake.jpg' align="center"/></a>
+<a><img src='https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-10-01-S4-vs-vctrs-remake/S4_vs_vctrs_remake.jpg' align="center"/></a>
 
 Remake
 ------
@@ -19,7 +19,7 @@ performed better. However, two days later I’ve got a message from
 on GitHub. He suggested, that S4 got faster in the newest versions of R.
 
 <center>
-<img src='https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-09-17-S4-vs-vctrs/lionels_comment.jpg' align="center"/>
+<img src='https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-10-01-S4-vs-vctrs-remake/lionels_comment.png' align="center"/>
 </center>
 
 I decided to remake this experiment and check out, if my findings are
@@ -427,14 +427,14 @@ bm1 <- microbenchmark(
     ##  s3_vec  68.568  74.3705  83.27131  82.710  84.4995  306.320  1000
 
 <center>
-<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-09-17-S4-vs-vctrs/print.results.1-1.png" >
+<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-10-01-S4-vs-vctrs-remake/print.results.1-1.png" >
 </center>
 
 
 #### R 3.6.1
 
 <center>
-<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-09-17-S4-vs-vctrs/print.results.1-1-old.png" >
+<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-10-01-S4-vs-vctrs-remake/print.results.1-1-old.png" >
 </center>
 
 
@@ -456,13 +456,13 @@ bm2 <- microbenchmark(
     ##  s3_vec  87.808  92.0705 110.3604 100.2730 102.7115 6588.121  1000
 
 <center>
-<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-09-17-S4-vs-vctrs/print.results.2-1.png" >
+<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-10-01-S4-vs-vctrs-remake/print.results.2-1.png" >
 </center>
 
 #### R 3.6.1
 
 <center>
-<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-09-17-S4-vs-vctrs/print.results.2-1-old.png" >
+<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-10-01-S4-vs-vctrs-remake/print.results.2-1-old.png" >
 </center>
 
 
@@ -486,13 +486,13 @@ bm3 <- microbenchmark(
     ##    s3_vec  87889  92022.0 103274.276 100360.5 102306.0 234482  1000
 
 <center>
-<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-09-17-S4-vs-vctrs/print.results.3-1.png" >
+<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-10-01-S4-vs-vctrs-remake/print.results.3-1.png" >
 </center>
 
 #### R 3.6.1
 
 <center>
-<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-09-17-S4-vs-vctrs/print.results.3-1-old.png" >
+<img src="https://raw.githubusercontent.com/krzjoa/krzjoa.github.io/master/assets/img/2020-10-01-S4-vs-vctrs-remake/print.results.3-1-old.png" >
 </center>
 
 Conclusions
