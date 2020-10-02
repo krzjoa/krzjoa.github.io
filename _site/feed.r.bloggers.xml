@@ -5,8 +5,8 @@
         <description>Getting at the Truth</description>
         <link>https://krzjoa.github.io/</link>
         <atom:link href="https://krzjoa.github.io/feed.rbloggers.xml" rel="self" type="application/rss+xml"/>
-        <pubDate>Sat, 03 Oct 2020 00:07:00 +0200</pubDate>
-        <lastBuildDate>Sat, 03 Oct 2020 00:07:00 +0200</lastBuildDate>
+        <pubDate>Sat, 03 Oct 2020 00:15:23 +0200</pubDate>
+        <lastBuildDate>Sat, 03 Oct 2020 00:15:23 +0200</lastBuildDate>
         <generator>Jekyll v3.1.6</generator>
         
             <item>
@@ -18,7 +18,7 @@ post&lt;/a&gt;, which as
 I hoped, was the first tutorial of the series describing how to
 effectively use PyTorch in Time Series Forecasting. Recently, a new
 exciting R package was submitted on CRAN. This great news was officially
-announced on the RStudio AI Blog. Yes, you mean right - the R port of
+announced on the &lt;a href=&quot;https://blogs.rstudio.com/ai/posts/2020-09-29-introducing-torch-for-r/&quot;&gt;RStudio AI Blog&lt;/a&gt;. Yes, you mean right - the R port of
 PyTorch - called simply &lt;code class=&quot;highlighter-rouge&quot;&gt;torch&lt;/code&gt; came into play. This encouraged me to
 reactivate my series, but in this time with both R and Pythonic
 versions. I’ll begin with rewriting my previous-year post.&lt;/p&gt;

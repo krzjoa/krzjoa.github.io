@@ -12,7 +12,7 @@ post](https://krzjoa.github.io/2019/12/28/pytorch-ts-v1.html), which as
 I hoped, was the first tutorial of the series describing how to
 effectively use PyTorch in Time Series Forecasting. Recently, a new
 exciting R package was submitted on CRAN. This great news was officially
-announced on the RStudio AI Blog. Yes, you mean right - the R port of
+announced on the [RStudio AI Blog](https://blogs.rstudio.com/ai/posts/2020-09-29-introducing-torch-for-r/). Yes, you mean right - the R port of
 PyTorch - called simply `torch` came into play. This encouraged me to
 reactivate my series, but in this time with both R and Pythonic
 versions. I’ll begin with rewriting my previous-year post.
