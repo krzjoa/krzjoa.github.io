@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Time Series & torch #1 - Training a network to compute moving average"
-tags: [EN, R, torch]
+tags: [EN, R, torch, ts-and-torch]
 
 ---
 
@@ -32,7 +32,6 @@ library(dplyr)
 library(data.table)
 library(torch)
 ```
-
 ``` r
 shampoo <- read.csv("https://raw.githubusercontent.com/jbrownlee/Datasets/master/shampoo.csv")
 setDT(shampoo)
