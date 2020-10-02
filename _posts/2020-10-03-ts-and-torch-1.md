@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Time Series & `torch` #1 - Training network to compute moving average"
+title: "Time Series & torch #1 - Training a network to compute moving average"
 tags: [EN, R, torch]
 
 ---
