@@ -1,0 +1,51 @@
+baseurl: /
+languageCode: en-us
+title: krzjoa
+theme: "hyde"
+googleAnalytics: ''
+disqusShortname: ''
+ignoreFiles:
+  - \.Rmd$
+  - \.Rmarkdown$
+  - _cache$
+  - \.knit\.md$
+  - \.utf8\.md$
+permalinks:
+  post: /:year/:month/:day/:slug/
+menu:
+  main:
+    - name: Projects
+      url: /projects/
+    - name: Publications
+      url: /publications/
+
+
+params:
+  themeColor: "theme-base-custom"
+  MathJaxCDN: //cdnjs.cloudflare.com/ajax/libs
+  MathJaxVersion: 2.7.5
+  description: " "
+  favicon: favicon.ico
+  highlightjsCDN: //cdnjs.cloudflare.com/ajax/libs
+  highlightjsLang:
+    - r
+    - yaml
+  highlightjsTheme: github
+  highlightjsVersion: 9.12.0
+  logo:
+    alt: Logo
+    height: 50
+    url: logo.png
+    width: 50
+  social:
+    github: krzjoa
+    linkedin: krzysztof-joachimiak
+    orcid: "0000-0003-4780-7947"
+    googlescholar: qNcWYHIAAAAJ&hl
+    rss: /post/index.xml
+
+markup:
+  defaultMarkdownHandler: goldmark
+  goldmark:
+    renderer:
+      unsafe: yes
