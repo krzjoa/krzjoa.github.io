@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>A Hugo website</title>
+    <link>/</link>
+    <description>Recent content on A Hugo website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 03 Oct 2020 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Time Series &amp; torch #1 - Training a network to compute moving average</title>
+      <link>/2020/10/03/content/post/2020-10-03-ts-and-torch-1/2020-10-03-ts-and-torch-1/</link>
+      <pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/10/03/content/post/2020-10-03-ts-and-torch-1/2020-10-03-ts-and-torch-1/</guid>
+      <description>In the previous year, I published a post, which as I hoped, was the first tutorial of the series describing how to effectively use PyTorch in Time Series Forecasting. Recently, a new exciting R package was submitted on CRAN. This great news was officially announced on the RStudio AI Blog. Yes, you mean right - the R port of PyTorch - called simply torch came into play. This encouraged me to reactivate my series, but in this time with both R and Pythonic versions.</description>
+    </item>
+    
+    <item>
+      <title>S4 vs vctrs library - A Double Dispatch Comparision Remake</title>
+      <link>/2020/10/01/content/post/2020-10-01-s4_vs_vctrs_remake/2020-10-01-s4_vs_vctrs_remake/</link>
+      <pubDate>Thu, 01 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/10/01/content/post/2020-10-01-s4_vs_vctrs_remake/2020-10-01-s4_vs_vctrs_remake/</guid>
+      <description>Remake About two weeks ago, I published on my blog a comparision between two possible implementation of double-dispatch: S4-based and vctrs-based. It turned out, that in my trials vctrs performed better. However, two days later I’ve got a message from Lionel Henry via comment to my commit on GitHub. He suggested, that S4 got faster in the newest versions of R.
+  I decided to remake this experiment and check out, if my findings are still true.</description>
+    </item>
+    
+    <item>
+      <title>path.chain: Concise Structure for Chainable Paths</title>
+      <link>/2020/09/27/content/post/2020-09-27-path-chain/2020-09-27-path-chain/</link>
+      <pubDate>Sun, 27 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/09/27/content/post/2020-09-27-path-chain/2020-09-27-path-chain/</guid>
+      <description>path.chain package provides an intuitive and easy-to-use system of nested objects, which represents different levels of some directory’s structure in the file system. It allows us to
+Look at the path.chain Sometimes one picture can say more, than a thousand words, and this is exactly the case.
+  Motivation ---------- I’ve been working on the ML project, when we decided to keep strcture of the input data in the YAML config.</description>
+    </item>
+    
+    <item>
+      <title>Double dispatch in R: S4 vs vctrs</title>
+      <link>/2020/09/21/content/post/2020-09-21-s4-vs-vctrs/2020-09-21-s4-vs-vctrs/</link>
+      <pubDate>Mon, 21 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/09/21/content/post/2020-09-21-s4-vs-vctrs/2020-09-21-s4-vs-vctrs/</guid>
+      <description>Why do we may need double dispatch? In most cases, when writing R scripts or even creating R packages, it is enough to use standard functions or S3 methods. However, there is one important field that forces us to consider double dispatch question: arithmetic operators.
+Suppose we’d like to create a class, which fits the problem we’re currently working on. Let’s name such class beer.
+beer &amp;lt;- function(type){ structure(list(type = type),class = &amp;#34;beer&amp;#34;) } opener &amp;lt;- function(){ structure(list(), class = &amp;#34;opener&amp;#34;) } pilsner &amp;lt;- beer(&amp;#34;pilnser&amp;#34;) my_opener &amp;lt;- opener() Then, we create an operator which defines some non-standard behaviour.</description>
+    </item>
+    
+    <item>
+      <title>eponge: Keep Your Environment Clean</title>
+      <link>/2020/05/10/content/post/2020-05-10-eponge/2020-05-10-eponge/</link>
+      <pubDate>Sun, 10 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/05/10/content/post/2020-05-10-eponge/2020-05-10-eponge/</guid>
+      <description>eponge is a small package, which facilitates selective object removal. It was released on CRAN at 23th March 2020. Initially, the package was named sponge, but during first submission trial I found out, that currently there exists the SPONGE package, availbale on BioConductor. Because of that, I decided to rename my package, changing only one letter. The package was given a new name: eponge, which simply means sponge in French.</description>
+    </item>
+    
+    <item>
+      <title>matricks 0.8.2 available on CRAN</title>
+      <link>/2020/02/29/content/post/2020-02-29-matricks-release/2020-02-29-matricks-release/</link>
+      <pubDate>Sat, 29 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/02/29/content/post/2020-02-29-matricks-release/2020-02-29-matricks-release/</guid>
+      <description>matricks package in 0.8.2 version has been released on CRAN! In this post I will present you, what are advantages of using matricks and how you can use it.
+Creating matrices The main function the package started with is m. It’s a smart shortcut for creating matrices, especially usefull if you want to define a matrix by enumerating all the elements row-by-row. Typically, if you want to create a matrix in R, you can do it using base function called matrix.</description>
+    </item>
+    
+    <item>
+      <title>Time Series &amp; PyTorch - Training network to compute moving average</title>
+      <link>/2019/12/28/content/post/2019-12-28-pytorch-ts-v1/2019-12-28-pytorch-ts-v1/</link>
+      <pubDate>Sat, 28 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/12/28/content/post/2019-12-28-pytorch-ts-v1/2019-12-28-pytorch-ts-v1/</guid>
+      <description>When it comes to applying neural networks to Time Series processing (or other kind of sequential data), first words that we&amp;rsquo;ll probably think of are recurrent and convolutional layers. That&amp;rsquo;s absolutely right! In this post we&amp;rsquo;ll pass, step-by-step, through one of the simpliest examples of convolutional layer application i.e. training network to compute moving average. Such example may seem to not be practical, however its simplicity allows us to trace whole process and understand, how to control network&amp;rsquo;s behaviour, to model the way the network works.</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>/about/</link>
+      <pubDate>Thu, 05 May 2016 21:48:51 -0700</pubDate>
+      
+      <guid>/about/</guid>
+      <description>This is a &amp;ldquo;hello world&amp;rdquo; example website for the blogdown package. The theme was forked from @jrutheiser/hugo-lithium-theme and modified by Yihui Xie.</description>
+    </item>
+    
+  </channel>
+</rss>

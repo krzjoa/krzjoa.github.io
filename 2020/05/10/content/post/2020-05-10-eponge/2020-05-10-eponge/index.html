@@ -1,0 +1,111 @@
+<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us>
+<head>
+<link href=https://gmpg.org/xfn/11 rel=profile>
+<meta charset=utf-8>
+<meta name=generator content="Hugo 0.88.1">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>eponge: Keep Your Environment Clean &#183; krzjoa</title>
+<meta name=description content>
+<link type=text/css rel=stylesheet href=/css/print.css media=print>
+<link type=text/css rel=stylesheet href=/css/poole.css>
+<link type=text/css rel=stylesheet href=/css/syntax.css>
+<link type=text/css rel=stylesheet href=/css/hyde.css>
+<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+<link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png>
+<link rel="shortcut icon" href=/favicon.png>
+<link rel=stylesheet href=//use.fontawesome.com/releases/v5.14.0/css/all.css>
+</head>
+<body class=theme-base-custom>
+<aside class=sidebar>
+<div class="container sidebar-sticky">
+<div class=sidebar-about>
+<a href=/><h1>krzjoa</h1></a>
+<p class=lead>
+</p>
+</div>
+<nav>
+<ul class=sidebar-nav>
+<li><a href=/>Home</a> </li>
+<li><a href=/projects/> Projects </a></li><li><a href=/publications/> Publications </a></li>
+</ul>
+</nav>
+<p>
+<a href=https://github.com/krzjoa rel=me><i class="fab fa-github fa-lg" aria-hidden=true></i></a>
+<a href=https://linkedin.com/in/krzysztof-joachimiak rel=me><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a>
+<a href="https://scholar.google.com/citations?user=qNcWYHIAAAAJ%26hl" rel=me><i class="fas fa-graduation-cap fa-lg" aria-hidden=true></i></a>
+<a href=https://orcid.org/0000-0003-4780-7947 rel=me><i class="fab fa-orcid fa-lg" aria-hidden=true></i></a>
+<a href=/post/index.xml rel=me><i class="fas fa-rss fa-lg" aria-hidden=true></i></a>
+</p>
+<p>&copy; 2021. All rights reserved.</p>
+</div>
+</aside>
+<main class="content container">
+<div class=post>
+<h1>eponge: Keep Your Environment Clean</h1>
+<time datetime=2020-05-10T00:00:00Z class=post-date>May 10, 2020</time>
+<i class="fas fa-tags"></i>
+<a class="badge badge-tag" href=/tags/en>en</a>
+<a class="badge badge-tag" href=/tags/r>r</a>
+<a class="badge badge-tag" href=/tags/eponge>eponge</a>
+<br><br>
+<p><a href=https://krzjoa.github.io/matricks><img src=https://raw.githubusercontent.com/krzjoa/eponge/master/man/figures/logo.png align=right height=139 style=height:139px></a>
+<code>eponge</code> is a small package, which facilitates selective object removal.
+It was released on
+<a href=https://cran.r-project.org/web/packages/eponge/index.html>CRAN</a> at
+23th March 2020. Initially, the package was named <code>sponge</code>, but during
+first submission trial I found out, that currently there exists the
+<a href=https://www.bioconductor.org/packages/release/bioc/html/SPONGE.html>SPONGE</a>
+package, availbale on BioConductor. Because of that, I decided to rename
+my package, changing only one letter. The package was given a new name:
+<code>eponge</code>, which simply means <em>sponge</em> in
+<a href=https://en.wiktionary.org/wiki/%C3%A9ponge>French</a>. Let me present,
+what the package was created for.</p>
+<h2 id=removing-objects-by-name>Removing objects by name</h2>
+<p>Typically, when we want to remove all objects from the <strong>global
+environment</strong>, we can use click the broom icon in RStudio (supposing we
+use this IDE - but in most cases, we do). Alternatively, we can obtain
+the same results combining <code>rm</code> with <code>ls</code>.</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=color:#75715e># Remove all the objects</span>
+<span style=color:#a6e22e>rm</span>(list <span style=color:#f92672>=</span> <span style=color:#a6e22e>ls</span>())
+<span style=color:#75715e># Remove object with &#39;iris&#39; in its name</span>
+<span style=color:#a6e22e>rm</span>(list <span style=color:#f92672>=</span> <span style=color:#a6e22e>ls</span>(pattern <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;iris&#34;</span>))
+</code></pre></div><p><code>eponge</code> offers a an equivalent shortcut: <code>erase</code> function. It’s
+particularly handy when we want to select some set of objects using
+regex pattern.</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=color:#75715e># Remove all the objects</span>
+eponge<span style=color:#f92672>::</span><span style=color:#a6e22e>erase</span>() 
+<span style=color:#75715e># Remove object with &#39;iris&#39; in its name</span>
+eponge<span style=color:#f92672>::</span><span style=color:#a6e22e>erase</span>(<span style=color:#e6db74>&#34;iris&#34;</span>)
+</code></pre></div><h2 id=removing-objects-by-type>Removing objects by type</h2>
+<p><code>epnoge</code> becomes even more useful, when we want to precisely remove a
+tiny subset of objects. Normally, we would use a combination of <code>ls</code>,
+<code>get</code> and <code>rm</code> functions. If we don’t want to recreate such code from
+scratch, <code>eponge</code> do it for us:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=color:#75715e># Erasing by type</span>
+eponge<span style=color:#f92672>::</span><span style=color:#a6e22e>erase_if</span>(is.character)
+<span style=color:#75715e># We can use a regex pattern to identify the objects we want</span>
+eponge<span style=color:#f92672>::</span><span style=color:#a6e22e>erase_functions</span>(<span style=color:#e6db74>&#34;prepare_&#34;</span>)
+<span style=color:#75715e># We can clean whole section in RStudio Envitonment tab</span>
+<span style=color:#75715e># Remove all the objects named in RStudio as &#34;Data&#34;</span>
+eponge<span style=color:#f92672>::</span><span style=color:#a6e22e>erase_data</span>()
+<span style=color:#75715e># Remove all the &#34;Values&#34; in RStidio</span>
+eponge<span style=color:#f92672>::</span><span style=color:#a6e22e>erase_values</span>()
+</code></pre></div><h2 id=removing-masking-objects>Removing masking objects</h2>
+<p>As we know, homonime objects mask each other. If we want to get rid of
+such objects from our environment, the most convenient way to do that is
+<code>eponge</code>’s <code>erase_masking_*</code> function family. At the moment, it embraces
+two functions:</p>
+<ul>
+<li><code>erase_masking</code></li>
+<li><code>erase_masking_functions</code></li>
+</ul>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r>log <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>function</span>(x) <span style=color:#a6e22e>print</span>(<span style=color:#a6e22e>paste0</span>(<span style=color:#e6db74>&#34;Logging:&#34;</span>, x))
+cars <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>data.frame</span>(idx   <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span><span style=color:#f92672>:</span><span style=color:#ae81ff>10</span>,
+                   speed <span style=color:#f92672>=</span> <span style=color:#a6e22e>runif</span>(<span style=color:#ae81ff>10</span>, <span style=color:#ae81ff>30</span>, <span style=color:#ae81ff>50</span>))
+eponge<span style=color:#f92672>::</span><span style=color:#a6e22e>erase_masking</span>()
+</code></pre></div><p><code>eponge</code> allows you to keep your R environments clean in easy way. Try
+it yourself!</p>
+</div>
+</main>
+</body>
+</html>
