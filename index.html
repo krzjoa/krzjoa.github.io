@@ -6,14 +6,14 @@
 <meta name=viewport content="width=device-width,initial-scale=1">
 <title>krzjoa</title>
 <meta name=description content=" ">
+<link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png>
+<link rel="shortcut icon" href=/favicon.png>
+<link rel=stylesheet href=//use.fontawesome.com/releases/v5.14.0/css/all.css>
 <link type=text/css rel=stylesheet href=/css/print.css media=print>
 <link type=text/css rel=stylesheet href=/css/poole.css>
 <link type=text/css rel=stylesheet href=/css/syntax.css>
 <link type=text/css rel=stylesheet href=/css/hyde.css>
 <link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
-<link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png>
-<link rel="shortcut icon" href=/favicon.png>
-<link rel=stylesheet href=//use.fontawesome.com/releases/v5.14.0/css/all.css>
 <link href=/index.xml rel=alternate type=application/rss+xml title=krzjoa>
 </head>
 <body class=theme-base-custom>
@@ -71,9 +71,9 @@ I decided to remake this experiment and check out, if my findings are still true
 </h1>
 <time datetime=2020-09-27T00:00:00Z class=post-date>27 Sep 2020</time>
 <img src=/post/2020-09-27-path-chain/path-chain-logo.png align=left style=margin-right:20px><br>
-path.chain package provides an intuitive and easy-to-use system of nested objects, which represents different levels of some directory’s structure in the file system. It allows us to
+path.chain package provides an intuitive and easy-to-use system of nested objects, which represents different levels of some directory’s structure in the file system. It allows us to created a nested structure, which returns a string from every its leaf.
 Look at the path.chain Sometimes one picture can say more, than a thousand words, and this is exactly the case.
-Motivation ---------- I’ve been working on the ML project, when we decided to keep strcture of the input data in the YAML config.
+Motivation I’ve been working on the ML project, when we decided to keep strcture of the input data in the YAML config.
 <div class=read-more-link>
 <a href=/2020/09/27/content/post/2020-09-27-path-chain/2020-09-27-path-chain/>Read More…</a>
 </div>
@@ -84,12 +84,8 @@ Motivation ---------- I’ve been working on the ML project, when we decided to 
 </h1>
 <time datetime=2020-09-21T00:00:00Z class=post-date>21 Sep 2020</time>
 <img src=/post/2020-09-21-s4-vs-vctrs/S4_vs_vctrs.jpg align=left style=margin-right:20px><br>
-Why do we may need double dispatch? In most cases, when writing R scripts or even creating R packages, it is enough to use standard functions or S3 methods. However, there is one important field that forces us to consider double dispatch question: arithmetic operators.
-Suppose we’d like to create a class, which fits the problem we’re currently working on. Let’s name such class beer.
-beer &lt;- function(type){ structure(list(type = type),class = "beer") } opener &lt;- function(){ structure(list(), class = "opener") } pilsner &lt;- beer("pilnser") my_opener &lt;- opener() Then, we create an operator which defines some non-standard behaviour.
-<div class=read-more-link>
-<a href=/2020/09/21/content/post/2020-09-21-s4-vs-vctrs/2020-09-21-s4-vs-vctrs/>Read More…</a>
-</div>
+In most cases, when writing R scripts or even creating R packages, it is enough to use standard functions or S3 methods. However, there is one important field that forces us to consider <strong>double dispatch</strong> question: <strong>arithmetic operators</strong>.
+Suppose we’d like to create a class, which fits the problem we’re currently working on. Let’s name such class <strong>beer</strong>.
 </article>
 <article class=post>
 <h1 class=post-title>

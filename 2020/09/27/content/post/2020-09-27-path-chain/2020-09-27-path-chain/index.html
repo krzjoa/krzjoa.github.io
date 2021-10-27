@@ -6,14 +6,14 @@
 <meta name=viewport content="width=device-width,initial-scale=1">
 <title>path.chain: Concise Structure for Chainable Paths &#183; krzjoa</title>
 <meta name=description content>
+<link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png>
+<link rel="shortcut icon" href=/favicon.png>
+<link rel=stylesheet href=//use.fontawesome.com/releases/v5.14.0/css/all.css>
 <link type=text/css rel=stylesheet href=/css/print.css media=print>
 <link type=text/css rel=stylesheet href=/css/poole.css>
 <link type=text/css rel=stylesheet href=/css/syntax.css>
 <link type=text/css rel=stylesheet href=/css/hyde.css>
 <link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
-<link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png>
-<link rel="shortcut icon" href=/favicon.png>
-<link rel=stylesheet href=//use.fontawesome.com/releases/v5.14.0/css/all.css>
 </head>
 <body class=theme-base-custom>
 <aside class=sidebar>
@@ -48,18 +48,19 @@
 <a class="badge badge-tag" href=/tags/r>r</a>
 <a class="badge badge-tag" href=/tags/eponge>eponge</a>
 <br><br>
-<p><a href=https://krzjoa.github.io/path.chain><img src=https://raw.githubusercontent.com/krzjoa/path.chain/master/man/figures/logo.png align=right height=139 style=height:139px></a>
+<p><a href=https://krzjoa.github.io/path.chain><img src=https://raw.githubusercontent.com/krzjoa/path.chain/master/man/figures/logo.png align=left height=139 style=margin-right:20px></a>
 <code>path.chain</code> package provides an intuitive and easy-to-use system of
 nested objects, which represents different levels of some directory’s
-structure in the file system. It allows us to</p>
+structure in the file system. It allows us to created a nested structure, which returns a string
+from every its leaf.</p>
+<br>
 <h2 id=look-at-the-pathchain>Look at the <code>path.chain</code></h2>
 <p>Sometimes one picture can say more, than a thousand words, and this is
 exactly the case.</p>
 <center>
 <img src=https://raw.githubusercontent.com/krzjoa/path.chain/master/man/figures/path_chain.gif>
 </center>
-Motivation
-----------
+<h2 id=motivation>Motivation</h2>
 <p>I’ve been working on the ML project, when we decided to keep strcture of
 the input data in the <strong>YAML</strong> config. The structure were getting
 complicated, and at some point on this history ou config get a form like
