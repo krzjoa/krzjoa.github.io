@@ -2,7 +2,7 @@
 <head>
 <link href=https://gmpg.org/xfn/11 rel=profile>
 <meta charset=utf-8>
-<meta name=generator content="Hugo 0.88.1">
+<meta name=generator content="Hugo 0.89.1">
 <meta name=viewport content="width=device-width,initial-scale=1">
 <title>Time Series & torch #1 - Training a network to compute moving average &#183; krzjoa</title>
 <meta name=description content>
@@ -107,8 +107,8 @@ proper kernel, we can apply the operation we want. For example, using a
 that, let’s do a simple experiment.</p>
 <h3 id=4-computing-moving-average-with-datatable>4. Computing moving average with <code>data.table</code></h3>
 <p>Among its many features, <code>data.table</code> offers a set of ‘fast’ functions
-(with names prefixed with <strong>f**). One example of this great stuff is a
-</strong><code>frollmean</code>**<a href=https://rdatatable.gitlab.io/data.table/reference/froll.html></a>
+(with names prefixed with <strong>f</strong>). One example of this great stuff is a
+<a href=https://rdatatable.gitlab.io/data.table/reference/froll.html><strong><code>frollmean</code></strong></a>
 functions, which computes moving average. We use a standard <code>head</code>
 function as well, to limit the output. What is worth to mention is that
 a <strong>NA</strong> appeared in the first row. It’s because we can’t compute moving
