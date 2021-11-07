@@ -181,4 +181,4 @@ print(net&lt;span style="color:#f92672">.&lt;/span>weight&lt;span style="color:#
 [[[0.18355425 0.19356234 0.21304895 0.20796107 0.19985096]]]
 &lt;/code>&lt;/pre>
 &lt;p>As we can see in this example, algorithm converges and parameter values are becoming close to the &lt;strong>true solution&lt;/strong>, i.e.
-&lt;strong>[0.2, 0.2, 0.2, 0.2, 0.2]&lt;/strong>.&lt;/p></description></item></channel>
+&lt;strong>[0.2, 0.2, 0.2, 0.2, 0.2]&lt;/strong>.&lt;/p></description></item></channel></rss>

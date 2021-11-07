@@ -126,4 +126,4 @@ cars &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a
 speed &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">runif&lt;/span>(&lt;span style="color:#ae81ff">10&lt;/span>, &lt;span style="color:#ae81ff">30&lt;/span>, &lt;span style="color:#ae81ff">50&lt;/span>))
 eponge&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">erase_masking&lt;/span>()
 &lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>eponge&lt;/code> allows you to keep your R environments clean in easy way. Try
-it yourself!&lt;/p></description></item></channel>
+it yourself!&lt;/p></description></item></channel></rss>
