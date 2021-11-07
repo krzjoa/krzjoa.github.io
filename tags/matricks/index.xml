@@ -1,2 +1,197 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>matricks on krzjoa</title><link>/tags/matricks/</link><description>Recent content in matricks on krzjoa</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 29 Feb 2020 00:00:00 +0000</lastBuildDate><atom:link href="/tags/matricks/index.xml" rel="self" type="application/rss+xml"/><item><title>matricks 0.8.2 available on CRAN</title><link>/2020/02/29/content/post/2020-02-29-matricks-release/2020-02-29-matricks-release/</link><pubDate>Sat, 29 Feb 2020 00:00:00 +0000</pubDate><guid>/2020/02/29/content/post/2020-02-29-matricks-release/2020-02-29-matricks-release/</guid><description>matricks package in 0.8.2 version has been released on CRAN! In this post I will present you, what are advantages of using matricks and how you can use it.
-Creating matrices The main function the package started with is m. It’s a smart shortcut for creating matrices, especially usefull if you want to define a matrix by enumerating all the elements row-by-row. Typically, if you want to create a matrix in R, you can do it using base function called matrix.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>matricks on krzjoa</title><link>/tags/matricks/</link><description>Recent content in matricks on krzjoa</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 29 Feb 2020 00:00:00 +0000</lastBuildDate><atom:link href="/tags/matricks/index.xml" rel="self" type="application/rss+xml"/><item><title>matricks 0.8.2 available on CRAN</title><link>/2020/02/29/content/post/2020-02-29-matricks-release/2020-02-29-matricks-release/</link><pubDate>Sat, 29 Feb 2020 00:00:00 +0000</pubDate><guid>/2020/02/29/content/post/2020-02-29-matricks-release/2020-02-29-matricks-release/</guid><description>&lt;p>&lt;a href="https://krzjoa.github.io/matricks">&lt;img src='https://raw.githubusercontent.com/krzjoa/matricks/master/man/figures/logo.png' align="left" height="139" style="margin-right: 20px" />&lt;/a>
+&lt;code>matricks&lt;/code> package in &lt;strong>0.8.2&lt;/strong> version has been released on CRAN! In
+this post I will present you, what are advantages of using &lt;code>matricks&lt;/code>
+and how you can use it.&lt;/p>
+&lt;h3 id="creating-matrices">Creating matrices&lt;/h3>
+&lt;p>The main function the package started with is &lt;code>m&lt;/code>. It’s a smart shortcut
+for creating matrices, especially usefull if you want to define a matrix
+by enumerating all the elements row-by-row. Typically, if you want to
+create a matrix in R, you can do it using &lt;code>base&lt;/code> function called
+&lt;code>matrix&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">matrix&lt;/span>(&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span> ,&lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">7&lt;/span>,
+&lt;span style="color:#ae81ff">5&lt;/span>, &lt;span style="color:#ae81ff">8&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>,
+&lt;span style="color:#ae81ff">9&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>), nrow &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>, byrow &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">TRUE&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 3 4 7
+## [2,] 5 8 0
+## [3,] 9 2 1
+&lt;/code>&lt;/pre>
+&lt;p>Although it’s a very simple opeartion, the funtion call doesn’t look
+tidy. Alternaively, we can use &lt;code>tibble&lt;/code> with its &lt;code>frame_matrix&lt;/code>
+function, defining column names with formulae first.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">library&lt;/span>(tibble)
+&lt;span style="color:#a6e22e">frame_matrix&lt;/span>(&lt;span style="color:#f92672">~&lt;/span> c1, &lt;span style="color:#f92672">~&lt;/span> c2, &lt;span style="color:#f92672">~&lt;/span> c3,
+&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">7&lt;/span>,
+&lt;span style="color:#ae81ff">5&lt;/span>, &lt;span style="color:#ae81ff">8&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>,
+&lt;span style="color:#ae81ff">9&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## c1 c2 c3
+## [1,] 3 4 7
+## [2,] 5 8 0
+## [3,] 9 2 1
+&lt;/code>&lt;/pre>
+&lt;p>However, it’s still not a such powerfull tool as &lt;code>matricks::m&lt;/code> function
+is. Let’s see an example.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">library&lt;/span>(matricks)
+&lt;span style="color:#a6e22e">m&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span> ,&lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">7&lt;/span>&lt;span style="color:#f92672">|&lt;/span>
+&lt;span style="color:#ae81ff">5&lt;/span>, &lt;span style="color:#ae81ff">8&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>&lt;span style="color:#f92672">|&lt;/span>
+&lt;span style="color:#ae81ff">9&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 3 4 7
+## [2,] 5 8 0
+## [3,] 9 2 1
+&lt;/code>&lt;/pre>
+&lt;p>As simple as that! We join following rows using &lt;code>|&lt;/code> operator. &lt;code>m&lt;/code>
+function is very flexible and offers you much more than before mentioned
+ones.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">m&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span>&lt;span style="color:#ae81ff">3&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">6&lt;/span>, &lt;span style="color:#ae81ff">7&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">4&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 1 2 3
+## [2,] 4 6 7
+## [3,] 2 1 4
+&lt;/code>&lt;/pre>
+&lt;p>And here and example with bindig multiple matrices together:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat1 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">diag&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+mat2 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">antidiag&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>) &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>
+&lt;span style="color:#a6e22e">m&lt;/span>(mat1, mat2&lt;span style="color:#f92672">|&lt;/span>
+mat2, mat1)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3] [,4] [,5] [,6]
+## [1,] 1 0 0 0 0 3
+## [2,] 0 1 0 0 3 0
+## [3,] 0 0 1 3 0 0
+## [4,] 0 0 3 1 0 0
+## [5,] 0 3 0 0 1 0
+## [6,] 3 0 0 0 0 1
+&lt;/code>&lt;/pre>
+&lt;p>By the way, &lt;code>antidiag&lt;/code> function can be found in the &lt;code>matricks&lt;/code> package
+too.&lt;/p>
+&lt;h3 id="setting--accessing-values">Setting &amp;amp; accessing values&lt;/h3>
+&lt;p>These code&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">matrix&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+mat[1, &lt;span style="color:#ae81ff">2&lt;/span>] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">0.3&lt;/span>
+mat[2, &lt;span style="color:#ae81ff">3&lt;/span>] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">7&lt;/span>
+mat[3, &lt;span style="color:#ae81ff">1&lt;/span>] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">13&lt;/span>
+mat[2, &lt;span style="color:#ae81ff">2&lt;/span>] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">0.5&lt;/span>
+mat
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 0 0.3 0
+## [2,] 0 0.5 7
+## [3,] 13 0.0 0
+&lt;/code>&lt;/pre>
+&lt;p>can be replaced with:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">matrix&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+mat &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">set_values&lt;/span>(mat,
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>) &lt;span style="color:#f92672">~&lt;/span> &lt;span style="color:#ae81ff">0.3&lt;/span>,
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>) &lt;span style="color:#f92672">~&lt;/span> &lt;span style="color:#ae81ff">7&lt;/span>,
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">~&lt;/span> &lt;span style="color:#ae81ff">13&lt;/span>,
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>) &lt;span style="color:#f92672">~&lt;/span> &lt;span style="color:#ae81ff">0.5&lt;/span>)
+mat
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 0 0.3 0
+## [2,] 0 0.5 7
+## [3,] 13 0.0 0
+&lt;/code>&lt;/pre>
+&lt;p>In some cases, traditional way we access a matrix element in &lt;code>R&lt;/code> may be
+inconvenient. Consider situation shown below:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">sample.matrix &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">matrix&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+matrix.indices &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>),
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>),
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>))
+&lt;span style="color:#a6e22e">for &lt;/span>(idx in matrix.indices) {
+sample.matrix[idx[1], idx[2]] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> sample.matrix[idx[1], idx[2]] &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>
+}
+sample.matrix
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 3 3 3
+## [2,] 1 3 1
+## [3,] 3 1 3
+&lt;/code>&lt;/pre>
+&lt;p>It can be expressed conciser using matrix &lt;code>at&lt;/code> function.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">sample.matrix &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">matrix&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+matrix.indices &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>),
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>),
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>))
+&lt;span style="color:#a6e22e">for &lt;/span>(idx in matrix.indices) {
+&lt;span style="color:#a6e22e">at&lt;/span>(sample.matrix, idx) &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">at&lt;/span>(sample.matrix, idx) &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>
+}
+sample.matrix
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 3 3 3
+## [2,] 1 3 1
+## [3,] 3 1 3
+&lt;/code>&lt;/pre>
+&lt;h3 id="plotting-matrix">Plotting matrix&lt;/h3>
+&lt;p>&lt;code>matrix&lt;/code> objects haven’t had good automatized plotting function until
+now. Let’s create and plot a sample matrix of random values.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">rmat &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">runifm&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+&lt;span style="color:#a6e22e">print&lt;/span>(rmat)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 0.3248890 0.1024049 0.3295454
+## [2,] 0.8077164 0.7267801 0.1116789
+## [3,] 0.4406909 0.4703106 0.7047498
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">plot&lt;/span>(rmat)
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="/post/2020-02-29-matricks-release/runifm_print.png" alt="png">&lt;/p>
+&lt;p>And here the same using a matrix of random boolean values (&lt;code>rboolm&lt;/code>).&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">set.seed&lt;/span>(&lt;span style="color:#ae81ff">7&lt;/span>)
+rmat &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">rboolm&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+&lt;span style="color:#a6e22e">print&lt;/span>(rmat)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] FALSE TRUE TRUE
+## [2,] TRUE TRUE FALSE
+## [3,] TRUE FALSE TRUE
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">plot&lt;/span>(rmat)
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="/post/2020-02-29-matricks-release/rboolm_print.png" alt="png">&lt;/p>
+&lt;h3 id="operators">Operators&lt;/h3>
+&lt;p>&lt;code>matricks&lt;/code> contains a family of operators, which allows you to perform
+column-/row-wise operation
+(addition/subtraction/multiplication/division) between matrix and
+vector.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">m&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>&lt;span style="color:#f92672">|&lt;/span>
+&lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">5&lt;/span>, &lt;span style="color:#ae81ff">6&lt;/span>&lt;span style="color:#f92672">|&lt;/span>
+&lt;span style="color:#ae81ff">7&lt;/span>, &lt;span style="color:#ae81ff">8&lt;/span>, &lt;span style="color:#ae81ff">9&lt;/span>)
+mat
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 1 2 3
+## [2,] 4 5 6
+## [3,] 7 8 9
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">vec &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">v&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span>&lt;span style="color:#ae81ff">3&lt;/span>)
+vec
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1]
+## [1,] 1
+## [2,] 2
+## [3,] 3
+&lt;/code>&lt;/pre>
+&lt;p>If we try to do a column-wise multiplication, we ecounter a problem.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">*&lt;/span> vec
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## Error in mat * vec: niezgodne tablice
+&lt;/code>&lt;/pre>
+&lt;p>We can bypass this error using &lt;code>%m%&lt;/code> function. It does what we want!&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">%m%&lt;/span> vec
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 1 2 3
+## [2,] 8 10 12
+## [3,] 21 24 27
+&lt;/code>&lt;/pre>
+&lt;p>There are also several other operators available.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">%d%&lt;/span> vec
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 1.000000 2.000000 3
+## [2,] 2.000000 2.500000 3
+## [3,] 2.333333 2.666667 3
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">%+%&lt;/span> vec
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 2 3 4
+## [2,] 6 7 8
+## [3,] 10 11 12
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">%-%&lt;/span> vec
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 0 1 2
+## [2,] 2 3 4
+## [3,] 4 5 6
+&lt;/code>&lt;/pre>
+&lt;p>I encourage you to familiarize with &lt;code>matricks&lt;/code>. Visit &lt;a href="https://krzjoa.github.io/matricks">matrix
+documentation&lt;/a> site and learn more!&lt;/p></description></item></channel>

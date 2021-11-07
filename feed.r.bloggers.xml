@@ -1,6 +1,1325 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>R on krzjoa</title><link>/tags/r/</link><description>Recent content in R on krzjoa</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 03 Oct 2020 00:00:00 +0000</lastBuildDate><atom:link href="/tags/r/index.xml" rel="self" type="application/rss+xml"/><item><title>Time Series &amp; torch #1 - Training a network to compute moving average LOL2</title><link>/2020/10/03/content/post/2020-10-03-ts-and-torch-1/2020-10-03-ts-and-torch-1/</link><pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate><guid>/2020/10/03/content/post/2020-10-03-ts-and-torch-1/2020-10-03-ts-and-torch-1/</guid><description>In the previous year, I published a post, which as I hoped, was the first tutorial of the series describing how to effectively use PyTorch in Time Series Forecasting. Recently, a new exciting R package was submitted on CRAN. This great news was officially announced on the RStudio AI Blog. Yes, you mean right - the R port of PyTorch - called simply torch came into play. This encouraged me to reactivate my series, but in this time with both R and Pythonic versions.</description></item><item><title>S4 vs vctrs library - A Double Dispatch Comparision Remake</title><link>/2020/10/01/content/post/2020-10-01-s4_vs_vctrs_remake/2020-10-01-s4_vs_vctrs_remake/</link><pubDate>Thu, 01 Oct 2020 00:00:00 +0000</pubDate><guid>/2020/10/01/content/post/2020-10-01-s4_vs_vctrs_remake/2020-10-01-s4_vs_vctrs_remake/</guid><description>Remake About two weeks ago, I published on my blog a comparision between two possible implementation of double-dispatch: S4-based and vctrs-based. It turned out, that in my trials vctrs performed better. However, two days later I’ve got a message from Lionel Henry via comment to my commit on GitHub. He suggested, that S4 got faster in the newest versions of R.
-I decided to remake this experiment and check out, if my findings are still true.</description></item><item><title>path.chain: Concise Structure for Chainable Paths</title><link>/2020/09/27/content/post/2020-09-27-path-chain/2020-09-27-path-chain/</link><pubDate>Sun, 27 Sep 2020 00:00:00 +0000</pubDate><guid>/2020/09/27/content/post/2020-09-27-path-chain/2020-09-27-path-chain/</guid><description>path.chain package provides an intuitive and easy-to-use system of nested objects, which represents different levels of some directory’s structure in the file system. It allows us to created a nested structure, which returns a string from every its leaf.
-Look at the path.chain Sometimes one picture can say more, than a thousand words, and this is exactly the case.
-Motivation I’ve been working on the ML project, when we decided to keep strcture of the input data in the YAML config.</description></item><item><title>Double dispatch in R: S4 vs vctrs</title><link>/2020/09/21/content/post/2020-09-21-s4-vs-vctrs/2020-09-21-s4-vs-vctrs/</link><pubDate>Mon, 21 Sep 2020 00:00:00 +0000</pubDate><guid>/2020/09/21/content/post/2020-09-21-s4-vs-vctrs/2020-09-21-s4-vs-vctrs/</guid><description>In most cases, when writing R scripts or even creating R packages, it is enough to use standard functions or S3 methods. However, there is one important field that forces us to consider &lt;strong>double dispatch&lt;/strong> question: &lt;strong>arithmetic operators&lt;/strong>.
-Suppose we’d like to create a class, which fits the problem we’re currently working on. Let’s name such class &lt;strong>beer&lt;/strong>.</description></item><item><title>eponge: Keep Your Environment Clean</title><link>/2020/05/10/content/post/2020-05-10-eponge/2020-05-10-eponge/</link><pubDate>Sun, 10 May 2020 00:00:00 +0000</pubDate><guid>/2020/05/10/content/post/2020-05-10-eponge/2020-05-10-eponge/</guid><description>eponge is a small package, which facilitates selective object removal. It was released on CRAN at 23th March 2020. Initially, the package was named sponge, but during first submission trial I found out, that currently there exists the SPONGE package, availbale on BioConductor. Because of that, I decided to rename my package, changing only one letter. The package was given a new name: eponge, which simply means sponge in French.</description></item><item><title>matricks 0.8.2 available on CRAN</title><link>/2020/02/29/content/post/2020-02-29-matricks-release/2020-02-29-matricks-release/</link><pubDate>Sat, 29 Feb 2020 00:00:00 +0000</pubDate><guid>/2020/02/29/content/post/2020-02-29-matricks-release/2020-02-29-matricks-release/</guid><description>matricks package in 0.8.2 version has been released on CRAN! In this post I will present you, what are advantages of using matricks and how you can use it.
-Creating matrices The main function the package started with is m. It’s a smart shortcut for creating matrices, especially usefull if you want to define a matrix by enumerating all the elements row-by-row. Typically, if you want to create a matrix in R, you can do it using base function called matrix.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>R on krzjoa</title><link>/tags/r/</link><description>Recent content in R on krzjoa</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 03 Oct 2020 00:00:00 +0000</lastBuildDate><atom:link href="/tags/r/index.xml" rel="self" type="application/rss+xml"/><item><title>Time Series &amp; torch #1 - Training a network to compute moving average LOL2</title><link>/2020/10/03/content/post/2020-10-03-ts-and-torch-1/2020-10-03-ts-and-torch-1/</link><pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate><guid>/2020/10/03/content/post/2020-10-03-ts-and-torch-1/2020-10-03-ts-and-torch-1/</guid><description>&lt;p>&lt;a>&lt;img src='/post/2020-10-03-ts-and-torch-1/torch_ts_1.png' align="center"/>&lt;/a>
+In the previous year, I published &lt;a href="https://krzjoa.github.io/2019/12/28/pytorch-ts-v1.html">a
+post&lt;/a>, which as
+I hoped, was the first tutorial of the series describing how to
+effectively use PyTorch in Time Series Forecasting. Recently, a new
+exciting R package was submitted on CRAN. This great news was officially
+announced on the &lt;a href="https://blogs.rstudio.com/ai/posts/2020-09-29-introducing-torch-for-r/">RStudio AI Blog&lt;/a>. Yes, you mean right - the R port of
+PyTorch - called simply &lt;code>torch&lt;/code> came into play. This encouraged me to
+reactivate my series, but in this time with both R and Pythonic
+versions. I’ll begin with rewriting my previous-year post.&lt;/p>
+&lt;h3 id="1-getting-the-data">1. Getting the data&lt;/h3>
+&lt;p>In PyTorch version I used a Shampoo sales dataset published by Rob
+Hyndman in his R package fma (a software appendix for the book
+&lt;em>Forecasting: Methods and Applications&lt;/em>). Instead of installing
+Hyndman’s lib, we’ll download the dataset from the Web. It’s because
+this version is already well-foramtted and we’ll avoid additional
+transformation. First of all, let’s present the &lt;code>shampoo&lt;/code> dataset.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">library&lt;/span>(ggplot2)
+&lt;span style="color:#a6e22e">library&lt;/span>(dplyr)
+&lt;span style="color:#a6e22e">library&lt;/span>(data.table)
+&lt;span style="color:#a6e22e">library&lt;/span>(torch)
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">shampoo &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">read.csv&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;https://raw.githubusercontent.com/jbrownlee/Datasets/master/shampoo.csv&amp;#34;&lt;/span>)
+&lt;span style="color:#a6e22e">setDT&lt;/span>(shampoo)
+shampoo[, n &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span>.N]
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="2-simple-visualization">2. Simple visualization&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#a6e22e">head&lt;/span>(shampoo))
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## Month Sales n
+## 1: 1-01 266.0 1
+## 2: 1-02 145.9 2
+## 3: 1-03 183.1 3
+## 4: 1-04 119.3 4
+## 5: 1-05 180.3 5
+## 6: 1-06 168.5 6
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">ggplot&lt;/span>(shampoo) &lt;span style="color:#f92672">+&lt;/span>
+&lt;span style="color:#a6e22e">geom_line&lt;/span>(&lt;span style="color:#a6e22e">aes&lt;/span>(x &lt;span style="color:#f92672">=&lt;/span> n, y &lt;span style="color:#f92672">=&lt;/span> Sales)) &lt;span style="color:#f92672">+&lt;/span>
+&lt;span style="color:#a6e22e">ggtitle&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;Shampoo dataset&amp;#34;&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;center>
+&lt;img src="/post/2020-10-03-ts-and-torch-1//shampoo.plot-1.png" >
+&lt;/center>
+&lt;p>In this plot we can see an increasing trend, but in this excercise, data
+characterics make no diffeence for us.&lt;/p>
+&lt;h3 id="3-1-d-convolution-in-pytorch-lightning-quick-intro-or-reminder">3. 1-d convolution in PyTorch: lightning-quick intro (or reminder)&lt;/h3>
+&lt;p>In the case of univariate time series, one-dimensional convolution is a
+sliding window applied over time series, an operation which consist of
+multiplications and additions. It was intuitively illustrated on the gif
+below.&lt;/p>
+&lt;center>
+&lt;img src="/post/2020-10-03-ts-and-torch-1//conv1d.gif" width="400">
+&lt;p>&lt;strong>Source:
+&lt;a href="https://blog.floydhub.com/reading-minds-with-deep-learning/" class="uri">&lt;a href="https://blog.floydhub.com/reading-minds-with-deep-learning/">https://blog.floydhub.com/reading-minds-with-deep-learning/&lt;/a>&lt;/a>&lt;/strong>&lt;/p>
+&lt;/center>
+&lt;p>As you can see, output depend on input and kernel values. Defining
+proper kernel, we can apply the operation we want. For example, using a
+(0.5, 0.5) kernel, it will give us a two-element moving average. To test
+that, let’s do a simple experiment.&lt;/p>
+&lt;h3 id="4-computing-moving-average-with-datatable">4. Computing moving average with &lt;code>data.table&lt;/code>&lt;/h3>
+&lt;p>Among its many features, &lt;code>data.table&lt;/code> offers a set of ‘fast’ functions
+(with names prefixed with &lt;strong>f&lt;/strong>). One example of this great stuff is a
+&lt;a href="https://rdatatable.gitlab.io/data.table/reference/froll.html">&lt;strong>&lt;code>frollmean&lt;/code>&lt;/strong>&lt;/a>
+functions, which computes moving average. We use a standard &lt;code>head&lt;/code>
+function as well, to limit the output. What is worth to mention is that
+a &lt;strong>NA&lt;/strong> appeared in the first row. It’s because we can’t compute moving
+avearge for the first element if we haven’t added any padding on the
+beginning of the array; moreover, &lt;code>frollmean&lt;/code> keeps the input’s length,
+so the first element has no value.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">ts &lt;span style="color:#f92672">&amp;lt;-&lt;/span> shampoo&lt;span style="color:#f92672">$&lt;/span>Sales
+ts &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;span style="color:#a6e22e">frollmean&lt;/span>(&lt;span style="color:#ae81ff">2&lt;/span>) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;span style="color:#a6e22e">head&lt;/span>(&lt;span style="color:#ae81ff">10&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] NA 205.95 164.50 151.20 149.80 174.40 200.15 228.15 208.65 157.85
+&lt;/code>&lt;/pre>
+&lt;h3 id="5-computing-moving-average-with-torch">5. Computing moving average with &lt;code>torch&lt;/code>&lt;/h3>
+&lt;p>Now, let’s reproduce this result using 1-dimensional convolution from
+&lt;code>torch&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">ts_tensor &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">torch_tensor&lt;/span>(ts)&lt;span style="color:#f92672">$&lt;/span>&lt;span style="color:#a6e22e">reshape&lt;/span>(&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">-1&lt;/span>))
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Let’s stop here for a moment. If you are not familiar with deep learning
+frameworks, you would be quite confused because of this &lt;code>reshape&lt;/code>
+operation. What did we do above? We created a &lt;strong>3-dimensional tensor&lt;/strong>;
+each number in &lt;code>reshape&lt;/code> function describes respectively:&lt;/p>
+&lt;ol>
+&lt;li>number of samples&lt;/li>
+&lt;li>number of channels&lt;/li>
+&lt;li>length of time series&lt;/li>
+&lt;/ol>
+&lt;p>Meaning of this values requires some explanation.&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Number of samples&lt;/strong> is the number of time series we are working
+on. As we want to perform computations for one time series only, the
+value must equal one.&lt;/li>
+&lt;li>&lt;strong>Number of channels&lt;/strong> is is the number of &lt;strong>features&lt;/strong> or
+(independent) &lt;strong>variables&lt;/strong>. We don’t have any parallel variables
+containing information about, say, temperature or population. It’s
+clear that this value must equal one too.&lt;/li>
+&lt;li>&lt;strong>Length of time series&lt;/strong>. Accordingly to &lt;code>torch&lt;/code> tensor reshaping
+convention, minus one means &lt;em>infer value for this dimension&lt;/em>. If
+one-dimensional time series length has 36 elements, after reshaping
+it to three-dimensional tensor with &lt;em>number_of_samples&lt;/em> = 1 and
+&lt;em>number_of_channels&lt;/em> = 1, the last value will be equal to 36.&lt;/li>
+&lt;/ol>
+&lt;p>We have to do the same with the kernel.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">kernel &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">0.5&lt;/span>, &lt;span style="color:#ae81ff">0.5&lt;/span>)
+kernel_tensor &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">torch_tensor&lt;/span>(kernel)&lt;span style="color:#f92672">$&lt;/span>&lt;span style="color:#a6e22e">reshape&lt;/span>(&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">-1&lt;/span>))
+&lt;span style="color:#a6e22e">torch_conv1d&lt;/span>(ts_tensor, kernel_tensor)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## torch_tensor
+## (1,.,.) =
+## Columns 1 to 7 205.9500 164.5000 151.2000 149.8000 174.4000 200.1500 228.1500
+##
+## Columns 8 to 14 208.6500 157.8500 229.7000 261.2000 190.1000 171.9000 179.8000
+##
+## Columns 15 to 21 241.7000 232.3500 239.2000 256.5000 264.8000 296.7500 355.7500
+##
+## Columns 22 to 28 343.0500 303.4000 341.0000 390.0500 378.1500 377.6000 420.3000
+##
+## Columns 29 to 35 419.3500 506.4500 491.5500 544.8000 578.6500 528.3000 614.1000
+## [ CPUFloatType{1,1,35} ]
+&lt;/code>&lt;/pre>
+&lt;p>As we can observe, the result is identical with values returned by
+&lt;code>frollmean&lt;/code> function. The only difference is lack of &lt;strong>NA&lt;/strong> on the
+beginning.&lt;/p>
+&lt;h3 id="6-learning-a-network-which-computes-moving-average">6. Learning a network, which computes moving average&lt;/h3>
+&lt;p>Now, let’s get to the point and train the network on the fully
+controllable example. I’ve called in this manner to distinguish it from
+the real-life ones. In most cases, when we train a machine learning
+model, we don’t know the optimal parameter values. We are just trying to
+choose the best ones, but have no guarantee that they are globally
+optimal. Here, the optimal kernel value is known and should equal
+&lt;strong>[0.2, 0.2, 0.2, 0.2, 0.2]&lt;/strong>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">X_tensor &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">torch_tensor&lt;/span>(ts)&lt;span style="color:#f92672">$&lt;/span>&lt;span style="color:#a6e22e">reshape&lt;/span>(&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">-1&lt;/span>))
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>In the step below, we are preparing &lt;strong>targets&lt;/strong> (&lt;strong>labels&lt;/strong>), which
+equals to the five-element moving average.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">y &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">frollmean&lt;/span>(ts, &lt;span style="color:#ae81ff">5&lt;/span>)
+y &lt;span style="color:#f92672">&amp;lt;-&lt;/span> y[&lt;span style="color:#f92672">-&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span>&lt;span style="color:#ae81ff">4&lt;/span>)]
+y_tensor &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">torch_tensor&lt;/span>(y)&lt;span style="color:#f92672">$&lt;/span>&lt;span style="color:#a6e22e">reshape&lt;/span>(&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">-1&lt;/span>))
+y_tensor
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## torch_tensor
+## (1,.,.) =
+## Columns 1 to 7 178.9200 159.4200 176.6000 184.8800 199.5800 188.1000 221.7000
+##
+## Columns 8 to 14 212.5200 206.4800 197.8200 215.2600 202.6200 203.7200 222.2600
+##
+## Columns 15 to 21 237.5600 256.2600 259.5800 305.6200 301.1200 324.3800 331.6000
+##
+## Columns 22 to 28 361.7000 340.5600 375.5200 387.3200 406.8600 433.8800 452.2200
+##
+## Columns 29 to 32 500.7600 515.5600 544.3400 558.6200
+## [ CPUFloatType{1,1,32} ]
+&lt;/code>&lt;/pre>
+&lt;p>We are building a one-layer convolutional neural network. It’s good to
+highlight, that &lt;strong>we don’t use any nonlinear activation function&lt;/strong>. Last
+numerical value describes the length of the kernel, &lt;em>padding = 0&lt;/em> means
+that we don’t add any padding to the input, so we have to expect that
+output will be “trimmed”.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">net &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">nn_conv1d&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">5&lt;/span>, padding &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>, bias &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">FALSE&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Kernel is already initialized with, assume it for simplicity, &lt;em>random&lt;/em>
+values.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">net&lt;span style="color:#f92672">$&lt;/span>parameters&lt;span style="color:#f92672">$&lt;/span>weight
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## torch_tensor
+## (1,.,.) =
+## -0.0298 0.1094 -0.4210 -0.1510 -0.1525
+## [ CPUFloatType{1,1,5} ]
+&lt;/code>&lt;/pre>
+&lt;p>We can perform a convolution operation using this random value, calling
+&lt;strong>net$forward()&lt;/strong> or simply &lt;strong>net()&lt;/strong>. This two operations are
+equivalent.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">net&lt;/span>(X_tensor)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## torch_tensor
+## (1,.,.) =
+## Columns 1 to 7 -114.5778 -87.4777 -129.1170 -124.0212 -147.8481 -122.0550 -133.4026
+##
+## Columns 8 to 14 -116.5216 -191.6899 -97.2734 -126.1265 -120.6398 -148.3641 -169.2148
+##
+## Columns 15 to 21 -134.7664 -188.4784 -159.5273 -219.7331 -199.5979 -246.9963 -177.3924
+##
+## Columns 22 to 28 -246.2201 -228.1574 -273.1713 -222.5049 -290.8464 -284.1429 -302.4402
+##
+## Columns 29 to 32 -371.9796 -297.1908 -420.1493 -324.1110
+## [ CPUFloatType{1,1,32} ]
+&lt;/code>&lt;/pre>
+&lt;p>We are initializing an optimizer object. I highly encourage you to
+experiment and start with &lt;strong>SGD&lt;/strong> which may do not converge.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#75715e"># optimizer &amp;lt;- optim_sgd(net$parameters, lr = 0.01)&lt;/span>
+optimizer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">optim_adam&lt;/span>(net&lt;span style="color:#f92672">$&lt;/span>parameters, lr &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0.01&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Here, he have only one example so it does not make sense to divide
+training into epochs.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">running_loss &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">0.0&lt;/span>
+&lt;span style="color:#a6e22e">for &lt;/span>(iteration in &lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span>&lt;span style="color:#ae81ff">2000&lt;/span>) {
+&lt;span style="color:#75715e"># Zeroing gradients. For more,&lt;/span>
+&lt;span style="color:#75715e"># see: https://stackoverflow.com/questions/48001598/why-do-we-need-to-call-zero-grad-in-pytorch&lt;/span>
+optimizer&lt;span style="color:#f92672">$&lt;/span>&lt;span style="color:#a6e22e">zero_grad&lt;/span>()
+&lt;span style="color:#75715e"># Forward propagation&lt;/span>
+outputs &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">net&lt;/span>(X_tensor)
+&lt;span style="color:#75715e"># Mean squared error&lt;/span>
+loss_value &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">torch_mean&lt;/span>((outputs &lt;span style="color:#f92672">-&lt;/span> y_tensor)&lt;span style="color:#f92672">**&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>)
+&lt;span style="color:#75715e"># Computing gradients&lt;/span>
+loss_value&lt;span style="color:#f92672">$&lt;/span>&lt;span style="color:#a6e22e">backward&lt;/span>()
+&lt;span style="color:#75715e"># Changing network parameters with optimizer&lt;/span>
+optimizer&lt;span style="color:#f92672">$&lt;/span>&lt;span style="color:#a6e22e">step&lt;/span>()
+&lt;span style="color:#75715e"># Extracting loss value from tensor&lt;/span>
+running_loss &lt;span style="color:#f92672">&amp;lt;-&lt;/span> running_loss &lt;span style="color:#f92672">+&lt;/span> loss_value&lt;span style="color:#f92672">$&lt;/span>&lt;span style="color:#a6e22e">item&lt;/span>()
+flat_weights &lt;span style="color:#f92672">&amp;lt;-&lt;/span> net&lt;span style="color:#f92672">$&lt;/span>parameters&lt;span style="color:#f92672">$&lt;/span>weight &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;span style="color:#a6e22e">as_array&lt;/span>() &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;span style="color:#a6e22e">as.vector&lt;/span>()
+&lt;span style="color:#a6e22e">if &lt;/span>(iteration &lt;span style="color:#f92672">%%&lt;/span> &lt;span style="color:#ae81ff">50&lt;/span> &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>) {
+&lt;span style="color:#a6e22e">print&lt;/span>(glue&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">glue&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;[{iteration}] loss: {loss_value$item()}&amp;#34;&lt;/span>))
+&lt;span style="color:#a6e22e">print&lt;/span>(flat_weights)
+}
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [50] loss: 795.017639160156
+## [1] 0.3119572 0.4480094 -0.0774434 0.1887493 0.1892590
+## [100] loss: 627.464172363281
+## [1] 0.30481237 0.42822435 -0.07718747 0.17363353 0.18184586
+## [150] loss: 546.570983886719
+## [1] 0.3097025 0.4179998 -0.0630119 0.1692921 0.1865403
+## [200] loss: 471.807800292969
+## [1] 0.31258762 0.40443128 -0.04937108 0.16256894 0.18939941
+## [250] loss: 401.237457275391
+## [1] 0.31531987 0.39036036 -0.03479132 0.15607581 0.19235790
+## [300] loss: 337.717254638672
+## [1] 0.31756479 0.37616777 -0.01987797 0.15002672 0.19514479
+## [350] loss: 282.553039550781
+## [1] 0.319161922 0.362225264 -0.005009139 0.144656733 0.197645336
+## [400] loss: 235.910583496094
+## [1] 0.320012957 0.348812759 0.009538475 0.140130043 0.199790746
+## [450] loss: 197.225311279297
+## [1] 0.32006672 0.33612481 0.02356522 0.13654210 0.20154381
+## [500] loss: 165.532333374023
+## [1] 0.31931198 0.32428458 0.03693568 0.13392988 0.20289351
+## [550] loss: 139.712768554688
+## [1] 0.31777066 0.31335631 0.04956749 0.13228267 0.20385022
+## [600] loss: 118.661178588867
+## [1] 0.31549129 0.30335727 0.06142059 0.13155238 0.20444071
+## [650] loss: 101.386795043945
+## [1] 0.31254151 0.29426861 0.07248778 0.13166353 0.20470326
+## [700] loss: 87.0595397949219
+## [1] 0.30900255 0.28604546 0.08278601 0.13252223 0.20468384
+## [750] loss: 75.020133972168
+## [1] 0.30496314 0.27862594 0.09234858 0.13402404 0.20443186
+## [800] loss: 64.7659072875977
+## [1] 0.3005151 0.2719381 0.1012190 0.1360608 0.2039973
+## [850] loss: 55.9260444641113
+## [1] 0.2957492 0.2659062 0.1094460 0.1385261 0.2034285
+## [900] loss: 48.2335586547852
+## [1] 0.2907525 0.2604553 0.1170791 0.1413187 0.2027697
+## [950] loss: 41.4970893859863
+## [1] 0.2856061 0.2555139 0.1241664 0.1443462 0.2020606
+## [1000] loss: 35.5792236328125
+## [1] 0.2803833 0.2510171 0.1307523 0.1475262 0.2013350
+## [1050] loss: 30.3781261444092
+## [1] 0.2751493 0.2469072 0.1368768 0.1507875 0.2006208
+## [1100] loss: 25.8145942687988
+## [1] 0.2699609 0.2431345 0.1425748 0.1540700 0.1999404
+## [1150] loss: 21.8240375518799
+## [1] 0.2648661 0.2396567 0.1478763 0.1573242 0.1993102
+## [1200] loss: 18.3501605987549
+## [1] 0.2599051 0.2364388 0.1528070 0.1605106 0.1987420
+## [1250] loss: 15.3419895172119
+## [1] 0.2551105 0.2334520 0.1573887 0.1635987 0.1982433
+## [1300] loss: 12.7523593902588
+## [1] 0.2505079 0.2306734 0.1616401 0.1665655 0.1978179
+## [1350] loss: 10.5367918014526
+## [1] 0.2461172 0.2280841 0.1655775 0.1693947 0.1974661
+## [1400] loss: 8.65341949462891
+## [1] 0.2419526 0.2256693 0.1692155 0.1720755 0.1971868
+## [1450] loss: 7.06301403045654
+## [1] 0.2380237 0.2234169 0.1725675 0.1746014 0.1969763
+## [1500] loss: 5.72896862030029
+## [1] 0.2343363 0.2213169 0.1756462 0.1769695 0.1968299
+## [1550] loss: 4.61755132675171
+## [1] 0.2308923 0.2193609 0.1784641 0.1791797 0.1967420
+## [1600] loss: 3.69792985916138
+## [1] 0.2276909 0.2175417 0.1810337 0.1812342 0.1967065
+## [1650] loss: 2.94231581687927
+## [1] 0.2247288 0.2158528 0.1833675 0.1831365 0.1967170
+## [1700] loss: 2.32577872276306
+## [1] 0.2220005 0.2142882 0.1854781 0.1848916 0.1967671
+## [1750] loss: 1.82624590396881
+## [1] 0.2194988 0.2128422 0.1873784 0.1865052 0.1968507
+## [1800] loss: 1.42442286014557
+## [1] 0.2172151 0.2115093 0.1890816 0.1879836 0.1969618
+## [1850] loss: 1.10348606109619
+## [1] 0.2151396 0.2102839 0.1906009 0.1893335 0.1970950
+## [1900] loss: 0.849016129970551
+## [1] 0.2132619 0.2091608 0.1919495 0.1905621 0.1972449
+## [1950] loss: 0.648723244667053
+## [1] 0.2115705 0.2081344 0.1931406 0.1916765 0.1974071
+## [2000] loss: 0.492226451635361
+## [1] 0.2100540 0.2071995 0.1941869 0.1926837 0.1975773
+&lt;/code>&lt;/pre>
+&lt;p>As we can see in this example, algorithm converges and parameter values
+are becoming close to the &lt;strong>true solution&lt;/strong>, i.e. &lt;strong>[0.2, 0.2, 0.2,
+0.2, 0.2]&lt;/strong>.&lt;/p>
+&lt;p>On my blog, you can also find a &lt;a href="https://krzjoa.github.io/2019/12/28/pytorch-ts-v1.html">Python
+version&lt;/a> of this
+post.&lt;/p></description></item><item><title>S4 vs vctrs library - A Double Dispatch Comparision Remake</title><link>/2020/10/01/content/post/2020-10-01-s4_vs_vctrs_remake/2020-10-01-s4_vs_vctrs_remake/</link><pubDate>Thu, 01 Oct 2020 00:00:00 +0000</pubDate><guid>/2020/10/01/content/post/2020-10-01-s4_vs_vctrs_remake/2020-10-01-s4_vs_vctrs_remake/</guid><description>&lt;p>&lt;a>&lt;img src='/post/2020-10-01-s4_vs_vctrs_remake/S4_vs_vctrs_remake.jpg' align="center"/>&lt;/a>&lt;/p>
+&lt;h2 id="remake">Remake&lt;/h2>
+&lt;p>About two weeks ago, I published on my blog a &lt;a href="https://krzjoa.github.io/2020/09/21/s4-vs-vctrs.html">&lt;strong>comparision between two
+possible implementation of
+double-dispatch&lt;/strong>&lt;/a>:
+S4-based and vctrs-based. It turned out, that in my trials &lt;strong>vctrs&lt;/strong>
+performed better. However, two days later I’ve got a message from
+&lt;a href="https://github.com/lionel-">&lt;strong>Lionel Henry&lt;/strong>&lt;/a> via comment to my commit
+on GitHub. He suggested, that S4 got faster in the newest versions of R.&lt;/p>
+&lt;center>
+&lt;img src='/post/2020-10-01-s4_vs_vctrs_remake/lionels_comment.png' align="center"/>
+&lt;/center>
+&lt;p>I decided to remake this experiment and check out, if my findings are
+still true.&lt;/p>
+&lt;h2 id="why-do-we-may-need-double-dispatch">Why do we may need double dispatch?&lt;/h2>
+&lt;p>In most cases, when writing R scripts or even creating R packages, it is
+enough to use standard functions or S3 methods. However, there is one
+important field that forces us to consider &lt;strong>double dispatch&lt;/strong> question:
+&lt;strong>arithmetic operators&lt;/strong>.&lt;/p>
+&lt;p>Suppose we’d like to create a class, which fits the problem we’re
+currently working on. Let’s name such class &lt;strong>beer&lt;/strong>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(type){
+&lt;span style="color:#a6e22e">structure&lt;/span>(&lt;span style="color:#a6e22e">list&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> type),class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;beer&amp;#34;&lt;/span>)
+}
+opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(){
+&lt;span style="color:#a6e22e">structure&lt;/span>(&lt;span style="color:#a6e22e">list&lt;/span>(), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;opener&amp;#34;&lt;/span>)
+}
+pilsner &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">beer&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;pilnser&amp;#34;&lt;/span>)
+my_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">opener&lt;/span>()
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then, we create an operator which defines some non-standard behaviour.&lt;/p>
+&lt;ul>
+&lt;li>if we add an opener to the beer, we get an &lt;strong>opened_beer&lt;/strong>.&lt;/li>
+&lt;li>adding a &lt;strong>numeric&lt;/strong> &lt;em>x&lt;/em>, we get a case of beers (which even contain
+a negative number of bees, i.e. our debt…)&lt;/li>
+&lt;li>if second argument is different than a or &lt;strong>opener&lt;/strong> or &lt;strong>numeric&lt;/strong>,
+we get… untouched beer&lt;/li>
+&lt;/ul>
+&lt;p>Let’s demonstrate, how does it work:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">`+.beer` &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(a, b){
+&lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(b, &lt;span style="color:#e6db74">&amp;#34;opener&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">structure&lt;/span>(&lt;span style="color:#a6e22e">list&lt;/span>(
+name &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">paste&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;opened&amp;#34;&lt;/span>, a&lt;span style="color:#f92672">$&lt;/span>name)
+), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;opened_beer&amp;#34;&lt;/span>))
+} else &lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(b, &lt;span style="color:#e6db74">&amp;#34;numeric&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;It&amp;#39;s magic! You&amp;#39;ve got a case of beers!&amp;#34;&lt;/span>)
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">structure&lt;/span>(&lt;span style="color:#a6e22e">list&lt;/span>(
+n_beers &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> b
+), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;case_of_beers&amp;#34;&lt;/span>))
+} else {
+&lt;span style="color:#a6e22e">return&lt;/span>(a)
+}
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">pilsner &lt;span style="color:#f92672">+&lt;/span> my_opener
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## $name
+## [1] &amp;quot;opened &amp;quot;
+##
+## attr(,&amp;quot;class&amp;quot;)
+## [1] &amp;quot;opened_beer&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">pilsner &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">-0.1&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] &amp;quot;It's magic! You've got a case of beers!&amp;quot;
+## $n_beers
+## [1] 0.9
+##
+## attr(,&amp;quot;class&amp;quot;)
+## [1] &amp;quot;case_of_beers&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;p>Don’t you think, that such operations should be &lt;strong>commutative&lt;/strong>?&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">my_opener &lt;span style="color:#f92672">+&lt;/span> pilsner
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## list()
+## attr(,&amp;quot;class&amp;quot;)
+## [1] &amp;quot;opener&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;p>What did happen here? This is an example of the way the R interpreter
+handles arithmetic operator. It was described with details on &lt;a href="https://yutani.rbind.io/post/double-dispatch-of-s3-method/">&lt;strong>Hiroaki
+Yutani’s
+blog&lt;/strong>&lt;/a>.
+Briefly speaking, in this particular case R engine matched method to the
+second argument (not to the first one), because there is no &lt;code>+.opener&lt;/code>
+S3 method. What about such trick:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">`+.opener` &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(a, b) b &lt;span style="color:#f92672">+&lt;/span> a
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>After that, the result is different:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">my_opener &lt;span style="color:#f92672">+&lt;/span> pilsner
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## Warning: Incompatible methods (&amp;quot;+.opener&amp;quot;, &amp;quot;+.beer&amp;quot;) for &amp;quot;+&amp;quot;
+## Error in my_opener + pilsner: non-numeric argument to binary operator
+&lt;/code>&lt;/pre>
+&lt;p>We crashed our function call. When both objects have the &lt;code>+&lt;/code> method
+defined and these methods are not the same, R is trying to resolve the
+conflict by applying an internal &lt;code>+&lt;/code>. It obviously cannot work. This
+case could be easily solved using more ‘ifs’ in the &lt;code>+.beer&lt;/code> beer
+function body. But let’s face a different situation.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#ae81ff">-0.1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> pilsner
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] -0.1
+&lt;/code>&lt;/pre>
+&lt;p>What a mess! Simple S3 methods are definitely not the best solution when
+we need the double dispatch.&lt;/p>
+&lt;h2 id="s4-class-a-classic-approach">S4 class: a classic approach&lt;/h2>
+&lt;p>To civilize such code, we can use classic R approach, S4 methods. We’ll
+start from S4 classes declaration.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">.S4_beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">setClass&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;S4_beer&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">representation&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;character&amp;#34;&lt;/span>))
+.S4_opened_beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">setClass&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;S4_opened_beer&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">representation&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;character&amp;#34;&lt;/span>))
+.S4_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">setClass&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">representation&lt;/span>(ID &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;numeric&amp;#34;&lt;/span>))
+.S4_case_of_beers &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">setClass&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;S4_case_of_beers&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">representation&lt;/span>(n_beers &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;numeric&amp;#34;&lt;/span>))
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then, we can two otptions, how to handle &lt;code>+&lt;/code> operators. I didn’t mention
+about it in the previous example, but both S3 and S4 operators are
+grouped as so-called &lt;strong>group generic functions&lt;/strong> (learn more:
+&lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html">&lt;strong>S3&lt;/strong>&lt;/a>,
+&lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/methods/html/S4groupGeneric.html">&lt;strong>S4&lt;/strong>&lt;/a>).&lt;/p>
+&lt;p>We can set a S4 method for a single operator and that looks as follows:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">setMethod&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;+&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">c&lt;/span>(e1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;S4_beer&amp;#34;&lt;/span>, e2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>),
+&lt;span style="color:#a6e22e">function&lt;/span>(e1, e2){
+&lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(e2, &lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">.S4_opened_beer&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">paste&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;opened&amp;#34;&lt;/span>, e1&lt;span style="color:#f92672">@&lt;/span>type)))
+} else &lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(e2, &lt;span style="color:#e6db74">&amp;#34;numeric&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;It&amp;#39;s magic! You&amp;#39;ve got a case of beers!&amp;#34;&lt;/span>)
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">.S4_case_of_beers&lt;/span>(n_beers &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> e2))
+} else {
+&lt;span style="color:#a6e22e">return&lt;/span>(e1)
+}
+})
+&lt;span style="color:#a6e22e">setMethod&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;+&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">c&lt;/span>(e1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>, e2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;S4_beer&amp;#34;&lt;/span>),
+&lt;span style="color:#a6e22e">function&lt;/span>(e1, e2) e2 &lt;span style="color:#f92672">+&lt;/span> e1)
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Alternatively, we can define a method for &lt;code>Arith&lt;/code> geneneric and check,
+what method is exactly called at the moment. I decided to use the second
+approach, because it’s more similar to the way the double dispatch is
+implemented in the &lt;strong>vctrs&lt;/strong> library.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">.S4_fun &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(e1, e2){
+&lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(e2, &lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">.S4_opened_beer&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">paste&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;opened&amp;#34;&lt;/span>, e1&lt;span style="color:#f92672">@&lt;/span>type)))
+} else &lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(e2, &lt;span style="color:#e6db74">&amp;#34;numeric&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;It&amp;#39;s magic! You&amp;#39;ve got a case of beers!&amp;#34;&lt;/span>)
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">.S4_case_of_beers&lt;/span>(n_beers &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> e2))
+} else {
+&lt;span style="color:#a6e22e">return&lt;/span>(e1)
+}
+}
+&lt;span style="color:#a6e22e">setMethod&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;Arith&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">c&lt;/span>(e1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;S4_beer&amp;#34;&lt;/span>, e2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>),
+&lt;span style="color:#a6e22e">function&lt;/span>(e1, e2)
+{
+op &lt;span style="color:#f92672">=&lt;/span> .Generic[[1]]
+&lt;span style="color:#a6e22e">switch&lt;/span>(op,
+`+` &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">.S4_fun&lt;/span>(e1, e2),
+&lt;span style="color:#a6e22e">stop&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;undefined operation&amp;#34;&lt;/span>)
+)
+})
+&lt;span style="color:#a6e22e">setMethod&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;Arith&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">c&lt;/span>(e1&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>, e2&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;S4_beer&amp;#34;&lt;/span>),
+&lt;span style="color:#a6e22e">function&lt;/span>(e1, e2)
+{
+op &lt;span style="color:#f92672">=&lt;/span> .Generic[[1]]
+&lt;span style="color:#a6e22e">switch&lt;/span>(op,
+`+` &lt;span style="color:#f92672">=&lt;/span> e2 &lt;span style="color:#f92672">+&lt;/span> e1,
+&lt;span style="color:#a6e22e">stop&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;undefined operation&amp;#34;&lt;/span>)
+)
+})
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Let’s create our class instances and do a piece of math.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">S4_pilsner &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">.S4_beer&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;Pilsner&amp;#34;&lt;/span>)
+S4_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">.S4_opener&lt;/span>(ID &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">S4_pilsner &lt;span style="color:#f92672">+&lt;/span> S4_opener
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## An object of class &amp;quot;S4_opened_beer&amp;quot;
+## Slot &amp;quot;type&amp;quot;:
+## [1] &amp;quot;opened Pilsner&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">S4_opener &lt;span style="color:#f92672">+&lt;/span> S4_pilsner
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## An object of class &amp;quot;S4_opened_beer&amp;quot;
+## Slot &amp;quot;type&amp;quot;:
+## [1] &amp;quot;opened Pilsner&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;p>Declared methods are clear, and, the most important: they work
+correctly.&lt;/p>
+&lt;h2 id="vctrs-library-a-tidyverse-approach">vctrs library: a tidyverse approach&lt;/h2>
+&lt;p>&lt;a href="https://github.com/r-lib/vctrs">&lt;strong>vctrs&lt;/strong>&lt;/a> is an interesting library,
+thought as a remedy for a couple of R disadvantages. It delivers, among
+others, a custom double-dispatch system based on well-known S3
+mechanism.&lt;/p>
+&lt;p>At the first step we declare class ‘constructors’.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">library&lt;/span>(vctrs)
+.vec_beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(type){
+&lt;span style="color:#a6e22e">new_vctr&lt;/span>(.data &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> type), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;vec_beer&amp;#34;&lt;/span>)
+}
+.vec_opened_beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(type){
+&lt;span style="color:#a6e22e">new_vctr&lt;/span>(.data &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> type), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;vec_opened_beer&amp;#34;&lt;/span>)
+}
+.vec_case_of_beers &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(n_beers){
+&lt;span style="color:#a6e22e">new_vctr&lt;/span>(.data &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(n_beers &lt;span style="color:#f92672">=&lt;/span> n_beers), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;vec_case_of_beers&amp;#34;&lt;/span>)
+}
+.vec_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(){
+&lt;span style="color:#a6e22e">new_vctr&lt;/span>(.data &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;vec_opener&amp;#34;&lt;/span>)
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then, we create class instances.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">vec_pilsner &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">.vec_beer&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;pilnser&amp;#34;&lt;/span>)
+vec_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">.vec_opener&lt;/span>()
+&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#a6e22e">class&lt;/span>(vec_pilsner))
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] &amp;quot;vec_beer&amp;quot; &amp;quot;vctrs_vctr&amp;quot; &amp;quot;list&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#a6e22e">class&lt;/span>(vec_opener))
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] &amp;quot;vec_opener&amp;quot; &amp;quot;vctrs_vctr&amp;quot; &amp;quot;list&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;p>At the end, we write a double-dispatched methods &lt;strong>in vctrs style&lt;/strong>. As
+you can see,&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">.fun &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(a, b){
+&lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(b, &lt;span style="color:#e6db74">&amp;#34;vec_opener&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">.vec_opened_beer&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">paste&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;opened&amp;#34;&lt;/span>, a&lt;span style="color:#f92672">$&lt;/span>type)))
+} else &lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(b, &lt;span style="color:#e6db74">&amp;#34;numeric&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;It&amp;#39;s magic! You&amp;#39;ve got a case of beers!&amp;#34;&lt;/span>)
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">.vec_case_of_beers&lt;/span>(n_beers &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> b))
+} else {
+&lt;span style="color:#a6e22e">return&lt;/span>(a)
+}
+}
+vec_arith.vec_beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(op, x, y, &lt;span style="color:#66d9ef">...&lt;/span>) {
+&lt;span style="color:#a6e22e">UseMethod&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;vec_arith.vec_beer&amp;#34;&lt;/span>, y)
+}
+vec_arith.vec_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(op, x, y, &lt;span style="color:#66d9ef">...&lt;/span>) {
+&lt;span style="color:#a6e22e">UseMethod&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;vec_arith.vec_opener&amp;#34;&lt;/span>, y)
+}
+vec_arith.vec_beer.vec_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(op, x, y, &lt;span style="color:#66d9ef">...&lt;/span>){
+&lt;span style="color:#a6e22e">switch&lt;/span>(op,
+`+` &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">.fun&lt;/span>(x, y),
+&lt;span style="color:#a6e22e">stop_incompatible_op&lt;/span>(op, x, y)
+)
+}
+vec_arith.vec_opener.vec_beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(op, x, y, &lt;span style="color:#66d9ef">...&lt;/span>){
+y &lt;span style="color:#f92672">+&lt;/span> x
+}
+vec_pilsner &lt;span style="color:#f92672">+&lt;/span> vec_opener
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## &amp;lt;vec_opened_beer[1]&amp;gt;
+## type
+## opened pilnser
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">vec_opener &lt;span style="color:#f92672">+&lt;/span> vec_pilsner
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## &amp;lt;vec_opened_beer[1]&amp;gt;
+## type
+## opened pilnser
+&lt;/code>&lt;/pre>
+&lt;p>It works properly, too.&lt;/p>
+&lt;h2 id="benchmark">Benchmark&lt;/h2>
+&lt;p>I’ve created all the classes and methods above not only to demonstate,
+how to implement double dispatch in R. My main goal is to benchmark both
+approaches and check, which one has smaller overhead. The hardware I
+used for the test looks as follows:&lt;/p>
+&lt;pre>&lt;code>## $vendor_id
+## [1] &amp;quot;GenuineIntel&amp;quot;
+##
+## $model_name
+## [1] &amp;quot;Intel(R) Core(TM) i3 CPU M 350 @ 2.27GHz&amp;quot;
+##
+## $no_of_cores
+## [1] 4
+## 8.19 GB
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">sessionInfo&lt;/span>()
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## R version 4.0.2 (2020-06-22)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 18.04.2 LTS
+##
+## Matrix products: default
+## BLAS/LAPACK: /opt/intel/compilers_and_libraries_2018.2.199/linux/mkl/lib/intel64_lin/libmkl_rt.so
+##
+## locale:
+## [1] LC_CTYPE=pl_PL.UTF-8 LC_NUMERIC=C
+## [3] LC_TIME=pl_PL.UTF-8 LC_COLLATE=pl_PL.UTF-8
+## [5] LC_MONETARY=pl_PL.UTF-8 LC_MESSAGES=en_US.utf8
+## [7] LC_PAPER=pl_PL.UTF-8 LC_NAME=C
+## [9] LC_ADDRESS=C LC_TELEPHONE=C
+## [11] LC_MEASUREMENT=pl_PL.UTF-8 LC_IDENTIFICATION=C
+##
+## attached base packages:
+## [1] stats graphics grDevices utils datasets methods base
+##
+## other attached packages:
+## [1] vctrs_0.3.4
+##
+## loaded via a namespace (and not attached):
+## [1] benchmarkmeData_1.0.4 knitr_1.30 magrittr_1.5
+## [4] tidyselect_1.1.0 doParallel_1.0.15 lattice_0.20-41
+## [7] R6_2.4.1 rlang_0.4.7 foreach_1.5.0
+## [10] httr_1.4.2 stringr_1.4.0 dplyr_1.0.2
+## [13] tools_4.0.2 parallel_4.0.2 grid_4.0.2
+## [16] xfun_0.18 ellipsis_0.3.1 htmltools_0.5.0
+## [19] iterators_1.0.12 yaml_2.2.1 digest_0.6.25
+## [22] tibble_3.0.3 benchmarkme_1.0.4 lifecycle_0.2.0
+## [25] crayon_1.3.4 Matrix_1.2-18 purrr_0.3.4
+## [28] codetools_0.2-16 glue_1.4.2 evaluate_0.14
+## [31] rmarkdown_2.4 stringi_1.5.3 pillar_1.4.6
+## [34] compiler_4.0.2 generics_0.0.2 pkgconfig_2.0.3
+&lt;/code>&lt;/pre>
+&lt;p>It’s my good old notebook, which is not a beast.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">library&lt;/span>(microbenchmark)
+&lt;span style="color:#a6e22e">library&lt;/span>(ggplot2)
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="beer--opener">Beer + opener&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">bm1 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">microbenchmark&lt;/span>(
+s4 &lt;span style="color:#f92672">=&lt;/span> S4_pilsner &lt;span style="color:#f92672">+&lt;/span> S4_opener,
+s3_vec &lt;span style="color:#f92672">=&lt;/span> vec_pilsner &lt;span style="color:#f92672">+&lt;/span> vec_opener,
+times &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1000&lt;/span>
+)
+&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="r-402">R 4.0.2&lt;/h4>
+&lt;pre>&lt;code>## Unit: microseconds
+## expr min lq mean median uq max neval
+## s4 177.111 182.9710 197.09576 186.997 190.7615 1937.005 1000
+## s3_vec 68.568 74.3705 83.27131 82.710 84.4995 306.320 1000
+&lt;/code>&lt;/pre>
+&lt;center>
+&lt;img src="/post/2020-10-01-s4_vs_vctrs_remake/print.results.1-1.png" >
+&lt;/center>
+&lt;h4 id="r-361">R 3.6.1&lt;/h4>
+&lt;center>
+&lt;img src="/post/2020-10-01-s4_vs_vctrs_remake/print.results.1-1-old.png" >
+&lt;/center>
+&lt;h3 id="opener--beer">Opener + beer&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">bm2 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">microbenchmark&lt;/span>(
+s4 &lt;span style="color:#f92672">=&lt;/span> S4_opener &lt;span style="color:#f92672">+&lt;/span> S4_pilsner,
+s3_vec &lt;span style="color:#f92672">=&lt;/span> vec_opener &lt;span style="color:#f92672">+&lt;/span> vec_pilsner,
+times &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1000&lt;/span>
+)
+&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="r-402-1">R 4.0.2&lt;/h4>
+&lt;pre>&lt;code>## Unit: microseconds
+## expr min lq mean median uq max neval
+## s4 186.736 191.6060 216.6038 196.0305 200.1195 8109.925 1000
+## s3_vec 87.808 92.0705 110.3604 100.2730 102.7115 6588.121 1000
+&lt;/code>&lt;/pre>
+&lt;center>
+&lt;img src="/post/2020-10-01-s4_vs_vctrs_remake/print.results.2-1.png" >
+&lt;/center>
+&lt;h4 id="r-361-1">R 3.6.1&lt;/h4>
+&lt;center>
+&lt;img src="/post/2020-10-01-s4_vs_vctrs_remake/print.results.2-1-old.png" >
+&lt;/center>
+&lt;h3 id="bonus-opener--beer-vs-addtion-of-numerics">Bonus: opener + beer vs addtion of numerics&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">bm3 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">microbenchmark&lt;/span>(
+simple_R &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>,
+s4 &lt;span style="color:#f92672">=&lt;/span> S4_opener &lt;span style="color:#f92672">+&lt;/span> S4_pilsner,
+s3_vec &lt;span style="color:#f92672">=&lt;/span> vec_opener &lt;span style="color:#f92672">+&lt;/span> vec_pilsner,
+times &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1000&lt;/span>
+)
+&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="r-402-2">R 4.0.2&lt;/h4>
+&lt;pre>&lt;code>## Unit: nanoseconds
+## expr min lq mean median uq max neval
+## simple_R 133 374.0 643.296 722.0 795.0 2004 1000
+## s4 185652 190964.5 206643.130 195424.0 198756.5 564443 1000
+## s3_vec 87889 92022.0 103274.276 100360.5 102306.0 234482 1000
+&lt;/code>&lt;/pre>
+&lt;center>
+&lt;img src="/post/2020-10-01-s4_vs_vctrs_remake/print.results.3-1.png" >
+&lt;/center>
+&lt;h4 id="r-361-2">R 3.6.1&lt;/h4>
+&lt;center>
+&lt;img src="/post/2020-10-01-s4_vs_vctrs_remake/print.results.3-1-old.png" >
+&lt;/center>
+&lt;h2 id="conclusions">Conclusions&lt;/h2>
+&lt;p>Results are roughly the same as outcomes of my previous experiments run
+on R 3.6.1. We can state thar regarding these particular machine and
+examples, &lt;strong>vctrs-based&lt;/strong> performs better than &lt;strong>S4 methods&lt;/strong>.&lt;/p>
+&lt;h2 id="further-sources">Further sources&lt;/h2>
+&lt;p>If you are interesting, how to implement double-dispatched operators in
+S4, I encourage you to get familiar with code of the following R
+libraries:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/cran/Matrix/blob/master/R/Ops.R">Matrix&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/cdeterman/gpuR/blob/master/R/methods-gpuVector.R">gpuR&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>If you are looking for some examples of &lt;strong>vctrs&lt;/strong>, I recommend you to
+learn the source code of:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/r-lib/rray/blob/master/R/compat-vctrs-arith.R">rray&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/RMHogervorst/banana/blob/master/R/banana.R">banana&lt;/a>
+(a funny toy package)&lt;/li>
+&lt;/ul></description></item><item><title>path.chain: Concise Structure for Chainable Paths</title><link>/2020/09/27/content/post/2020-09-27-path-chain/2020-09-27-path-chain/</link><pubDate>Sun, 27 Sep 2020 00:00:00 +0000</pubDate><guid>/2020/09/27/content/post/2020-09-27-path-chain/2020-09-27-path-chain/</guid><description>&lt;p>&lt;a href="https://krzjoa.github.io/path.chain">&lt;img src='https://raw.githubusercontent.com/krzjoa/path.chain/master/man/figures/logo.png' align="left" height="139" style="margin-right: 20px" />&lt;/a>
+&lt;code>path.chain&lt;/code> package provides an intuitive and easy-to-use system of
+nested objects, which represents different levels of some directory’s
+structure in the file system. It allows us to created a nested structure, which returns a string
+from every its leaf.&lt;/p>
+&lt;br/>
+&lt;h2 id="look-at-the-pathchain">Look at the &lt;code>path.chain&lt;/code>&lt;/h2>
+&lt;p>Sometimes one picture can say more, than a thousand words, and this is
+exactly the case.&lt;/p>
+&lt;center>
+&lt;img src='https://raw.githubusercontent.com/krzjoa/path.chain/master/man/figures/path_chain.gif'/>
+&lt;/center>
+&lt;h2 id="motivation">Motivation&lt;/h2>
+&lt;p>I’ve been working on the ML project, when we decided to keep strcture of
+the input data in the &lt;strong>YAML&lt;/strong> config. The structure were getting
+complicated, and at some point on this history ou config get a form like
+this:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">default&lt;/span>:
+&lt;span style="color:#f92672">kData&lt;/span>:
+&lt;span style="color:#f92672">kRoot&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;our/super/dir&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">kTerroir&lt;/span>:
+&lt;span style="color:#f92672">kRoot&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;terroir&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">kSoils&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;soils.fst&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">kTemperature&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;temperature.fst&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">kRains&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;rains.fst&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">kWineQuality&lt;/span>:
+&lt;span style="color:#f92672">kChemicalParams&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;chemical_params.fst&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">kContestResults&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;contest_results.fst&amp;#39;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>For your infomation: the example above is totally fictitious and has
+nothing to do with the actual project I’ve been woking on. Moreover, in
+our project, several times more of paths were defined. As you can
+imagine, such structure forced us to load data in the following manner:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">config &lt;span style="color:#f92672">&amp;lt;-&lt;/span> config&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">get&lt;/span>(
+config &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;default&amp;#34;&lt;/span>
+file &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;path/to/config&amp;#34;&lt;/span>,
+use_parent &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">FALSE&lt;/span>
+)
+path &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">file.path&lt;/span>(
+config&lt;span style="color:#f92672">$&lt;/span>kData&lt;span style="color:#f92672">$&lt;/span>kRoot,
+config&lt;span style="color:#f92672">$&lt;/span>kData&lt;span style="color:#f92672">$&lt;/span>kTerroir&lt;span style="color:#f92672">$&lt;/span>kRoot,
+config&lt;span style="color:#f92672">$&lt;/span>kData&lt;span style="color:#f92672">$&lt;/span>kTerroir&lt;span style="color:#f92672">$&lt;/span>kSoils
+)
+vineyard_soils &lt;span style="color:#f92672">&amp;lt;-&lt;/span> fst&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">read_fst&lt;/span>(path)
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Doesn’t it look redundant? So, I’ve written a &lt;code>path.chain&lt;/code> package:
+using it we can perform the same action with less code:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">library&lt;/span>(path.chain)
+vineyard_soils &lt;span style="color:#f92672">&amp;lt;-&lt;/span> fst&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">read_fst&lt;/span>(
+config&lt;span style="color:#f92672">$&lt;/span>kData&lt;span style="color:#f92672">$&lt;/span>kTerroir&lt;span style="color:#f92672">$&lt;/span>kSoils
+)
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Isn’t it nice for your eyes?&lt;/p>
+&lt;p>If I would like to modify the config, say, with the following change,&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="color:#f92672">default&lt;/span>:
+&lt;span style="color:#f92672">kData&lt;/span>:
+&lt;span style="color:#f92672">kRoot&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;our/super/dir&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">kTerroir&lt;/span>:
+&lt;span style="color:#f92672">kRoot&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;terroir&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">kSoils&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;vineyard_soils.fst&amp;#39;&lt;/span> &lt;span style="color:#75715e"># &amp;lt;- This is the change&lt;/span>
+&lt;span style="color:#f92672">kTemperature&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;temperature.fst&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">kRains&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;rains.fst&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">kWineQuality&lt;/span>:
+&lt;span style="color:#f92672">kChemicalParams&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;chemical_params.fst&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">kContestResults&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;contest_results.fst&amp;#39;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>the code is still working.&lt;/p>
+&lt;p>What if we would like to reconfigure our list of paths wthout changing
+the code? It may probably break desired behaviour of our scripts, but
+with &lt;code>path.chain&lt;/code> we can easily detect the cause looking into logs.
+Simply use &lt;code>on_path_not_exists&lt;/code> or &lt;code>on_validate_path&lt;/code>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">on_validate_path&lt;/span>(
+&lt;span style="color:#f92672">~&lt;/span> &lt;span style="color:#a6e22e">if&lt;/span>(tools&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">file_ext&lt;/span>(.x) &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;.fst&amp;#39;&lt;/span>) &lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;Invalid file&amp;#34;&lt;/span>)
+)
+&lt;span style="color:#a6e22e">on_path_not_exists&lt;/span>(&lt;span style="color:#f92672">~&lt;/span> &lt;span style="color:#a6e22e">log_error&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;Path {.x} not exists&amp;#34;&lt;/span>))
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>To learn more, read the &lt;a href="https://krzjoa.github.io/path.chain/index.html">package
+documentation&lt;/a>.&lt;/p></description></item><item><title>Double dispatch in R: S4 vs vctrs</title><link>/2020/09/21/content/post/2020-09-21-s4-vs-vctrs/2020-09-21-s4-vs-vctrs/</link><pubDate>Mon, 21 Sep 2020 00:00:00 +0000</pubDate><guid>/2020/09/21/content/post/2020-09-21-s4-vs-vctrs/2020-09-21-s4-vs-vctrs/</guid><description>&lt;p>&lt;a>&lt;img src='/post/2020-09-21-s4-vs-vctrs/S4_vs_vctrs.jpg' align="center"/>&lt;/a>&lt;/p>
+&lt;h2 id="why-do-we-may-need-double-dispatch">Why do we may need double dispatch?&lt;/h2>
+&lt;p>In most cases, when writing R scripts or even creating R packages, it is
+enough to use standard functions or S3 methods. However, there is one
+important field that forces us to consider &lt;strong>double dispatch&lt;/strong> question:
+&lt;strong>arithmetic operators&lt;/strong>.&lt;/p>
+&lt;p>Suppose we’d like to create a class, which fits the problem we’re
+currently working on. Let’s name such class &lt;strong>beer&lt;/strong>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(type){
+&lt;span style="color:#a6e22e">structure&lt;/span>(&lt;span style="color:#a6e22e">list&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> type),class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;beer&amp;#34;&lt;/span>)
+}
+opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(){
+&lt;span style="color:#a6e22e">structure&lt;/span>(&lt;span style="color:#a6e22e">list&lt;/span>(), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;opener&amp;#34;&lt;/span>)
+}
+pilsner &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">beer&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;pilnser&amp;#34;&lt;/span>)
+my_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">opener&lt;/span>()
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then, we create an operator which defines some non-standard behaviour.&lt;/p>
+&lt;ul>
+&lt;li>if we add an opener to the beer, we get an &lt;strong>opened_beer&lt;/strong>.&lt;/li>
+&lt;li>adding a &lt;strong>numeric&lt;/strong> &lt;em>x&lt;/em>, we get a case of beers (which even contain
+a negative number of bees, i.e. our owe…)&lt;/li>
+&lt;li>if second argument is different than a or &lt;strong>opener&lt;/strong> or &lt;strong>numeric&lt;/strong>,
+we get… untouched beer&lt;/li>
+&lt;/ul>
+&lt;p>Let’s demonstrate, how does it work:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">`+.beer` &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(a, b){
+&lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(b, &lt;span style="color:#e6db74">&amp;#34;opener&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">structure&lt;/span>(&lt;span style="color:#a6e22e">list&lt;/span>(
+name &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">paste&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;opened&amp;#34;&lt;/span>, a&lt;span style="color:#f92672">$&lt;/span>name)
+), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;opened_beer&amp;#34;&lt;/span>))
+} else &lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(b, &lt;span style="color:#e6db74">&amp;#34;numeric&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;It&amp;#39;s magic! You&amp;#39;ve got a case of beers!&amp;#34;&lt;/span>)
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">structure&lt;/span>(&lt;span style="color:#a6e22e">list&lt;/span>(
+n_beers &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> b
+), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;case_of_beers&amp;#34;&lt;/span>))
+} else {
+&lt;span style="color:#a6e22e">return&lt;/span>(a)
+}
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">pilsner &lt;span style="color:#f92672">+&lt;/span> my_opener
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## $name
+## [1] &amp;quot;opened &amp;quot;
+##
+## attr(,&amp;quot;class&amp;quot;)
+## [1] &amp;quot;opened_beer&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">pilsner &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">-0.1&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] &amp;quot;It's magic! You've got a case of beers!&amp;quot;
+## $n_beers
+## [1] 0.9
+##
+## attr(,&amp;quot;class&amp;quot;)
+## [1] &amp;quot;case_of_beers&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;p>Don’t you think, that such operations should be &lt;strong>commutative&lt;/strong>?&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">my_opener &lt;span style="color:#f92672">+&lt;/span> pilsner
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## list()
+## attr(,&amp;quot;class&amp;quot;)
+## [1] &amp;quot;opener&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;p>What did happen here? This is an example of the way the R interpreter
+handles arithmetic operator. It was described with details on &lt;a href="https://yutani.rbind.io/post/double-dispatch-of-s3-method/">&lt;strong>Hiroaki
+Yutani’s
+blog&lt;/strong>&lt;/a>.
+Briefly speaking, in this particular case R engine matched method to the
+second argument (not to the first one), because there is no &lt;code>+.opener&lt;/code>
+S3 method. What about such trick:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">`+.opener` &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(a, b) b &lt;span style="color:#f92672">+&lt;/span> a
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>After that, the result is different:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">my_opener &lt;span style="color:#f92672">+&lt;/span> pilsner
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## Warning: Incompatible methods (&amp;quot;+.opener&amp;quot;, &amp;quot;+.beer&amp;quot;) for &amp;quot;+&amp;quot;
+## Error in my_opener + pilsner: non-numeric argument to binary operator
+&lt;/code>&lt;/pre>
+&lt;p>We crashed our function call. When both objects have the &lt;code>+&lt;/code> method
+defined and these methods are not the same, R is trying to resolve the
+conflict by applying an internal &lt;code>+&lt;/code>. It obviously cannot work. This
+case could be easily solved using more ‘ifs’ in the &lt;code>+.beer&lt;/code> beer
+function body. But let’s face a different situation.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#ae81ff">-0.1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> pilsner
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] -0.1
+&lt;/code>&lt;/pre>
+&lt;p>What a mess! Simple S3 methods are definitely not the best solution when
+we need the double dispatch.&lt;/p>
+&lt;h2 id="s4-class-a-classic-approach">S4 class: a classic approach&lt;/h2>
+&lt;p>To civilize such code, we can use classic R approach, S4 methods. We’ll
+start from S4 classes declaration.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">.S4_beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">setClass&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;S4_beer&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">representation&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;character&amp;#34;&lt;/span>))
+.S4_opened_beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">setClass&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;S4_opened_beer&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">representation&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;character&amp;#34;&lt;/span>))
+.S4_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">setClass&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">representation&lt;/span>(ID &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;numeric&amp;#34;&lt;/span>))
+.S4_case_of_beers &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">setClass&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;S4_case_of_beers&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">representation&lt;/span>(n_beers &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;numeric&amp;#34;&lt;/span>))
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then, we can two otptions, how to handle &lt;code>+&lt;/code> operators. I didn’t mention
+about it in the previous example, but both S3 and S4 operators are
+grouped as so-called &lt;strong>group generic functions&lt;/strong> (learn more:
+&lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html">&lt;strong>S3&lt;/strong>&lt;/a>,
+&lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/methods/html/S4groupGeneric.html">&lt;strong>S4&lt;/strong>&lt;/a>).&lt;/p>
+&lt;p>We can set a S4 method for a single operator and that looks as follows:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">setMethod&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;+&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">c&lt;/span>(e1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;S4_beer&amp;#34;&lt;/span>, e2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>),
+&lt;span style="color:#a6e22e">function&lt;/span>(e1, e2){
+&lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(e2, &lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">.S4_opened_beer&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">paste&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;opened&amp;#34;&lt;/span>, e1&lt;span style="color:#f92672">@&lt;/span>type)))
+} else &lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(e2, &lt;span style="color:#e6db74">&amp;#34;numeric&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;It&amp;#39;s magic! You&amp;#39;ve got a case of beers!&amp;#34;&lt;/span>)
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">.S4_case_of_beers&lt;/span>(n_beers &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> e2))
+} else {
+&lt;span style="color:#a6e22e">return&lt;/span>(e1)
+}
+})
+&lt;span style="color:#a6e22e">setMethod&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;+&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">c&lt;/span>(e1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>, e2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;S4_beer&amp;#34;&lt;/span>),
+&lt;span style="color:#a6e22e">function&lt;/span>(e1, e2) e2 &lt;span style="color:#f92672">+&lt;/span> e1)
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Alternatively, we can define a method for &lt;code>Arith&lt;/code> geneneric and check,
+what method is exactly called at the moment. I decided to use the second
+approach, because it’s more similar to the way the double dispatch is
+implemented in the &lt;strong>vctrs&lt;/strong> library.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">.S4_fun &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(e1, e2){
+&lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(e2, &lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">.S4_opened_beer&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">paste&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;opened&amp;#34;&lt;/span>, e1&lt;span style="color:#f92672">@&lt;/span>type)))
+} else &lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(e2, &lt;span style="color:#e6db74">&amp;#34;numeric&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;It&amp;#39;s magic! You&amp;#39;ve got a case of beers!&amp;#34;&lt;/span>)
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">.S4_case_of_beers&lt;/span>(n_beers &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> e2))
+} else {
+&lt;span style="color:#a6e22e">return&lt;/span>(e1)
+}
+}
+&lt;span style="color:#a6e22e">setMethod&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;Arith&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">c&lt;/span>(e1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;S4_beer&amp;#34;&lt;/span>, e2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>),
+&lt;span style="color:#a6e22e">function&lt;/span>(e1, e2)
+{
+op &lt;span style="color:#f92672">=&lt;/span> .Generic[[1]]
+&lt;span style="color:#a6e22e">switch&lt;/span>(op,
+`+` &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">.S4_fun&lt;/span>(e1, e2),
+&lt;span style="color:#a6e22e">stop&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;undefined operation&amp;#34;&lt;/span>)
+)
+})
+&lt;span style="color:#a6e22e">setMethod&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;Arith&amp;#34;&lt;/span>, &lt;span style="color:#a6e22e">c&lt;/span>(e1&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;S4_opener&amp;#34;&lt;/span>, e2&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;S4_beer&amp;#34;&lt;/span>),
+&lt;span style="color:#a6e22e">function&lt;/span>(e1, e2)
+{
+op &lt;span style="color:#f92672">=&lt;/span> .Generic[[1]]
+&lt;span style="color:#a6e22e">switch&lt;/span>(op,
+`+` &lt;span style="color:#f92672">=&lt;/span> e2 &lt;span style="color:#f92672">+&lt;/span> e1,
+&lt;span style="color:#a6e22e">stop&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;undefined operation&amp;#34;&lt;/span>)
+)
+})
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Let’s create our class instances and do a piece of math.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">S4_pilsner &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">.S4_beer&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;Pilsner&amp;#34;&lt;/span>)
+S4_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">.S4_opener&lt;/span>(ID &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">S4_pilsner &lt;span style="color:#f92672">+&lt;/span> S4_opener
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## An object of class &amp;quot;S4_opened_beer&amp;quot;
+## Slot &amp;quot;type&amp;quot;:
+## [1] &amp;quot;opened Pilsner&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">S4_opener &lt;span style="color:#f92672">+&lt;/span> S4_pilsner
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## An object of class &amp;quot;S4_opened_beer&amp;quot;
+## Slot &amp;quot;type&amp;quot;:
+## [1] &amp;quot;opened Pilsner&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;p>Declared methods are clear, and, the most important: they work
+correctly.&lt;/p>
+&lt;h2 id="vctrs-library-a-tidyverse-approach">vctrs library: a tidyverse approach&lt;/h2>
+&lt;p>&lt;a href="https://github.com/r-lib/vctrs">&lt;strong>vctrs&lt;/strong>&lt;/a> is an interesting library,
+thought as a remedy for a couple of R disadvantages. It delivers, among
+others, a custom double-dispatch system based on well-known S3
+mechanism.&lt;/p>
+&lt;p>At the first step we declare class ‘constructors’.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">library&lt;/span>(vctrs)
+.vec_beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(type){
+&lt;span style="color:#a6e22e">new_vctr&lt;/span>(.data &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> type), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;vec_beer&amp;#34;&lt;/span>)
+}
+.vec_opened_beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(type){
+&lt;span style="color:#a6e22e">new_vctr&lt;/span>(.data &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> type), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;vec_opened_beer&amp;#34;&lt;/span>)
+}
+.vec_case_of_beers &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(n_beers){
+&lt;span style="color:#a6e22e">new_vctr&lt;/span>(.data &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(n_beers &lt;span style="color:#f92672">=&lt;/span> n_beers), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;vec_case_of_beers&amp;#34;&lt;/span>)
+}
+.vec_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(){
+&lt;span style="color:#a6e22e">new_vctr&lt;/span>(.data &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(), class &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;vec_opener&amp;#34;&lt;/span>)
+}
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then, we create class instances.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">vec_pilsner &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">.vec_beer&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;pilnser&amp;#34;&lt;/span>)
+vec_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">.vec_opener&lt;/span>()
+&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#a6e22e">class&lt;/span>(vec_pilsner))
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] &amp;quot;vec_beer&amp;quot; &amp;quot;vctrs_vctr&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#a6e22e">class&lt;/span>(vec_opener))
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] &amp;quot;vec_opener&amp;quot; &amp;quot;vctrs_vctr&amp;quot;
+&lt;/code>&lt;/pre>
+&lt;p>At the end, we write a double-dispatched methods &lt;strong>in vctrs style&lt;/strong>. As
+you can see,&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">.fun &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(a, b){
+&lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(b, &lt;span style="color:#e6db74">&amp;#34;vec_opener&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">.vec_opened_beer&lt;/span>(type &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">paste&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;opened&amp;#34;&lt;/span>, a&lt;span style="color:#f92672">$&lt;/span>type)))
+} else &lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">inherits&lt;/span>(b, &lt;span style="color:#e6db74">&amp;#34;numeric&amp;#34;&lt;/span>)) {
+&lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;It&amp;#39;s magic! You&amp;#39;ve got a case of beers!&amp;#34;&lt;/span>)
+&lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">.vec_case_of_beers&lt;/span>(n_beers &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> b))
+} else {
+&lt;span style="color:#a6e22e">return&lt;/span>(a)
+}
+}
+vec_arith.vec_beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(op, x, y, &lt;span style="color:#66d9ef">...&lt;/span>) {
+&lt;span style="color:#a6e22e">UseMethod&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;vec_arith.vec_beer&amp;#34;&lt;/span>, y)
+}
+vec_arith.vec_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(op, x, y, &lt;span style="color:#66d9ef">...&lt;/span>) {
+&lt;span style="color:#a6e22e">UseMethod&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;vec_arith.vec_opener&amp;#34;&lt;/span>, y)
+}
+vec_arith.vec_beer.vec_opener &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(op, x, y, &lt;span style="color:#66d9ef">...&lt;/span>){
+&lt;span style="color:#a6e22e">switch&lt;/span>(op,
+`+` &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">.fun&lt;/span>(x, y),
+&lt;span style="color:#a6e22e">stop_incompatible_op&lt;/span>(op, x, y)
+)
+}
+vec_arith.vec_opener.vec_beer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(op, x, y, &lt;span style="color:#66d9ef">...&lt;/span>){
+y &lt;span style="color:#f92672">+&lt;/span> x
+}
+vec_pilsner &lt;span style="color:#f92672">+&lt;/span> vec_opener
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## &amp;lt;vec_opened_beer[1]&amp;gt;
+## type
+## opened pilnser
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">vec_opener &lt;span style="color:#f92672">+&lt;/span> vec_pilsner
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## &amp;lt;vec_opened_beer[1]&amp;gt;
+## type
+## opened pilnser
+&lt;/code>&lt;/pre>
+&lt;p>It works properly, too.&lt;/p>
+&lt;h2 id="benchmark">Benchmark&lt;/h2>
+&lt;p>I’ve created all the classes and methods above not only to demonstate,
+how to implement double dispatch in R. My main goal is to benchmark both
+approaches and check, which one has smaller overhead. The hardware I
+used for the test looks as follows:&lt;/p>
+&lt;pre>&lt;code>## $vendor_id
+## [1] &amp;quot;GenuineIntel&amp;quot;
+##
+## $model_name
+## [1] &amp;quot;Intel(R) Core(TM) i3 CPU M 350 @ 2.27GHz&amp;quot;
+##
+## $no_of_cores
+## [1] 4
+## 8.19 GB
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">sessionInfo&lt;/span>()
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## R version 3.6.1 (2019-07-05)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Ubuntu 18.04.2 LTS
+##
+## Matrix products: default
+## BLAS: /usr/local/lib/R/lib/libRblas.so
+## LAPACK: /usr/local/lib/R/lib/libRlapack.so
+##
+## locale:
+## [1] LC_CTYPE=pl_PL.UTF-8 LC_NUMERIC=C
+## [3] LC_TIME=pl_PL.UTF-8 LC_COLLATE=pl_PL.UTF-8
+## [5] LC_MONETARY=pl_PL.UTF-8 LC_MESSAGES=en_US.utf8
+## [7] LC_PAPER=pl_PL.UTF-8 LC_NAME=C
+## [9] LC_ADDRESS=C LC_TELEPHONE=C
+## [11] LC_MEASUREMENT=pl_PL.UTF-8 LC_IDENTIFICATION=C
+##
+## attached base packages:
+## [1] stats graphics grDevices utils datasets methods base
+##
+## other attached packages:
+## [1] vctrs_0.2.3
+##
+## loaded via a namespace (and not attached):
+## [1] Rcpp_1.0.3 benchmarkmeData_1.0.3 knitr_1.23
+## [4] magrittr_1.5 tidyselect_0.2.5 doParallel_1.0.15
+## [7] lattice_0.20-38 R6_2.4.0 rlang_0.4.2
+## [10] foreach_1.4.7 httr_1.4.1 stringr_1.4.0
+## [13] dplyr_0.8.3 tools_3.6.1 parallel_3.6.1
+## [16] grid_3.6.1 xfun_0.9 htmltools_0.3.6
+## [19] iterators_1.0.12 yaml_2.2.0 digest_0.6.25
+## [22] assertthat_0.2.1 tibble_2.1.3 benchmarkme_1.0.3
+## [25] crayon_1.3.4 Matrix_1.2-17 purrr_0.3.3
+## [28] codetools_0.2-16 glue_1.3.1 evaluate_0.14
+## [31] rmarkdown_1.14 stringi_1.4.3 pillar_1.4.2
+## [34] compiler_3.6.1 pkgconfig_2.0.2
+&lt;/code>&lt;/pre>
+&lt;p>It’s my good old notebook, which is not a beast.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">library&lt;/span>(microbenchmark)
+&lt;span style="color:#a6e22e">library&lt;/span>(ggplot2)
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="beer--opener">Beer + opener&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">bm1 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">microbenchmark&lt;/span>(
+s4 &lt;span style="color:#f92672">=&lt;/span> S4_pilsner &lt;span style="color:#f92672">+&lt;/span> S4_opener,
+s3_vec &lt;span style="color:#f92672">=&lt;/span> vec_pilsner &lt;span style="color:#f92672">+&lt;/span> vec_opener,
+times &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1000&lt;/span>
+)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## Unit: microseconds
+## expr min lq mean median uq max neval
+## s4 153.292 158.2120 178.40541 161.4225 165.6375 5506.681 1000
+## s3_vec 56.686 60.1265 69.52364 68.9240 70.8830 163.278 1000
+&lt;/code>&lt;/pre>
+&lt;center>
+&lt;img src="/post/2020-09-21-s4-vs-vctrs/print.results.1-1.png" >
+&lt;/center>
+&lt;h3 id="opener--beer">Opener + beer&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">bm2 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">microbenchmark&lt;/span>(
+s4 &lt;span style="color:#f92672">=&lt;/span> S4_opener &lt;span style="color:#f92672">+&lt;/span> S4_pilsner,
+s3_vec &lt;span style="color:#f92672">=&lt;/span> vec_opener &lt;span style="color:#f92672">+&lt;/span> vec_pilsner,
+times &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1000&lt;/span>
+)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## Unit: microseconds
+## expr min lq mean median uq max neval
+## s4 159.512 164.6735 191.74781 168.9655 176.3165 6068.477 1000
+## s3_vec 71.110 78.5835 96.22535 86.6720 89.4015 4796.377 1000
+&lt;/code>&lt;/pre>
+&lt;center>
+&lt;img src="/post/2020-09-21-s4-vs-vctrs/print.results.2-1.png" >
+&lt;/center>
+&lt;h3 id="bonus-opener--beer-vs-addtion-of-numerics">Bonus: opener + beer vs addtion of numerics&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">bm3 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">microbenchmark&lt;/span>(
+simple_R &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>,
+s4 &lt;span style="color:#f92672">=&lt;/span> S4_opener &lt;span style="color:#f92672">+&lt;/span> S4_pilsner,
+s3_vec &lt;span style="color:#f92672">=&lt;/span> vec_opener &lt;span style="color:#f92672">+&lt;/span> vec_pilsner,
+times &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1000&lt;/span>
+)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## Unit: nanoseconds
+## expr min lq mean median uq max neval
+## simple_R 130 344.0 697.49 744.5 857 2862 1000
+## s4 158769 164522.5 189297.35 169270.5 198120 375648 1000
+## s3_vec 74775 78395.5 94786.28 87192.5 94085 258129 1000
+&lt;/code>&lt;/pre>
+&lt;center>
+&lt;img src="/post/2020-09-21-s4-vs-vctrs/print.results.3-1.png" >
+&lt;/center>
+&lt;h2 id="conclusions">Conclusions&lt;/h2>
+&lt;p>It seems that &lt;strong>vctrs-based&lt;/strong> performs better than traditional &lt;strong>S4
+methods&lt;/strong>. Obviously, I checked only one operation and probably some
+edge cases may exists. However, I think that it shows us some direction,
+what execution time we can expect.&lt;/p>
+&lt;h2 id="further-sources">Further sources&lt;/h2>
+&lt;p>If you are interesting, how to implement double-dispatched operators in
+S4, I encourage you to get familiar with code of the following R
+libraries:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/cran/Matrix/blob/master/R/Ops.R">Matrix&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/cdeterman/gpuR/blob/master/R/methods-gpuVector.R">gpuR&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>If you are looking for some examples of &lt;strong>vctrs&lt;/strong>, I recommend you to
+learn the source code of:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/r-lib/rray/blob/master/R/compat-vctrs-arith.R">rray&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/RMHogervorst/banana/blob/master/R/banana.R">banana&lt;/a>
+(a funny toy package)&lt;/li>
+&lt;/ul></description></item><item><title>eponge: Keep Your Environment Clean</title><link>/2020/05/10/content/post/2020-05-10-eponge/2020-05-10-eponge/</link><pubDate>Sun, 10 May 2020 00:00:00 +0000</pubDate><guid>/2020/05/10/content/post/2020-05-10-eponge/2020-05-10-eponge/</guid><description>&lt;p>&lt;a href="https://krzjoa.github.io/matricks">&lt;img src='https://raw.githubusercontent.com/krzjoa/eponge/master/man/figures/logo.png' align="left" height="139" style="margin-right: 20px" />&lt;/a>
+&lt;code>eponge&lt;/code> is a small package, which facilitates selective object removal.
+It was released on
+&lt;a href="https://cran.r-project.org/web/packages/eponge/index.html">CRAN&lt;/a> at
+23th March 2020. Initially, the package was named &lt;code>sponge&lt;/code>, but during
+first submission trial I found out, that currently there exists the
+&lt;a href="https://www.bioconductor.org/packages/release/bioc/html/SPONGE.html">SPONGE&lt;/a>
+package, availbale on BioConductor. Because of that, I decided to rename
+my package, changing only one letter. The package was given a new name:
+&lt;code>eponge&lt;/code>, which simply means &lt;em>sponge&lt;/em> in
+&lt;a href="https://en.wiktionary.org/wiki/%C3%A9ponge">French&lt;/a>. Let me present,
+what the package was created for.&lt;/p>
+&lt;h2 id="removing-objects-by-name">Removing objects by name&lt;/h2>
+&lt;p>Typically, when we want to remove all objects from the &lt;strong>global
+environment&lt;/strong>, we can use click the broom icon in RStudio (supposing we
+use this IDE - but in most cases, we do). Alternatively, we can obtain
+the same results combining &lt;code>rm&lt;/code> with &lt;code>ls&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#75715e"># Remove all the objects&lt;/span>
+&lt;span style="color:#a6e22e">rm&lt;/span>(list &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">ls&lt;/span>())
+&lt;span style="color:#75715e"># Remove object with &amp;#39;iris&amp;#39; in its name&lt;/span>
+&lt;span style="color:#a6e22e">rm&lt;/span>(list &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">ls&lt;/span>(pattern &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;iris&amp;#34;&lt;/span>))
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>eponge&lt;/code> offers a an equivalent shortcut: &lt;code>erase&lt;/code> function. It’s
+particularly handy when we want to select some set of objects using
+regex pattern.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#75715e"># Remove all the objects&lt;/span>
+eponge&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">erase&lt;/span>()
+&lt;span style="color:#75715e"># Remove object with &amp;#39;iris&amp;#39; in its name&lt;/span>
+eponge&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">erase&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;iris&amp;#34;&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="removing-objects-by-type">Removing objects by type&lt;/h2>
+&lt;p>&lt;code>epnoge&lt;/code> becomes even more useful, when we want to precisely remove a
+tiny subset of objects. Normally, we would use a combination of &lt;code>ls&lt;/code>,
+&lt;code>get&lt;/code> and &lt;code>rm&lt;/code> functions. If we don’t want to recreate such code from
+scratch, &lt;code>eponge&lt;/code> do it for us:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#75715e"># Erasing by type&lt;/span>
+eponge&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">erase_if&lt;/span>(is.character)
+&lt;span style="color:#75715e"># We can use a regex pattern to identify the objects we want&lt;/span>
+eponge&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">erase_functions&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;prepare_&amp;#34;&lt;/span>)
+&lt;span style="color:#75715e"># We can clean whole section in RStudio Envitonment tab&lt;/span>
+&lt;span style="color:#75715e"># Remove all the objects named in RStudio as &amp;#34;Data&amp;#34;&lt;/span>
+eponge&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">erase_data&lt;/span>()
+&lt;span style="color:#75715e"># Remove all the &amp;#34;Values&amp;#34; in RStidio&lt;/span>
+eponge&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">erase_values&lt;/span>()
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="removing-masking-objects">Removing masking objects&lt;/h2>
+&lt;p>As we know, homonime objects mask each other. If we want to get rid of
+such objects from our environment, the most convenient way to do that is
+&lt;code>eponge&lt;/code>’s &lt;code>erase_masking_*&lt;/code> function family. At the moment, it embraces
+two functions:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>erase_masking&lt;/code>&lt;/li>
+&lt;li>&lt;code>erase_masking_functions&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">log &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(x) &lt;span style="color:#a6e22e">print&lt;/span>(&lt;span style="color:#a6e22e">paste0&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;Logging:&amp;#34;&lt;/span>, x))
+cars &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">data.frame&lt;/span>(idx &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span>&lt;span style="color:#ae81ff">10&lt;/span>,
+speed &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">runif&lt;/span>(&lt;span style="color:#ae81ff">10&lt;/span>, &lt;span style="color:#ae81ff">30&lt;/span>, &lt;span style="color:#ae81ff">50&lt;/span>))
+eponge&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">erase_masking&lt;/span>()
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>eponge&lt;/code> allows you to keep your R environments clean in easy way. Try
+it yourself!&lt;/p></description></item><item><title>matricks 0.8.2 available on CRAN</title><link>/2020/02/29/content/post/2020-02-29-matricks-release/2020-02-29-matricks-release/</link><pubDate>Sat, 29 Feb 2020 00:00:00 +0000</pubDate><guid>/2020/02/29/content/post/2020-02-29-matricks-release/2020-02-29-matricks-release/</guid><description>&lt;p>&lt;a href="https://krzjoa.github.io/matricks">&lt;img src='https://raw.githubusercontent.com/krzjoa/matricks/master/man/figures/logo.png' align="left" height="139" style="margin-right: 20px" />&lt;/a>
+&lt;code>matricks&lt;/code> package in &lt;strong>0.8.2&lt;/strong> version has been released on CRAN! In
+this post I will present you, what are advantages of using &lt;code>matricks&lt;/code>
+and how you can use it.&lt;/p>
+&lt;h3 id="creating-matrices">Creating matrices&lt;/h3>
+&lt;p>The main function the package started with is &lt;code>m&lt;/code>. It’s a smart shortcut
+for creating matrices, especially usefull if you want to define a matrix
+by enumerating all the elements row-by-row. Typically, if you want to
+create a matrix in R, you can do it using &lt;code>base&lt;/code> function called
+&lt;code>matrix&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">matrix&lt;/span>(&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span> ,&lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">7&lt;/span>,
+&lt;span style="color:#ae81ff">5&lt;/span>, &lt;span style="color:#ae81ff">8&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>,
+&lt;span style="color:#ae81ff">9&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>), nrow &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>, byrow &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">TRUE&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 3 4 7
+## [2,] 5 8 0
+## [3,] 9 2 1
+&lt;/code>&lt;/pre>
+&lt;p>Although it’s a very simple opeartion, the funtion call doesn’t look
+tidy. Alternaively, we can use &lt;code>tibble&lt;/code> with its &lt;code>frame_matrix&lt;/code>
+function, defining column names with formulae first.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">library&lt;/span>(tibble)
+&lt;span style="color:#a6e22e">frame_matrix&lt;/span>(&lt;span style="color:#f92672">~&lt;/span> c1, &lt;span style="color:#f92672">~&lt;/span> c2, &lt;span style="color:#f92672">~&lt;/span> c3,
+&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">7&lt;/span>,
+&lt;span style="color:#ae81ff">5&lt;/span>, &lt;span style="color:#ae81ff">8&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>,
+&lt;span style="color:#ae81ff">9&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## c1 c2 c3
+## [1,] 3 4 7
+## [2,] 5 8 0
+## [3,] 9 2 1
+&lt;/code>&lt;/pre>
+&lt;p>However, it’s still not a such powerfull tool as &lt;code>matricks::m&lt;/code> function
+is. Let’s see an example.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">library&lt;/span>(matricks)
+&lt;span style="color:#a6e22e">m&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span> ,&lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">7&lt;/span>&lt;span style="color:#f92672">|&lt;/span>
+&lt;span style="color:#ae81ff">5&lt;/span>, &lt;span style="color:#ae81ff">8&lt;/span>, &lt;span style="color:#ae81ff">0&lt;/span>&lt;span style="color:#f92672">|&lt;/span>
+&lt;span style="color:#ae81ff">9&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 3 4 7
+## [2,] 5 8 0
+## [3,] 9 2 1
+&lt;/code>&lt;/pre>
+&lt;p>As simple as that! We join following rows using &lt;code>|&lt;/code> operator. &lt;code>m&lt;/code>
+function is very flexible and offers you much more than before mentioned
+ones.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">m&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span>&lt;span style="color:#ae81ff">3&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">6&lt;/span>, &lt;span style="color:#ae81ff">7&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">4&lt;/span>)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 1 2 3
+## [2,] 4 6 7
+## [3,] 2 1 4
+&lt;/code>&lt;/pre>
+&lt;p>And here and example with bindig multiple matrices together:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat1 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">diag&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+mat2 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">antidiag&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>) &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#ae81ff">3&lt;/span>
+&lt;span style="color:#a6e22e">m&lt;/span>(mat1, mat2&lt;span style="color:#f92672">|&lt;/span>
+mat2, mat1)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3] [,4] [,5] [,6]
+## [1,] 1 0 0 0 0 3
+## [2,] 0 1 0 0 3 0
+## [3,] 0 0 1 3 0 0
+## [4,] 0 0 3 1 0 0
+## [5,] 0 3 0 0 1 0
+## [6,] 3 0 0 0 0 1
+&lt;/code>&lt;/pre>
+&lt;p>By the way, &lt;code>antidiag&lt;/code> function can be found in the &lt;code>matricks&lt;/code> package
+too.&lt;/p>
+&lt;h3 id="setting--accessing-values">Setting &amp;amp; accessing values&lt;/h3>
+&lt;p>These code&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">matrix&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+mat[1, &lt;span style="color:#ae81ff">2&lt;/span>] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">0.3&lt;/span>
+mat[2, &lt;span style="color:#ae81ff">3&lt;/span>] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">7&lt;/span>
+mat[3, &lt;span style="color:#ae81ff">1&lt;/span>] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">13&lt;/span>
+mat[2, &lt;span style="color:#ae81ff">2&lt;/span>] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">0.5&lt;/span>
+mat
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 0 0.3 0
+## [2,] 0 0.5 7
+## [3,] 13 0.0 0
+&lt;/code>&lt;/pre>
+&lt;p>can be replaced with:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">matrix&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+mat &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">set_values&lt;/span>(mat,
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>) &lt;span style="color:#f92672">~&lt;/span> &lt;span style="color:#ae81ff">0.3&lt;/span>,
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>) &lt;span style="color:#f92672">~&lt;/span> &lt;span style="color:#ae81ff">7&lt;/span>,
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">~&lt;/span> &lt;span style="color:#ae81ff">13&lt;/span>,
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>) &lt;span style="color:#f92672">~&lt;/span> &lt;span style="color:#ae81ff">0.5&lt;/span>)
+mat
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 0 0.3 0
+## [2,] 0 0.5 7
+## [3,] 13 0.0 0
+&lt;/code>&lt;/pre>
+&lt;p>In some cases, traditional way we access a matrix element in &lt;code>R&lt;/code> may be
+inconvenient. Consider situation shown below:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">sample.matrix &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">matrix&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+matrix.indices &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>),
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>),
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>))
+&lt;span style="color:#a6e22e">for &lt;/span>(idx in matrix.indices) {
+sample.matrix[idx[1], idx[2]] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> sample.matrix[idx[1], idx[2]] &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>
+}
+sample.matrix
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 3 3 3
+## [2,] 1 3 1
+## [3,] 3 1 3
+&lt;/code>&lt;/pre>
+&lt;p>It can be expressed conciser using matrix &lt;code>at&lt;/code> function.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">sample.matrix &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">matrix&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+matrix.indices &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>),
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>),
+&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>))
+&lt;span style="color:#a6e22e">for &lt;/span>(idx in matrix.indices) {
+&lt;span style="color:#a6e22e">at&lt;/span>(sample.matrix, idx) &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">at&lt;/span>(sample.matrix, idx) &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>
+}
+sample.matrix
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 3 3 3
+## [2,] 1 3 1
+## [3,] 3 1 3
+&lt;/code>&lt;/pre>
+&lt;h3 id="plotting-matrix">Plotting matrix&lt;/h3>
+&lt;p>&lt;code>matrix&lt;/code> objects haven’t had good automatized plotting function until
+now. Let’s create and plot a sample matrix of random values.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">rmat &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">runifm&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+&lt;span style="color:#a6e22e">print&lt;/span>(rmat)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 0.3248890 0.1024049 0.3295454
+## [2,] 0.8077164 0.7267801 0.1116789
+## [3,] 0.4406909 0.4703106 0.7047498
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">plot&lt;/span>(rmat)
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="/post/2020-02-29-matricks-release/runifm_print.png" alt="png">&lt;/p>
+&lt;p>And here the same using a matrix of random boolean values (&lt;code>rboolm&lt;/code>).&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">set.seed&lt;/span>(&lt;span style="color:#ae81ff">7&lt;/span>)
+rmat &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">rboolm&lt;/span>(&lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>)
+&lt;span style="color:#a6e22e">print&lt;/span>(rmat)
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] FALSE TRUE TRUE
+## [2,] TRUE TRUE FALSE
+## [3,] TRUE FALSE TRUE
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">&lt;span style="color:#a6e22e">plot&lt;/span>(rmat)
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="/post/2020-02-29-matricks-release/rboolm_print.png" alt="png">&lt;/p>
+&lt;h3 id="operators">Operators&lt;/h3>
+&lt;p>&lt;code>matricks&lt;/code> contains a family of operators, which allows you to perform
+column-/row-wise operation
+(addition/subtraction/multiplication/division) between matrix and
+vector.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">m&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>, &lt;span style="color:#ae81ff">3&lt;/span>&lt;span style="color:#f92672">|&lt;/span>
+&lt;span style="color:#ae81ff">4&lt;/span>, &lt;span style="color:#ae81ff">5&lt;/span>, &lt;span style="color:#ae81ff">6&lt;/span>&lt;span style="color:#f92672">|&lt;/span>
+&lt;span style="color:#ae81ff">7&lt;/span>, &lt;span style="color:#ae81ff">8&lt;/span>, &lt;span style="color:#ae81ff">9&lt;/span>)
+mat
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 1 2 3
+## [2,] 4 5 6
+## [3,] 7 8 9
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">vec &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">v&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span>&lt;span style="color:#ae81ff">3&lt;/span>)
+vec
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1]
+## [1,] 1
+## [2,] 2
+## [3,] 3
+&lt;/code>&lt;/pre>
+&lt;p>If we try to do a column-wise multiplication, we ecounter a problem.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">*&lt;/span> vec
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## Error in mat * vec: niezgodne tablice
+&lt;/code>&lt;/pre>
+&lt;p>We can bypass this error using &lt;code>%m%&lt;/code> function. It does what we want!&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">%m%&lt;/span> vec
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 1 2 3
+## [2,] 8 10 12
+## [3,] 21 24 27
+&lt;/code>&lt;/pre>
+&lt;p>There are also several other operators available.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">%d%&lt;/span> vec
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 1.000000 2.000000 3
+## [2,] 2.000000 2.500000 3
+## [3,] 2.333333 2.666667 3
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">%+%&lt;/span> vec
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 2 3 4
+## [2,] 6 7 8
+## [3,] 10 11 12
+&lt;/code>&lt;/pre>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-r" data-lang="r">mat &lt;span style="color:#f92672">%-%&lt;/span> vec
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [,1] [,2] [,3]
+## [1,] 0 1 2
+## [2,] 2 3 4
+## [3,] 4 5 6
+&lt;/code>&lt;/pre>
+&lt;p>I encourage you to familiarize with &lt;code>matricks&lt;/code>. Visit &lt;a href="https://krzjoa.github.io/matricks">matrix
+documentation&lt;/a> site and learn more!&lt;/p></description></item></channel>
