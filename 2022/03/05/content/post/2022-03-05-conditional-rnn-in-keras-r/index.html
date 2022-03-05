@@ -1,0 +1,648 @@
+<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us>
+<head>
+<link href=https://gmpg.org/xfn/11 rel=profile>
+<meta charset=utf-8>
+<meta name=generator content="Hugo 0.93.2">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Conditional RNN in keras (R) to deal with static features &#183; krzjoa</title><meta name=description content>
+<link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png>
+<link rel="shortcut icon" href=/favicon.png>
+<link rel=stylesheet href=//use.fontawesome.com/releases/v5.14.0/css/all.css>
+<link type=text/css rel=stylesheet href=/css/print.css media=print>
+<link type=text/css rel=stylesheet href=/css/poole.css>
+<link type=text/css rel=stylesheet href=/css/syntax.css>
+<link type=text/css rel=stylesheet href=/css/hyde.css>
+<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+</head><body class=theme-base-custom>
+<aside class=sidebar>
+<div class="container sidebar-sticky">
+<div class=sidebar-about>
+<a href=/><h1>krzjoa</h1></a>
+<p class=lead>
+</p></div><nav>
+<ul class=sidebar-nav>
+<li><a href=/>Home</a> </li><li><a href=/projects/> Projects </a></li><li><a href=/publications/> Publications </a></li></ul></nav><p>
+<a href=https://github.com/krzjoa rel=me><i class="fab fa-github fa-lg" aria-hidden=true></i></a>
+<a href=https://linkedin.com/in/krzysztof-joachimiak rel=me><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a>
+<a href="https://scholar.google.com/citations?user=qNcWYHIAAAAJ%26hl" rel=me><i class="fas fa-graduation-cap fa-lg" aria-hidden=true></i></a>
+<a href=https://orcid.org/0000-0003-4780-7947 rel=me><i class="fab fa-orcid fa-lg" aria-hidden=true></i></a>
+<a href=/post/index.xml rel=me><i class="fas fa-rss fa-lg" aria-hidden=true></i></a>
+</p><p>&copy; 2022. All rights reserved.</p></div></aside><main class="content container">
+<div class=post>
+<h1>Conditional RNN in keras (R) to deal with static features</h1><time datetime=2022-03-05T00:00:00Z class=post-date>Mar 5, 2022</time>
+<i class="fas fa-tags"></i>
+<a class="badge badge-tag" href=/tags/r>r</a>
+<a class="badge badge-tag" href=/tags/keras>keras</a>
+<br><br>
+<p><a><img src=/post/2022-03-05-conditional-rnn-in-keras-r/keras.png align=center></a></p><p>Conditional RNN is one of the possible solutions if we’d like to make
+use of <strong>static features</strong> in time series forecasting. For example, we
+want to build a model, which can handle multiple time series with many
+different characteristics. It can be a model for demand forecasting for
+multiple products or a unified model forecasting temperature in places
+from different climate zones.</p><p>We have at least a couple of options to do so. They are described in
+detail in the following <a href=https://datascience.stackexchange.com/questions/17099/adding-features-to-time-series-model-lstm/17139#17139>thread on
+StackOverlow</a>.
+According to the answers, the best way to add static features is to use
+this values to produce an initial hidden state of the recurrent layer.
+The proposed solution was <a href=https://github.com/philipperemy/cond_rnn>implemented as a Keras wrapper to recurrent
+layers (in Python)</a>.</p><p>This post is a trial to implement conditional RNN in keras for R.</p><h2 id=loading-the-data>Loading the data</h2><p>We’ll use a piece of data from an experiment performed by the author of
+the <a href=https://github.com/philipperemy/cond_rnn/raw/master/examples/temperature/city_temperature.csv.zip>aforementioned Keras
+wrapper</a>.
+We’re selecting two cities with extreme temperatures, e.g. <strong>Cairo</strong>
+and <strong>Helsinki</strong>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span><span style=color:#a6e22e>library</span>(data.table, warn.conflicts <span style=color:#f92672>=</span> <span style=color:#66d9ef>FALSE</span>)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>library</span>(dplyr, warn.conflicts <span style=color:#f92672>=</span> <span style=color:#66d9ef>FALSE</span>)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>library</span>(lubridate)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>library</span>(ggplot2)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>library</span>(imputeTS
+</span></span><span style=display:flex><span><span style=color:#a6e22e>library</span>(timetk)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>library</span>(rsample)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>library</span>(parsnip)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># url       &lt;- &#34;https://github.com/philipperemy/cond_rnn/raw/master/examples/temperature/city_temperature.csv.zip&#34;</span>
+</span></span><span style=display:flex><span>file_path <span style=color:#f92672>&lt;-</span> <span style=color:#e6db74>&#34;city_temperature.csv.zip&#34;</span>
+</span></span><span style=display:flex><span>csv_path  <span style=color:#f92672>&lt;-</span> <span style=color:#e6db74>&#34;city_temperature.csv&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># download.file(url, file_path)</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># unzip(file_path)</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>city_temperature <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>read.csv</span>(csv_path)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>setDT</span>(city_temperature)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>selected_cities <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  city_temperature[City <span style=color:#f92672>%chin%</span> <span style=color:#a6e22e>c</span>(<span style=color:#e6db74>&#39;Cairo&#39;</span>, <span style=color:#e6db74>&#39;Helsinki&#39;</span>)]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>selected_cities[
+</span></span><span style=display:flex><span>  , Date <span style=color:#f92672>:=</span> <span style=color:#a6e22e>ymd</span>(glue<span style=color:#f92672>::</span><span style=color:#a6e22e>glue</span>(<span style=color:#e6db74>&#34;{Year}-{Month}-{Day}&#34;</span>, .envir <span style=color:#f92672>=</span> .SD))
+</span></span><span style=display:flex><span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>selected_cities <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  selected_cities[, .(City, Date, AvgTemperature)]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>setorder</span>(selected_cities, City, Date)
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>plt <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>ggplot</span>(selected_cities) <span style=color:#f92672>+</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>geom_line</span>(<span style=color:#a6e22e>aes</span>(Date, AvgTemperature, col <span style=color:#f92672>=</span> City)) <span style=color:#f92672>+</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>theme_minimal</span>() <span style=color:#f92672>+</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>ggtitle</span>(<span style=color:#e6db74>&#34;Temperature: Cairo vs Helsinki&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>plt
+</span></span></code></pre></div><p><img src=index_files/figure-markdown_strict/selecting.data-1.png alt></p><p>There is a couple of outliers and we can safely assume they simply
+indicate lack of data. We’ll replace it with interpolated values.</p><p>Initially, I’ve chosen Oslo, but there were a few corrupted year
+numbers:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>city_temperature[City <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;Oslo&#39;</span> <span style=color:#f92672>&amp;</span> Year <span style=color:#f92672>==</span> <span style=color:#ae81ff>200</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##     Region Country State City Month Day Year AvgTemperature</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##  1: Europe  Norway       Oslo    12   1  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##  2: Europe  Norway       Oslo    12   2  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##  3: Europe  Norway       Oslo    12   3  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##  4: Europe  Norway       Oslo    12   4  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##  5: Europe  Norway       Oslo    12   5  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##  6: Europe  Norway       Oslo    12   6  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##  7: Europe  Norway       Oslo    12   7  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##  8: Europe  Norway       Oslo    12   8  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##  9: Europe  Norway       Oslo    12   9  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 10: Europe  Norway       Oslo    12  10  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 11: Europe  Norway       Oslo    12  11  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 12: Europe  Norway       Oslo    12  12  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 13: Europe  Norway       Oslo    12  13  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 14: Europe  Norway       Oslo    12  14  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 15: Europe  Norway       Oslo    12  15  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 16: Europe  Norway       Oslo    12  16  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 17: Europe  Norway       Oslo    12  17  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 18: Europe  Norway       Oslo    12  18  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 19: Europe  Norway       Oslo    12  19  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 20: Europe  Norway       Oslo    12  20  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 21: Europe  Norway       Oslo    12  21  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 22: Europe  Norway       Oslo    12  22  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 23: Europe  Norway       Oslo    12  23  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 24: Europe  Norway       Oslo    12  24  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 25: Europe  Norway       Oslo    12  25  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 26: Europe  Norway       Oslo    12  26  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 27: Europe  Norway       Oslo    12  27  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 28: Europe  Norway       Oslo    12  28  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 29: Europe  Norway       Oslo    12  29  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 30: Europe  Norway       Oslo    12  30  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 31: Europe  Norway       Oslo    12  31  200            -99</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##     Region Country State City Month Day Year AvgTemperature</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Cleaning the data</span>
+</span></span><span style=display:flex><span>selected_cities[AvgTemperature <span style=color:#f92672>==</span> <span style=color:#ae81ff>-99.0</span>, AvgTemperature <span style=color:#f92672>:=</span> <span style=color:#66d9ef>NA</span>]
+</span></span><span style=display:flex><span>selected_cities[, AvgTemperature <span style=color:#f92672>:=</span> <span style=color:#a6e22e>na_interpolation</span>(AvgTemperature)]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>plt <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>ggplot</span>(selected_cities) <span style=color:#f92672>+</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>geom_line</span>(<span style=color:#a6e22e>aes</span>(Date, AvgTemperature, col <span style=color:#f92672>=</span> City)) <span style=color:#f92672>+</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>theme_minimal</span>() <span style=color:#f92672>+</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>ggtitle</span>(<span style=color:#e6db74>&#34;Temperature: Cairo vs Helsinki&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>plt
+</span></span><span style=display:flex><span><span style=color:#75715e># plotly::ggplotly(plt)</span>
+</span></span></code></pre></div><p><img src=index_files/figure-markdown_strict/removing.outliers-1.png alt></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span><span style=color:#a6e22e>library</span>(tsibble, warn.conflicts <span style=color:#f92672>=</span> <span style=color:#66d9ef>FALSE</span>, quietly <span style=color:#f92672>=</span> <span style=color:#66d9ef>TRUE</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>duplicates</span>(selected_cities, key <span style=color:#f92672>=</span> City, index <span style=color:#f92672>=</span> Date)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## # A tibble: 4 × 3</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##   City     Date       AvgTemperature</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>##   &lt;chr&gt;    &lt;date&gt;              &lt;dbl&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 1 Cairo    2015-12-30           60.5</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 2 Cairo    2015-12-30           57.9</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 3 Helsinki 2015-12-30           26.6</span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## 4 Helsinki 2015-12-30           25.4</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Removing dupicates for </span>
+</span></span><span style=display:flex><span>selected_cities <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  selected_cities[, .(AvgTemperature <span style=color:#f92672>=</span> <span style=color:#a6e22e>max</span>(AvgTemperature)) , by <span style=color:#f92672>=</span> .(City, Date)]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>train <span style=color:#f92672>&lt;-</span> selected_cities[Date <span style=color:#f92672>&lt;</span> <span style=color:#a6e22e>as.Date</span>(<span style=color:#e6db74>&#39;2019-01-01&#39;</span>)]
+</span></span><span style=display:flex><span>test  <span style=color:#f92672>&lt;-</span> selected_cities[
+</span></span><span style=display:flex><span>  Date <span style=color:#f92672>&gt;=</span> <span style=color:#a6e22e>as.Date</span>(<span style=color:#e6db74>&#39;2019-01-01&#39;</span>) <span style=color:#f92672>&amp;</span> Date <span style=color:#f92672>&lt;=</span> <span style=color:#a6e22e>as.Date</span>(<span style=color:#e6db74>&#39;2019-12-31&#39;</span>)
+</span></span><span style=display:flex><span>]
+</span></span></code></pre></div><h2 id=baseline-model---one-xgboost-model-for-both-cities>Baseline model - one xgboost model for both cities</h2><p>As a baseline model, we’ll train a <code>xgboost</code> model using <code>parsnip</code> API
+and <code>modeltime</code>. We create a <code>data.frame</code> of lagged variables to feed
+the model. We use <strong>28 lags</strong> - the same value will be later used as a
+length of input to the <strong>recurrent neural netowrk</strong> models. We also mix
+the data belonging to different cities, so there are no separate
+models for each city.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span><span style=color:#a6e22e>library</span>(modeltime)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>lagged_selected_cities <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  selected_cities <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>group_by</span>(City) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>tk_augment_lags</span>(AvgTemperature, .lags <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span><span style=color:#f92672>:</span><span style=color:#ae81ff>28</span>) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>ungroup</span>()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>setDT</span>(lagged_selected_cities)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>train <span style=color:#f92672>&lt;-</span> lagged_selected_cities[Date <span style=color:#f92672>&lt;</span> <span style=color:#a6e22e>as.Date</span>(<span style=color:#e6db74>&#39;2019-01-01&#39;</span>)]
+</span></span><span style=display:flex><span>test  <span style=color:#f92672>&lt;-</span> lagged_selected_cities[
+</span></span><span style=display:flex><span>  Date <span style=color:#f92672>&gt;=</span> <span style=color:#a6e22e>as.Date</span>(<span style=color:#e6db74>&#39;2019-01-01&#39;</span>) <span style=color:#f92672>&amp;</span> Date <span style=color:#f92672>&lt;=</span> <span style=color:#a6e22e>as.Date</span>(<span style=color:#e6db74>&#39;2019-12-31&#39;</span>)
+</span></span><span style=display:flex><span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>lagged_variables <span style=color:#f92672>&lt;-</span> glue<span style=color:#f92672>::</span><span style=color:#a6e22e>glue</span>(<span style=color:#e6db74>&#34;AvgTemperature_lag{1:28}&#34;</span>)
+</span></span><span style=display:flex><span>formula_rhs      <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>paste0</span>(lagged_variables, collapse <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34; + &#34;</span>)
+</span></span><span style=display:flex><span>model_formula    <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>as.formula</span>(
+</span></span><span style=display:flex><span>  glue<span style=color:#f92672>::</span><span style=color:#a6e22e>glue</span>(<span style=color:#e6db74>&#34;AvgTemperature ~ {formula_rhs}&#34;</span>)
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>model_xgboost <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>boost_tree</span>(mode <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;regression&#34;</span>) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>set_engine</span>(<span style=color:#e6db74>&#34;xgboost&#34;</span>) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>fit</span>(model_formula, data <span style=color:#f92672>=</span> train)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fcast <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  model_xgboost <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>predict</span>(test)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>mdltime <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>modeltime_table</span>(
+</span></span><span style=display:flex><span>    xgboost <span style=color:#f92672>=</span> model_xgboost
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fcast_cairo <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  mdltime <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>modeltime_forecast</span>(
+</span></span><span style=display:flex><span>    test[City <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;Cairo&#39;</span>], actual_data <span style=color:#f92672>=</span> test[City <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;Cairo&#39;</span>]
+</span></span><span style=display:flex><span>  ) 
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fcast_helsinki <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  mdltime <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>modeltime_forecast</span>(
+</span></span><span style=display:flex><span>    test[City <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;Helsinki&#39;</span>], actual_data <span style=color:#f92672>=</span> test[City <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;Helsinki&#39;</span>]
+</span></span><span style=display:flex><span>  ) 
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fcast_cairo <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  fcast_cairo <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>mutate</span>(name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;Cairo&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fcast_helsinki <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  fcast_helsinki <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>mutate</span>(name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;Helsinki&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fcast_xgboost <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>bind_rows</span>(
+</span></span><span style=display:flex><span>    fcast_cairo, fcast_helsinki
+</span></span><span style=display:flex><span>  ) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>filter</span>(.key <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;prediction&#39;</span>) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>select</span>(.index, .value, name) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>rename</span>(Date <span style=color:#f92672>=</span> .index, value <span style=color:#f92672>=</span> .value) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>mutate</span>(model <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;xgboost&#39;</span>)
+</span></span></code></pre></div><p>Let’s take a glance, how the models’ predictions look like.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>fcast_xgboost_cmp <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>bind_rows</span>(
+</span></span><span style=display:flex><span>    fcast_xgboost,
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>select</span>(test, Date, name <span style=color:#f92672>=</span> City, value <span style=color:#f92672>=</span> AvgTemperature) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>mutate</span>(model <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;actual&#39;</span>)
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ggplot</span>(fcast_xgboost_cmp) <span style=color:#f92672>+</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>geom_line</span>(<span style=color:#a6e22e>aes</span>(Date, value, col <span style=color:#f92672>=</span> model)) <span style=color:#f92672>+</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>facet_wrap</span>(<span style=color:#f92672>~</span>name) <span style=color:#f92672>+</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>theme_minimal</span>()
+</span></span></code></pre></div><p><img src=index_files/figure-markdown_strict/xgboost.plot-1.png alt></p><p>As we can see, <code>xgboost</code> models fitted to the data quite well. However,
+the task was relatively simple, because we only wanted to forecast one
+timestep ahead.</p><h2 id=preparing-data-for-rnns>Preparing data for RNNs</h2><p>We pass to the ‘main course’ - training recurrent neural networks.
+First, we create a couple of auxiliary functions to create input
+tensors:</p><ul>
+<li><strong>3-dimensional tensors</strong> for input time series</li><li><strong>matrices</strong> for outputs and static variables</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span><span style=color:#a6e22e>library</span>(abind)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ndim <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>function</span>(x){
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>length</span>(<span style=color:#a6e22e>dim</span>(x))
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>shuffle <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>function</span>(<span style=color:#66d9ef>...</span>){
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  objects     <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>list</span>(<span style=color:#66d9ef>...</span>)
+</span></span><span style=display:flex><span>  object_size <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>dim</span>(objects[[1]])[1]
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  indices <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>sample</span>(object_size,  object_size)
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>Map</span>(<span style=color:#a6e22e>\</span>(x) <span style=color:#a6e22e>if </span>(<span style=color:#a6e22e>ndim</span>(x) <span style=color:#f92672>==</span> <span style=color:#ae81ff>2</span>) x[indices, ] else x[indices, ,], objects)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>prepare_output <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>function</span>(fcast, idx){
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  idx_cairo    <span style=color:#f92672>&lt;-</span> idx <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>  idx_helsinki <span style=color:#f92672>&lt;-</span> idx <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>  fcast_cairo <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    fcast[idx_cairo, ] <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>t</span>() <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>as.vector</span>()
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  fcast_helsinki <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    fcast[idx_helsinki, ] <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>t</span>() <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>as.vector</span>()
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  fcast_df <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>data.table</span>(
+</span></span><span style=display:flex><span>      Date <span style=color:#f92672>=</span> test<span style=color:#f92672>$</span>Date[1<span style=color:#f92672>:</span><span style=color:#a6e22e>length</span>(fcast_cairo)],
+</span></span><span style=display:flex><span>      Cairo <span style=color:#f92672>=</span> fcast_cairo,
+</span></span><span style=display:flex><span>      Helsinki <span style=color:#f92672>=</span> fcast_helsinki
+</span></span><span style=display:flex><span>    ) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>    tidyr<span style=color:#f92672>::</span><span style=color:#a6e22e>pivot_longer</span>(<span style=color:#a6e22e>c</span>(Cairo, Helsinki))
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>    fcast_df
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>prepare_data <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>function</span>(data, timesteps, horizon, jump, 
+</span></span><span style=display:flex><span>                       sample_frac, targets <span style=color:#f92672>=</span> <span style=color:#66d9ef>TRUE</span>, .shuffle <span style=color:#f92672>=</span> <span style=color:#66d9ef>TRUE</span>){
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  data_period_length <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>max</span>(data<span style=color:#f92672>$</span>Date) <span style=color:#f92672>-</span> <span style=color:#a6e22e>min</span>(data<span style=color:#f92672>$</span>Date)
+</span></span><span style=display:flex><span>  data_period_length <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>as.numeric</span>(data_period_length) <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  n <span style=color:#f92672>&lt;-</span> data_period_length <span style=color:#f92672>-</span> timesteps <span style=color:#f92672>-</span> horizon <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  starts <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>seq</span>(<span style=color:#ae81ff>1</span>, n, jump)
+</span></span><span style=display:flex><span>  starts <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>sample</span>(starts, size <span style=color:#f92672>=</span> <span style=color:#a6e22e>length</span>(starts) <span style=color:#f92672>*</span> sample_frac)
+</span></span><span style=display:flex><span>  starts <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>sort</span>(starts)
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Cairo</span>
+</span></span><span style=display:flex><span>  data_cairo <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    data[City <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;Cairo&#39;</span>, .(AvgTemperature)]
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  x_data_cairo <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    purrr<span style=color:#f92672>::</span><span style=color:#a6e22e>map</span>(
+</span></span><span style=display:flex><span>      starts, 
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>\</span>(i) <span style=color:#a6e22e>array</span>(data_cairo[i<span style=color:#f92672>:</span>i<span style=color:#f92672>+</span>timesteps<span style=color:#ae81ff>-1</span>, ]<span style=color:#f92672>$</span>AvgTemperature, <span style=color:#a6e22e>c</span>(<span style=color:#ae81ff>1</span>, timesteps, <span style=color:#ae81ff>1</span>))
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  x_data_cairo        <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>abind</span>(x_data_cairo, along <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>  x_data_static_cairo <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>matrix</span>(<span style=color:#ae81ff>1</span>, <span style=color:#a6e22e>dim</span>(x_data_cairo)[1], <span style=color:#ae81ff>1</span>) 
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  y_data_cairo <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>      purrr<span style=color:#f92672>::</span><span style=color:#a6e22e>map</span>(
+</span></span><span style=display:flex><span>        starts, 
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>\</span>(i) <span style=color:#a6e22e>array</span>(data_cairo<span style=color:#a6e22e>[</span>(i<span style=color:#f92672>+</span>timesteps)<span style=color:#f92672>:</span>(i<span style=color:#f92672>+</span>timesteps<span style=color:#f92672>+</span>horizon<span style=color:#ae81ff>-1</span>), ]<span style=color:#f92672>$</span>AvgTemperature, <span style=color:#a6e22e>c</span>(<span style=color:#ae81ff>1</span>, horizon))
+</span></span><span style=display:flex><span>      )
+</span></span><span style=display:flex><span>  y_data_cairo <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>abind</span>(y_data_cairo, along <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Helsinki</span>
+</span></span><span style=display:flex><span>  data_helsinki <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    data[City <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;Helsinki&#39;</span>, .(AvgTemperature)]
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  x_data_helsinki <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    purrr<span style=color:#f92672>::</span><span style=color:#a6e22e>map</span>(
+</span></span><span style=display:flex><span>      starts, 
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>\</span>(i) <span style=color:#a6e22e>array</span>(data_helsinki[i<span style=color:#f92672>:</span>i<span style=color:#f92672>+</span>timesteps<span style=color:#ae81ff>-1</span>, ]<span style=color:#f92672>$</span>AvgTemperature, <span style=color:#a6e22e>c</span>(<span style=color:#ae81ff>1</span>, timesteps, <span style=color:#ae81ff>1</span>))
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  x_data_helsinki        <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>abind</span>(x_data_helsinki, along <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>  x_data_static_helsinki <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>matrix</span>(<span style=color:#ae81ff>0</span>, <span style=color:#a6e22e>dim</span>(x_data_helsinki)[1], <span style=color:#ae81ff>1</span>) 
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Complete data</span>
+</span></span><span style=display:flex><span>  x_data        <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>abind</span>(x_data_cairo, x_data_helsinki, along <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>  x_static_data <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>abind</span>(x_data_static_cairo, x_data_static_helsinki, along <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>) 
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  right_order <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>if </span>(targets) {
+</span></span><span style=display:flex><span>      y_data_helsinki <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>      purrr<span style=color:#f92672>::</span><span style=color:#a6e22e>map</span>(
+</span></span><span style=display:flex><span>        starts, 
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>\</span>(i) <span style=color:#a6e22e>array</span>(data_helsinki<span style=color:#a6e22e>[</span>(i<span style=color:#f92672>+</span>timesteps)<span style=color:#f92672>:</span>(i<span style=color:#f92672>+</span>timesteps<span style=color:#f92672>+</span>horizon<span style=color:#ae81ff>-1</span>), ]<span style=color:#f92672>$</span>AvgTemperature, <span style=color:#a6e22e>c</span>(<span style=color:#ae81ff>1</span>, horizon))
+</span></span><span style=display:flex><span>      )
+</span></span><span style=display:flex><span>      
+</span></span><span style=display:flex><span>      y_data_helsinki <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>abind</span>(y_data_helsinki, along <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>      y               <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>abind</span>(y_data_cairo, y_data_helsinki, along <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>      
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>if </span>(.shuffle)
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>return</span>(<span style=color:#a6e22e>shuffle</span>(x_data, x_static_data, y))
+</span></span><span style=display:flex><span>      else
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>return</span>(<span style=color:#a6e22e>list</span>(x_data, x_static_data, y))
+</span></span><span style=display:flex><span>  } else {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>if </span>(.shuffle)
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>return</span>(<span style=color:#a6e22e>shuffle</span>(x_data, x_static_data))
+</span></span><span style=display:flex><span>    else 
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>return</span>(<span style=color:#a6e22e>list</span>(x_data, x_static_data))
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Experiment configuration:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>TIMESTEPS        <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>28</span>
+</span></span><span style=display:flex><span>HORIZON_1        <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>HORIZON_7        <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>7</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>DYNAMIC_FEATURES <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>STATIC_FEATURES  <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>RNN_UNITS        <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>32</span>
+</span></span><span style=display:flex><span>VOCABULARY_SIZE  <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>2</span> <span style=color:#75715e># because we have two cities</span>
+</span></span></code></pre></div><p>Importing <code>keras</code>, we’re also loading multiple assignment operator from
+<code>zeallot</code>, namely <code>%&lt;-%</code>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span><span style=color:#a6e22e>library</span>(keras)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>JUMP        <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>SAMPLE_FRAC <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>0.5</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># HORIZON = 1</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Training data</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>c</span>(x_train_h1, x_static_train_h1, y_h1) <span style=color:#f92672>%&lt;-%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>prepare_data</span>(
+</span></span><span style=display:flex><span>    data        <span style=color:#f92672>=</span> train,
+</span></span><span style=display:flex><span>    timesteps   <span style=color:#f92672>=</span> TIMESTEPS,
+</span></span><span style=display:flex><span>    horizon     <span style=color:#f92672>=</span> HORIZON_1,
+</span></span><span style=display:flex><span>    jump        <span style=color:#f92672>=</span> HORIZON_1,
+</span></span><span style=display:flex><span>    sample_frac <span style=color:#f92672>=</span> SAMPLE_FRAC
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Test data</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>c</span>(x_test_h1, x_static_test_h1) <span style=color:#f92672>%&lt;-%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>prepare_data</span>(
+</span></span><span style=display:flex><span>    data        <span style=color:#f92672>=</span> test,
+</span></span><span style=display:flex><span>    timesteps   <span style=color:#f92672>=</span> TIMESTEPS,
+</span></span><span style=display:flex><span>    horizon     <span style=color:#f92672>=</span> HORIZON_1,
+</span></span><span style=display:flex><span>    jump        <span style=color:#f92672>=</span> HORIZON_1,
+</span></span><span style=display:flex><span>    sample_frac <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>    targets     <span style=color:#f92672>=</span> <span style=color:#66d9ef>FALSE</span>,
+</span></span><span style=display:flex><span>    .shuffle    <span style=color:#f92672>=</span> <span style=color:#66d9ef>FALSE</span> 
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># HORIZON = 7</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Training data</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>c</span>(x_train_h7, x_static_train_h7, y_h7) <span style=color:#f92672>%&lt;-%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>prepare_data</span>(
+</span></span><span style=display:flex><span>    data        <span style=color:#f92672>=</span> train,
+</span></span><span style=display:flex><span>    timesteps   <span style=color:#f92672>=</span> TIMESTEPS,
+</span></span><span style=display:flex><span>    horizon     <span style=color:#f92672>=</span> HORIZON_7,
+</span></span><span style=display:flex><span>    jump        <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>    sample_frac <span style=color:#f92672>=</span> SAMPLE_FRAC
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Test data</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>c</span>(x_test_h7, x_static_test_h7) <span style=color:#f92672>%&lt;-%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>prepare_data</span>(
+</span></span><span style=display:flex><span>    data        <span style=color:#f92672>=</span> test,
+</span></span><span style=display:flex><span>    timesteps   <span style=color:#f92672>=</span> TIMESTEPS,
+</span></span><span style=display:flex><span>    horizon     <span style=color:#f92672>=</span> HORIZON_7,
+</span></span><span style=display:flex><span>    jump        <span style=color:#f92672>=</span> HORIZON_7,
+</span></span><span style=display:flex><span>    sample_frac <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>    targets     <span style=color:#f92672>=</span> <span style=color:#66d9ef>FALSE</span>,
+</span></span><span style=display:flex><span>    .shuffle    <span style=color:#f92672>=</span> <span style=color:#66d9ef>FALSE</span> 
+</span></span><span style=display:flex><span>  )
+</span></span></code></pre></div><h2 id=conditional-rnn>Conditional RNN</h2><p>The idea of <strong>conditional RNN</strong> is to initialize hidden states of the
+recurrent layer using specially prepared values, which indicate a
+specific type of the time series.</p><p>I let myself for some simplifications in these experiments, e.g.:</p><ul>
+<li>data is not scaled</li><li>validation data is not used to prevent overfitting</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>experiment_conditional_rnn <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>function</span>(timesteps, horizon, rnn_units, 
+</span></span><span style=display:flex><span>            vocabulary_size, dynamic_features, static_features,
+</span></span><span style=display:flex><span>            model, x_train, x_static_train, y, x_test, x_static_test){
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Model</span>
+</span></span><span style=display:flex><span>  ts_input     <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>layer_input</span>(shape <span style=color:#f92672>=</span> <span style=color:#a6e22e>c</span>(timesteps, dynamic_features))
+</span></span><span style=display:flex><span>  static_input <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>layer_input</span>(shape <span style=color:#f92672>=</span> static_features)
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  embedding <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>layer_embedding</span>(input_dim <span style=color:#f92672>=</span> vocabulary_size, 
+</span></span><span style=display:flex><span>                               output_dim <span style=color:#f92672>=</span> rnn_units)(static_input)
+</span></span><span style=display:flex><span>  embedding <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>layer_lambda</span>(f <span style=color:#f92672>=</span> <span style=color:#a6e22e>\</span>(x) x[,<span style=color:#ae81ff>1</span>,])(embedding)
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  rnn_layer <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>layer_gru</span>(units <span style=color:#f92672>=</span> rnn_units, name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;rnn&#39;</span>)(ts_input, initial_state <span style=color:#f92672>=</span> embedding)
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#75715e># For LSTM layers we have to provide two hidden state values</span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e># rnn_layer &lt;- </span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e>#  layer_gru(units = rnn_units, name = &#39;rnn&#39;)(ts_input, initial_state = list(embedding, embedding))</span>
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  final_layer <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>layer_dense</span>(units <span style=color:#f92672>=</span> horizon, activation <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;linear&#39;</span>)(rnn_layer)
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Compiling</span>
+</span></span><span style=display:flex><span>  net <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>keras_model</span>(
+</span></span><span style=display:flex><span>      inputs  <span style=color:#f92672>=</span> <span style=color:#a6e22e>list</span>(ts_input, static_input),
+</span></span><span style=display:flex><span>      outputs <span style=color:#f92672>=</span> <span style=color:#a6e22e>list</span>(final_layer) 
+</span></span><span style=display:flex><span>    ) <span style=color:#f92672>%&gt;%</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>compile</span>(
+</span></span><span style=display:flex><span>      optimizer <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;adam&#39;</span>,
+</span></span><span style=display:flex><span>      loss      <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;mae&#39;</span>
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Training</span>
+</span></span><span style=display:flex><span>  net <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>fit</span>(
+</span></span><span style=display:flex><span>      x <span style=color:#f92672>=</span> <span style=color:#a6e22e>list</span>(x_train, x_static_train),
+</span></span><span style=display:flex><span>      y <span style=color:#f92672>=</span> <span style=color:#a6e22e>list</span>(y),
+</span></span><span style=display:flex><span>      epochs <span style=color:#f92672>=</span> <span style=color:#ae81ff>50</span>,
+</span></span><span style=display:flex><span>      batch_size <span style=color:#f92672>=</span> <span style=color:#ae81ff>32</span>
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Forecasting</span>
+</span></span><span style=display:flex><span>  fcast <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    net <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>predict</span>(<span style=color:#a6e22e>list</span>(x_test, x_static_test))
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  fcast_df <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>prepare_output</span>(fcast, x_static_test)
+</span></span><span style=display:flex><span>  fcast_df<span style=color:#f92672>$</span>model <span style=color:#f92672>&lt;-</span> model
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>list</span>(net, fcast_df)
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># HORIZON = 1</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>c</span>(net_cond_h1, fcast_cond_h1) <span style=color:#f92672>%&lt;-%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>experiment_conditional_rnn</span>(
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Network</span>
+</span></span><span style=display:flex><span>    timesteps        <span style=color:#f92672>=</span> TIMESTEPS,
+</span></span><span style=display:flex><span>    vocabulary_size  <span style=color:#f92672>=</span> VOCABULARY_SIZE,
+</span></span><span style=display:flex><span>    dynamic_features <span style=color:#f92672>=</span> DYNAMIC_FEATURES,
+</span></span><span style=display:flex><span>    static_features  <span style=color:#f92672>=</span> STATIC_FEATURES,
+</span></span><span style=display:flex><span>    horizon          <span style=color:#f92672>=</span> HORIZON_1,
+</span></span><span style=display:flex><span>    rnn_units        <span style=color:#f92672>=</span> RNN_UNITS,
+</span></span><span style=display:flex><span>    model            <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;cond_rnn_h1&#39;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Data</span>
+</span></span><span style=display:flex><span>    x_train          <span style=color:#f92672>=</span> x_train_h1,
+</span></span><span style=display:flex><span>    x_static_train   <span style=color:#f92672>=</span> x_static_train_h1,
+</span></span><span style=display:flex><span>    y                <span style=color:#f92672>=</span> y_h1,
+</span></span><span style=display:flex><span>    x_test           <span style=color:#f92672>=</span> x_test_h1,
+</span></span><span style=display:flex><span>    x_static_test    <span style=color:#f92672>=</span> x_static_test_h1
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>## Loaded Tensorflow version 2.8.0</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># HORIZON = 7</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>c</span>(net_cond_h7, fcast_cond_h7) <span style=color:#f92672>%&lt;-%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>experiment_conditional_rnn</span>(
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Network</span>
+</span></span><span style=display:flex><span>    timesteps        <span style=color:#f92672>=</span> TIMESTEPS,
+</span></span><span style=display:flex><span>    vocabulary_size  <span style=color:#f92672>=</span> VOCABULARY_SIZE,
+</span></span><span style=display:flex><span>    dynamic_features <span style=color:#f92672>=</span> DYNAMIC_FEATURES,
+</span></span><span style=display:flex><span>    static_features  <span style=color:#f92672>=</span> STATIC_FEATURES,
+</span></span><span style=display:flex><span>    horizon          <span style=color:#f92672>=</span> HORIZON_7,
+</span></span><span style=display:flex><span>    rnn_units        <span style=color:#f92672>=</span> RNN_UNITS,
+</span></span><span style=display:flex><span>    model            <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;cond_rnn_h7&#39;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Data</span>
+</span></span><span style=display:flex><span>    x_train          <span style=color:#f92672>=</span> x_train_h7,
+</span></span><span style=display:flex><span>    x_static_train   <span style=color:#f92672>=</span> x_static_train_h7,
+</span></span><span style=display:flex><span>    y                <span style=color:#f92672>=</span> y_h7,
+</span></span><span style=display:flex><span>    x_test           <span style=color:#f92672>=</span> x_test_h7,
+</span></span><span style=display:flex><span>    x_static_test    <span style=color:#f92672>=</span> x_static_test_h7
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fcast_cond_cmp <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>bind_rows</span>(
+</span></span><span style=display:flex><span>    fcast_cond_h1,
+</span></span><span style=display:flex><span>    fcast_cond_h7,
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>select</span>(test, Date, name <span style=color:#f92672>=</span> City, value <span style=color:#f92672>=</span> AvgTemperature) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>mutate</span>(model <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;actual&#39;</span>)
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ggplot</span>(fcast_cond_cmp) <span style=color:#f92672>+</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>geom_line</span>(<span style=color:#a6e22e>aes</span>(Date, value, col <span style=color:#f92672>=</span> model)) <span style=color:#f92672>+</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>facet_wrap</span>(<span style=color:#f92672>~</span>name) <span style=color:#f92672>+</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>theme_minimal</span>()
+</span></span></code></pre></div><p><img src=index_files/figure-markdown_strict/cond.plot-1.png alt></p><h2 id=simple-rnn>Simple RNN</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>experiment_simple_rnn <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>function</span>(timesteps, horizon, rnn_units,
+</span></span><span style=display:flex><span>           model, x_train, y, x_test, x_static_test){
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Network architecture</span>
+</span></span><span style=display:flex><span>  ts_input  <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>layer_input</span>(shape <span style=color:#f92672>=</span> <span style=color:#a6e22e>c</span>(timesteps, <span style=color:#ae81ff>1</span>))
+</span></span><span style=display:flex><span>  rnn_layer <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>layer_gru</span>(units <span style=color:#f92672>=</span> rnn_units, name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;rnn&#39;</span>)(ts_input)
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  final_layer <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>layer_dense</span>(units <span style=color:#f92672>=</span> horizon, activation <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;linear&#39;</span>)(rnn_layer)
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Compiling</span>
+</span></span><span style=display:flex><span>  net <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>keras_model</span>(
+</span></span><span style=display:flex><span>      inputs  <span style=color:#f92672>=</span> <span style=color:#a6e22e>list</span>(ts_input),
+</span></span><span style=display:flex><span>      outputs <span style=color:#f92672>=</span> <span style=color:#a6e22e>list</span>(final_layer) 
+</span></span><span style=display:flex><span>    ) <span style=color:#f92672>%&gt;%</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>compile</span>(
+</span></span><span style=display:flex><span>      optimizer <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;adam&#39;</span>,
+</span></span><span style=display:flex><span>      loss      <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;mae&#39;</span>
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Training </span>
+</span></span><span style=display:flex><span>  net <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>fit</span>(
+</span></span><span style=display:flex><span>      x <span style=color:#f92672>=</span> <span style=color:#a6e22e>list</span>(x_train),
+</span></span><span style=display:flex><span>      y <span style=color:#f92672>=</span> <span style=color:#a6e22e>list</span>(y),
+</span></span><span style=display:flex><span>      epochs <span style=color:#f92672>=</span> <span style=color:#ae81ff>50</span>,
+</span></span><span style=display:flex><span>      batch_size <span style=color:#f92672>=</span> <span style=color:#ae81ff>32</span>
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  <span style=color:#75715e># Forecasting</span>
+</span></span><span style=display:flex><span>  fcast <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>    net <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>predict</span>(<span style=color:#a6e22e>list</span>(x_test))
+</span></span><span style=display:flex><span>  
+</span></span><span style=display:flex><span>  fcast_df <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>prepare_output</span>(fcast, x_static_test)
+</span></span><span style=display:flex><span>  fcast_df<span style=color:#f92672>$</span>model <span style=color:#f92672>&lt;-</span> model
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>list</span>(net, fcast_df)     
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># HORIZON = 1</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>c</span>(net_simple_h1, fcast_simple_h1) <span style=color:#f92672>%&lt;-%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>experiment_simple_rnn</span>(
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Network</span>
+</span></span><span style=display:flex><span>    timesteps     <span style=color:#f92672>=</span> TIMESTEPS,
+</span></span><span style=display:flex><span>    horizon       <span style=color:#f92672>=</span> HORIZON_1,
+</span></span><span style=display:flex><span>    rnn_units     <span style=color:#f92672>=</span> <span style=color:#ae81ff>32</span>,
+</span></span><span style=display:flex><span>    model         <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;simple_rnn_h1&#39;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Data</span>
+</span></span><span style=display:flex><span>    x_train       <span style=color:#f92672>=</span> x_train_h1,
+</span></span><span style=display:flex><span>    y             <span style=color:#f92672>=</span> y_h1,
+</span></span><span style=display:flex><span>    x_test        <span style=color:#f92672>=</span> x_test_h1,
+</span></span><span style=display:flex><span>    x_static_test <span style=color:#f92672>=</span> x_static_test_h1
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># HORIZON = 7</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>c</span>(net_simple_h7, fcast_simple_h7) <span style=color:#f92672>%&lt;-%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>experiment_simple_rnn</span>(
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Network</span>
+</span></span><span style=display:flex><span>    timesteps     <span style=color:#f92672>=</span> TIMESTEPS,
+</span></span><span style=display:flex><span>    horizon       <span style=color:#f92672>=</span> HORIZON_7,
+</span></span><span style=display:flex><span>    rnn_units     <span style=color:#f92672>=</span> <span style=color:#ae81ff>32</span>,
+</span></span><span style=display:flex><span>    model         <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;simple_rnn_h7&#39;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Data</span>
+</span></span><span style=display:flex><span>    x_train       <span style=color:#f92672>=</span> x_train_h7,
+</span></span><span style=display:flex><span>    y             <span style=color:#f92672>=</span> y_h7,
+</span></span><span style=display:flex><span>    x_test        <span style=color:#f92672>=</span> x_test_h7,
+</span></span><span style=display:flex><span>    x_static_test <span style=color:#f92672>=</span> x_static_test_h7
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fcast_simple_cmp <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>bind_rows</span>(
+</span></span><span style=display:flex><span>    fcast_simple_h1,
+</span></span><span style=display:flex><span>    fcast_simple_h7,
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>select</span>(test, Date, name <span style=color:#f92672>=</span> City, value <span style=color:#f92672>=</span> AvgTemperature) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>mutate</span>(model <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;actual&#39;</span>)
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>ggplot</span>(fcast_simple_cmp) <span style=color:#f92672>+</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>geom_line</span>(<span style=color:#a6e22e>aes</span>(Date, value, col <span style=color:#f92672>=</span> model)) <span style=color:#f92672>+</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>facet_wrap</span>(<span style=color:#f92672>~</span>name) <span style=color:#f92672>+</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>theme_minimal</span>()
+</span></span></code></pre></div><p><img src=index_files/figure-markdown_strict/simple.plot-1.png alt></p><h2 id=summary>Summary</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span><span style=color:#a6e22e>library</span>(yardstick)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fcast_df <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>bind_rows</span>(
+</span></span><span style=display:flex><span>    fcast_xgboost,
+</span></span><span style=display:flex><span>    fcast_cond_h1,
+</span></span><span style=display:flex><span>    fcast_cond_h7,
+</span></span><span style=display:flex><span>    fcast_simple_h1,
+</span></span><span style=display:flex><span>    fcast_simple_h7
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fcast_df <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  fcast_df <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>left_join</span>(test <span style=color:#f92672>%&gt;%</span> <span style=color:#a6e22e>select</span>(Date, City, AvgTemperature), 
+</span></span><span style=display:flex><span>            by <span style=color:#f92672>=</span> <span style=color:#a6e22e>c</span>(<span style=color:#e6db74>&#39;Date&#39;</span>, <span style=color:#e6db74>&#39;name&#39;</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#39;City&#39;</span>))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>fcast_df <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>group_by</span>(model) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>summarise</span>(mape <span style=color:#f92672>=</span> <span style=color:#a6e22e>mape_vec</span>(AvgTemperature, value)) <span style=color:#f92672>%&gt;%</span> 
+</span></span><span style=display:flex><span>  gt<span style=color:#f92672>::</span><span style=color:#a6e22e>gt</span>()
+</span></span></code></pre></div><div id=zpafsdmqom style=overflow-x:auto;overflow-y:auto;width:auto;height:auto>
+<style>html{font-family:-apple-system,BlinkMacSystemFont,segoe ui,Roboto,Oxygen,Ubuntu,Cantarell,helvetica neue,fira sans,droid sans,Arial,sans-serif}<p>#zpafsdmqom .gt_table{display:table;border-collapse:collapse;margin-left:auto;margin-right:auto;color:#333;font-size:16px;font-weight:400;font-style:normal;background-color:#fff;width:auto;border-top-style:solid;border-top-width:2px;border-top-color:#a8a8a8;border-right-style:none;border-right-width:2px;border-right-color:#d3d3d3;border-bottom-style:solid;border-bottom-width:2px;border-bottom-color:#a8a8a8;border-left-style:none;border-left-width:2px;border-left-color:#d3d3d3}</p><p>#zpafsdmqom .gt_heading{background-color:#fff;text-align:center;border-bottom-color:#fff;border-left-style:none;border-left-width:1px;border-left-color:#d3d3d3;border-right-style:none;border-right-width:1px;border-right-color:#d3d3d3}</p><p>#zpafsdmqom .gt_title{color:#333;font-size:125%;font-weight:initial;padding-top:4px;padding-bottom:4px;padding-left:5px;padding-right:5px;border-bottom-color:#fff;border-bottom-width:0}</p><p>#zpafsdmqom .gt_subtitle{color:#333;font-size:85%;font-weight:initial;padding-top:0;padding-bottom:6px;padding-left:5px;padding-right:5px;border-top-color:#fff;border-top-width:0}</p><p>#zpafsdmqom .gt_bottom_border{border-bottom-style:solid;border-bottom-width:2px;border-bottom-color:#d3d3d3}</p><p>#zpafsdmqom .gt_col_headings{border-top-style:solid;border-top-width:2px;border-top-color:#d3d3d3;border-bottom-style:solid;border-bottom-width:2px;border-bottom-color:#d3d3d3;border-left-style:none;border-left-width:1px;border-left-color:#d3d3d3;border-right-style:none;border-right-width:1px;border-right-color:#d3d3d3}</p><p>#zpafsdmqom .gt_col_heading{color:#333;background-color:#fff;font-size:100%;font-weight:400;text-transform:inherit;border-left-style:none;border-left-width:1px;border-left-color:#d3d3d3;border-right-style:none;border-right-width:1px;border-right-color:#d3d3d3;vertical-align:bottom;padding-top:5px;padding-bottom:6px;padding-left:5px;padding-right:5px;overflow-x:hidden}</p><p>#zpafsdmqom .gt_column_spanner_outer{color:#333;background-color:#fff;font-size:100%;font-weight:400;text-transform:inherit;padding-top:0;padding-bottom:0;padding-left:4px;padding-right:4px}</p><p>#zpafsdmqom .gt_column_spanner_outer:first-child{padding-left:0}</p><p>#zpafsdmqom .gt_column_spanner_outer:last-child{padding-right:0}</p><p>#zpafsdmqom .gt_column_spanner{border-bottom-style:solid;border-bottom-width:2px;border-bottom-color:#d3d3d3;vertical-align:bottom;padding-top:5px;padding-bottom:5px;overflow-x:hidden;display:inline-block;width:100%}</p><p>#zpafsdmqom .gt_group_heading{padding-top:8px;padding-bottom:8px;padding-left:5px;padding-right:5px;color:#333;background-color:#fff;font-size:100%;font-weight:initial;text-transform:inherit;border-top-style:solid;border-top-width:2px;border-top-color:#d3d3d3;border-bottom-style:solid;border-bottom-width:2px;border-bottom-color:#d3d3d3;border-left-style:none;border-left-width:1px;border-left-color:#d3d3d3;border-right-style:none;border-right-width:1px;border-right-color:#d3d3d3;vertical-align:middle}</p><p>#zpafsdmqom .gt_empty_group_heading{padding:.5px;color:#333;background-color:#fff;font-size:100%;font-weight:initial;border-top-style:solid;border-top-width:2px;border-top-color:#d3d3d3;border-bottom-style:solid;border-bottom-width:2px;border-bottom-color:#d3d3d3;vertical-align:middle}</p><p>#zpafsdmqom .gt_from_md &gt; :first-child{margin-top:0}</p><p>#zpafsdmqom .gt_from_md &gt; :last-child{margin-bottom:0}</p><p>#zpafsdmqom .gt_row{padding-top:8px;padding-bottom:8px;padding-left:5px;padding-right:5px;margin:10px;border-top-style:solid;border-top-width:1px;border-top-color:#d3d3d3;border-left-style:none;border-left-width:1px;border-left-color:#d3d3d3;border-right-style:none;border-right-width:1px;border-right-color:#d3d3d3;vertical-align:middle;overflow-x:hidden}</p><p>#zpafsdmqom .gt_stub{color:#333;background-color:#fff;font-size:100%;font-weight:initial;text-transform:inherit;border-right-style:solid;border-right-width:2px;border-right-color:#d3d3d3;padding-left:5px;padding-right:5px}</p><p>#zpafsdmqom .gt_stub_row_group{color:#333;background-color:#fff;font-size:100%;font-weight:initial;text-transform:inherit;border-right-style:solid;border-right-width:2px;border-right-color:#d3d3d3;padding-left:5px;padding-right:5px;vertical-align:top}</p><p>#zpafsdmqom .gt_row_group_first td{border-top-width:2px}</p><p>#zpafsdmqom .gt_summary_row{color:#333;background-color:#fff;text-transform:inherit;padding-top:8px;padding-bottom:8px;padding-left:5px;padding-right:5px}</p><p>#zpafsdmqom .gt_first_summary_row{border-top-style:solid;border-top-color:#d3d3d3}</p><p>#zpafsdmqom .gt_first_summary_row.thick{border-top-width:2px}</p><p>#zpafsdmqom .gt_last_summary_row{padding-top:8px;padding-bottom:8px;padding-left:5px;padding-right:5px;border-bottom-style:solid;border-bottom-width:2px;border-bottom-color:#d3d3d3}</p><p>#zpafsdmqom .gt_grand_summary_row{color:#333;background-color:#fff;text-transform:inherit;padding-top:8px;padding-bottom:8px;padding-left:5px;padding-right:5px}</p><p>#zpafsdmqom .gt_first_grand_summary_row{padding-top:8px;padding-bottom:8px;padding-left:5px;padding-right:5px;border-top-style:double;border-top-width:6px;border-top-color:#d3d3d3}</p><p>#zpafsdmqom .gt_striped{background-color:rgba(128,128,128,5%)}</p><p>#zpafsdmqom .gt_table_body{border-top-style:solid;border-top-width:2px;border-top-color:#d3d3d3;border-bottom-style:solid;border-bottom-width:2px;border-bottom-color:#d3d3d3}</p><p>#zpafsdmqom .gt_footnotes{color:#333;background-color:#fff;border-bottom-style:none;border-bottom-width:2px;border-bottom-color:#d3d3d3;border-left-style:none;border-left-width:2px;border-left-color:#d3d3d3;border-right-style:none;border-right-width:2px;border-right-color:#d3d3d3}</p><p>#zpafsdmqom .gt_footnote{margin:0;font-size:90%;padding-left:4px;padding-right:4px;padding-left:5px;padding-right:5px}</p><p>#zpafsdmqom .gt_sourcenotes{color:#333;background-color:#fff;border-bottom-style:none;border-bottom-width:2px;border-bottom-color:#d3d3d3;border-left-style:none;border-left-width:2px;border-left-color:#d3d3d3;border-right-style:none;border-right-width:2px;border-right-color:#d3d3d3}</p><p>#zpafsdmqom .gt_sourcenote{font-size:90%;padding-top:4px;padding-bottom:4px;padding-left:5px;padding-right:5px}</p><p>#zpafsdmqom .gt_left{text-align:left}</p><p>#zpafsdmqom .gt_center{text-align:center}</p><p>#zpafsdmqom .gt_right{text-align:right;font-variant-numeric:tabular-nums}</p><p>#zpafsdmqom .gt_font_normal{font-weight:400}</p><p>#zpafsdmqom .gt_font_bold{font-weight:700}</p><p>#zpafsdmqom .gt_font_italic{font-style:italic}</p><p>#zpafsdmqom .gt_super{font-size:65%}</p><p>#zpafsdmqom .gt_footnote_marks{font-style:italic;font-weight:400;font-size:75%;vertical-align:.4em}</p><p>#zpafsdmqom .gt_asterisk{font-size:100%;vertical-align:0}</p><p>#zpafsdmqom .gt_slash_mark{font-size:.7em;line-height:.7em;vertical-align:.15em}</p><p>#zpafsdmqom .gt_fraction_numerator{font-size:.6em;line-height:.6em;vertical-align:.45em}</p><p>#zpafsdmqom .gt_fraction_denominator{font-size:.6em;line-height:.6em;vertical-align:-.05em}</style></p><table class=gt_table>
+<thead class=gt_col_headings>
+<tr>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan=1 colspan=1>model</th><th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan=1 colspan=1>mape</th></tr></thead><tbody class=gt_table_body>
+<tr><td class="gt_row gt_left">cond_rnn_h1</td><td class="gt_row gt_right">34.32918</td></tr><tr><td class="gt_row gt_left">cond_rnn_h7</td><td class="gt_row gt_right">31.92488</td></tr><tr><td class="gt_row gt_left">simple_rnn_h1</td><td class="gt_row gt_right">34.44923</td></tr><tr><td class="gt_row gt_left">simple_rnn_h7</td><td class="gt_row gt_right">32.86985</td></tr><tr><td class="gt_row gt_left">xgboost</td><td class="gt_row gt_right">14.82363</td></tr></tbody></table></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>plt <span style=color:#f92672>&lt;-</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>ggplot</span>(fcast_df) <span style=color:#f92672>+</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>geom_line</span>(<span style=color:#a6e22e>aes</span>(Date, value, col <span style=color:#f92672>=</span> model)) <span style=color:#f92672>+</span> 
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>theme_minimal</span>() <span style=color:#f92672>+</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>facet_wrap</span>(<span style=color:#f92672>~</span>name)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>plt
+</span></span></code></pre></div><p><img src=index_files/figure-markdown_strict/experiments-1.png alt></p><h2 id=conclusions>Conclusions</h2><p>As we can see, there is technically no difference in terms of MAPE, when
+we are comparing results of <strong>simple_rnn_h1</strong> and <strong>cond_rnn_h1</strong>.
+When it comes to the RNN models with 7-day horizon, the diffrences are
+also negligible.</p><p>Our baseline model beats both simple and conditional RNN models. However, bear
+in mind that 1-timestep horizon is not a most realistic use case in most
+problems.</p></div></main></body></html>

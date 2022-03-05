@@ -1,0 +1,1023 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>keras on krzjoa</title><link>/tags/keras/</link><description>Recent content in keras on krzjoa</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 05 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="/tags/keras/index.xml" rel="self" type="application/rss+xml"/><item><title>Conditional RNN in keras (R) to deal with static features</title><author>joachimiak.krzysztof@gmail.com (Krzysztof Joachimiak)</author><link>/2022/03/05/content/post/2022-03-05-conditional-rnn-in-keras-r/</link><pubDate>Sat, 05 Mar 2022 00:00:00 +0000</pubDate><guid>/2022/03/05/content/post/2022-03-05-conditional-rnn-in-keras-r/</guid><description>&lt;p>&lt;a>&lt;img src='/post/2022-03-05-conditional-rnn-in-keras-r/keras.png' align="center"/>&lt;/a>&lt;/p>
+&lt;p>Conditional RNN is one of the possible solutions if we’d like to make
+use of &lt;strong>static features&lt;/strong> in time series forecasting. For example, we
+want to build a model, which can handle multiple time series with many
+different characteristics. It can be a model for demand forecasting for
+multiple products or a unified model forecasting temperature in places
+from different climate zones.&lt;/p>
+&lt;p>We have at least a couple of options to do so. They are described in
+detail in the following &lt;a href="https://datascience.stackexchange.com/questions/17099/adding-features-to-time-series-model-lstm/17139#17139">thread on
+StackOverlow&lt;/a>.
+According to the answers, the best way to add static features is to use
+this values to produce an initial hidden state of the recurrent layer.
+The proposed solution was &lt;a href="https://github.com/philipperemy/cond_rnn">implemented as a Keras wrapper to recurrent
+layers (in Python)&lt;/a>.&lt;/p>
+&lt;p>This post is a trial to implement conditional RNN in keras for R.&lt;/p>
+&lt;h2 id="loading-the-data">Loading the data&lt;/h2>
+&lt;p>We’ll use a piece of data from an experiment performed by the author of
+the &lt;a href="https://github.com/philipperemy/cond_rnn/raw/master/examples/temperature/city_temperature.csv.zip">aforementioned Keras
+wrapper&lt;/a>.
+We’re selecting two cities with extreme temperatures, e.g. &lt;strong>Cairo&lt;/strong>
+and &lt;strong>Helsinki&lt;/strong>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(data.table, warn.conflicts &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">FALSE&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(dplyr, warn.conflicts &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">FALSE&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(lubridate)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(ggplot2)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(imputeTS
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(timetk)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(rsample)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(parsnip)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># url &amp;lt;- &amp;#34;https://github.com/philipperemy/cond_rnn/raw/master/examples/temperature/city_temperature.csv.zip&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>file_path &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#e6db74">&amp;#34;city_temperature.csv.zip&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>csv_path &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#e6db74">&amp;#34;city_temperature.csv&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># download.file(url, file_path)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># unzip(file_path)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>city_temperature &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">read.csv&lt;/span>(csv_path)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">setDT&lt;/span>(city_temperature)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>selected_cities &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> city_temperature[City &lt;span style="color:#f92672">%chin%&lt;/span> &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;Cairo&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;Helsinki&amp;#39;&lt;/span>)]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>selected_cities[
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> , Date &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">ymd&lt;/span>(glue&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">glue&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;{Year}-{Month}-{Day}&amp;#34;&lt;/span>, .envir &lt;span style="color:#f92672">=&lt;/span> .SD))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>selected_cities &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> selected_cities[, .(City, Date, AvgTemperature)]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">setorder&lt;/span>(selected_cities, City, Date)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>plt &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">ggplot&lt;/span>(selected_cities) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">geom_line&lt;/span>(&lt;span style="color:#a6e22e">aes&lt;/span>(Date, AvgTemperature, col &lt;span style="color:#f92672">=&lt;/span> City)) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">theme_minimal&lt;/span>() &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">ggtitle&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;Temperature: Cairo vs Helsinki&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="index_files/figure-markdown_strict/selecting.data-1.png" alt="">&lt;/p>
+&lt;p>There is a couple of outliers and we can safely assume they simply
+indicate lack of data. We’ll replace it with interpolated values.&lt;/p>
+&lt;p>Initially, I’ve chosen Oslo, but there were a few corrupted year
+numbers:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>city_temperature[City &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;Oslo&amp;#39;&lt;/span> &lt;span style="color:#f92672">&amp;amp;&lt;/span> Year &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">200&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## Region Country State City Month Day Year AvgTemperature&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 1: Europe Norway Oslo 12 1 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 2: Europe Norway Oslo 12 2 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 3: Europe Norway Oslo 12 3 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 4: Europe Norway Oslo 12 4 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 5: Europe Norway Oslo 12 5 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 6: Europe Norway Oslo 12 6 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 7: Europe Norway Oslo 12 7 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 8: Europe Norway Oslo 12 8 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 9: Europe Norway Oslo 12 9 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 10: Europe Norway Oslo 12 10 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 11: Europe Norway Oslo 12 11 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 12: Europe Norway Oslo 12 12 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 13: Europe Norway Oslo 12 13 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 14: Europe Norway Oslo 12 14 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 15: Europe Norway Oslo 12 15 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 16: Europe Norway Oslo 12 16 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 17: Europe Norway Oslo 12 17 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 18: Europe Norway Oslo 12 18 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 19: Europe Norway Oslo 12 19 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 20: Europe Norway Oslo 12 20 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 21: Europe Norway Oslo 12 21 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 22: Europe Norway Oslo 12 22 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 23: Europe Norway Oslo 12 23 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 24: Europe Norway Oslo 12 24 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 25: Europe Norway Oslo 12 25 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 26: Europe Norway Oslo 12 26 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 27: Europe Norway Oslo 12 27 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 28: Europe Norway Oslo 12 28 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 29: Europe Norway Oslo 12 29 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 30: Europe Norway Oslo 12 30 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 31: Europe Norway Oslo 12 31 200 -99&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## Region Country State City Month Day Year AvgTemperature&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># Cleaning the data&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>selected_cities[AvgTemperature &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">-99.0&lt;/span>, AvgTemperature &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#66d9ef">NA&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>selected_cities[, AvgTemperature &lt;span style="color:#f92672">:=&lt;/span> &lt;span style="color:#a6e22e">na_interpolation&lt;/span>(AvgTemperature)]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">ggplot&lt;/span>(selected_cities) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">geom_line&lt;/span>(&lt;span style="color:#a6e22e">aes&lt;/span>(Date, AvgTemperature, col &lt;span style="color:#f92672">=&lt;/span> City)) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">theme_minimal&lt;/span>() &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">ggtitle&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;Temperature: Cairo vs Helsinki&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># plotly::ggplotly(plt)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="index_files/figure-markdown_strict/removing.outliers-1.png" alt="">&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(tsibble, warn.conflicts &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">FALSE&lt;/span>, quietly &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">TRUE&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">duplicates&lt;/span>(selected_cities, key &lt;span style="color:#f92672">=&lt;/span> City, index &lt;span style="color:#f92672">=&lt;/span> Date)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## # A tibble: 4 × 3&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## City Date AvgTemperature&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## &amp;lt;chr&amp;gt; &amp;lt;date&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 1 Cairo 2015-12-30 60.5&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 2 Cairo 2015-12-30 57.9&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 3 Helsinki 2015-12-30 26.6&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 4 Helsinki 2015-12-30 25.4&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># Removing dupicates for &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>selected_cities &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> selected_cities[, .(AvgTemperature &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">max&lt;/span>(AvgTemperature)) , by &lt;span style="color:#f92672">=&lt;/span> .(City, Date)]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>train &lt;span style="color:#f92672">&amp;lt;-&lt;/span> selected_cities[Date &lt;span style="color:#f92672">&amp;lt;&lt;/span> &lt;span style="color:#a6e22e">as.Date&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;2019-01-01&amp;#39;&lt;/span>)]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>test &lt;span style="color:#f92672">&amp;lt;-&lt;/span> selected_cities[
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Date &lt;span style="color:#f92672">&amp;gt;=&lt;/span> &lt;span style="color:#a6e22e">as.Date&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;2019-01-01&amp;#39;&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> Date &lt;span style="color:#f92672">&amp;lt;=&lt;/span> &lt;span style="color:#a6e22e">as.Date&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;2019-12-31&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>]
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="baseline-model---one-xgboost-model-for-both-cities">Baseline model - one xgboost model for both cities&lt;/h2>
+&lt;p>As a baseline model, we’ll train a &lt;code>xgboost&lt;/code> model using &lt;code>parsnip&lt;/code> API
+and &lt;code>modeltime&lt;/code>. We create a &lt;code>data.frame&lt;/code> of lagged variables to feed
+the model. We use &lt;strong>28 lags&lt;/strong> - the same value will be later used as a
+length of input to the &lt;strong>recurrent neural netowrk&lt;/strong> models. We also mix
+the data belonging to different cities, so there are no separate
+models for each city.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(modeltime)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>lagged_selected_cities &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> selected_cities &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">group_by&lt;/span>(City) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">tk_augment_lags&lt;/span>(AvgTemperature, .lags &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">:&lt;/span>&lt;span style="color:#ae81ff">28&lt;/span>) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">ungroup&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">setDT&lt;/span>(lagged_selected_cities)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>train &lt;span style="color:#f92672">&amp;lt;-&lt;/span> lagged_selected_cities[Date &lt;span style="color:#f92672">&amp;lt;&lt;/span> &lt;span style="color:#a6e22e">as.Date&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;2019-01-01&amp;#39;&lt;/span>)]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>test &lt;span style="color:#f92672">&amp;lt;-&lt;/span> lagged_selected_cities[
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Date &lt;span style="color:#f92672">&amp;gt;=&lt;/span> &lt;span style="color:#a6e22e">as.Date&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;2019-01-01&amp;#39;&lt;/span>) &lt;span style="color:#f92672">&amp;amp;&lt;/span> Date &lt;span style="color:#f92672">&amp;lt;=&lt;/span> &lt;span style="color:#a6e22e">as.Date&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;2019-12-31&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>lagged_variables &lt;span style="color:#f92672">&amp;lt;-&lt;/span> glue&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">glue&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;AvgTemperature_lag{1:28}&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>formula_rhs &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">paste0&lt;/span>(lagged_variables, collapse &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34; + &amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>model_formula &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">as.formula&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> glue&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">glue&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;AvgTemperature ~ {formula_rhs}&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>model_xgboost &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">boost_tree&lt;/span>(mode &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;regression&amp;#34;&lt;/span>) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">set_engine&lt;/span>(&lt;span style="color:#e6db74">&amp;#34;xgboost&amp;#34;&lt;/span>) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">fit&lt;/span>(model_formula, data &lt;span style="color:#f92672">=&lt;/span> train)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fcast &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> model_xgboost &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">predict&lt;/span>(test)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mdltime &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">modeltime_table&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> xgboost &lt;span style="color:#f92672">=&lt;/span> model_xgboost
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fcast_cairo &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mdltime &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">modeltime_forecast&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> test[City &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;Cairo&amp;#39;&lt;/span>], actual_data &lt;span style="color:#f92672">=&lt;/span> test[City &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;Cairo&amp;#39;&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fcast_helsinki &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mdltime &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">modeltime_forecast&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> test[City &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;Helsinki&amp;#39;&lt;/span>], actual_data &lt;span style="color:#f92672">=&lt;/span> test[City &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;Helsinki&amp;#39;&lt;/span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fcast_cairo &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_cairo &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">mutate&lt;/span>(name &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;Cairo&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fcast_helsinki &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_helsinki &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">mutate&lt;/span>(name &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;Helsinki&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fcast_xgboost &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">bind_rows&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_cairo, fcast_helsinki
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">filter&lt;/span>(.key &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;prediction&amp;#39;&lt;/span>) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">select&lt;/span>(.index, .value, name) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">rename&lt;/span>(Date &lt;span style="color:#f92672">=&lt;/span> .index, value &lt;span style="color:#f92672">=&lt;/span> .value) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">mutate&lt;/span>(model &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;xgboost&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Let’s take a glance, how the models’ predictions look like.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>fcast_xgboost_cmp &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">bind_rows&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_xgboost,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">select&lt;/span>(test, Date, name &lt;span style="color:#f92672">=&lt;/span> City, value &lt;span style="color:#f92672">=&lt;/span> AvgTemperature) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">mutate&lt;/span>(model &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;actual&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">ggplot&lt;/span>(fcast_xgboost_cmp) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">geom_line&lt;/span>(&lt;span style="color:#a6e22e">aes&lt;/span>(Date, value, col &lt;span style="color:#f92672">=&lt;/span> model)) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">facet_wrap&lt;/span>(&lt;span style="color:#f92672">~&lt;/span>name) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">theme_minimal&lt;/span>()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="index_files/figure-markdown_strict/xgboost.plot-1.png" alt="">&lt;/p>
+&lt;p>As we can see, &lt;code>xgboost&lt;/code> models fitted to the data quite well. However,
+the task was relatively simple, because we only wanted to forecast one
+timestep ahead.&lt;/p>
+&lt;h2 id="preparing-data-for-rnns">Preparing data for RNNs&lt;/h2>
+&lt;p>We pass to the ‘main course’ - training recurrent neural networks.
+First, we create a couple of auxiliary functions to create input
+tensors:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>3-dimensional tensors&lt;/strong> for input time series&lt;/li>
+&lt;li>&lt;strong>matrices&lt;/strong> for outputs and static variables&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(abind)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>ndim &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(x){
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">length&lt;/span>(&lt;span style="color:#a6e22e">dim&lt;/span>(x))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>shuffle &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(&lt;span style="color:#66d9ef">...&lt;/span>){
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> objects &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(&lt;span style="color:#66d9ef">...&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> object_size &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">dim&lt;/span>(objects[[1]])[1]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> indices &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">sample&lt;/span>(object_size, object_size)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">Map&lt;/span>(&lt;span style="color:#a6e22e">\&lt;/span>(x) &lt;span style="color:#a6e22e">if &lt;/span>(&lt;span style="color:#a6e22e">ndim&lt;/span>(x) &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span>) x[indices, ] else x[indices, ,], objects)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>prepare_output &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(fcast, idx){
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> idx_cairo &lt;span style="color:#f92672">&amp;lt;-&lt;/span> idx &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> idx_helsinki &lt;span style="color:#f92672">&amp;lt;-&lt;/span> idx &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_cairo &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast[idx_cairo, ] &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span>() &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">as.vector&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_helsinki &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast[idx_helsinki, ] &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span>() &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">as.vector&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_df &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">data.table&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Date &lt;span style="color:#f92672">=&lt;/span> test&lt;span style="color:#f92672">$&lt;/span>Date[1&lt;span style="color:#f92672">:&lt;/span>&lt;span style="color:#a6e22e">length&lt;/span>(fcast_cairo)],
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Cairo &lt;span style="color:#f92672">=&lt;/span> fcast_cairo,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Helsinki &lt;span style="color:#f92672">=&lt;/span> fcast_helsinki
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> tidyr&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">pivot_longer&lt;/span>(&lt;span style="color:#a6e22e">c&lt;/span>(Cairo, Helsinki))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_df
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>prepare_data &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(data, timesteps, horizon, jump,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sample_frac, targets &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">TRUE&lt;/span>, .shuffle &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">TRUE&lt;/span>){
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data_period_length &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">max&lt;/span>(data&lt;span style="color:#f92672">$&lt;/span>Date) &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#a6e22e">min&lt;/span>(data&lt;span style="color:#f92672">$&lt;/span>Date)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data_period_length &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">as.numeric&lt;/span>(data_period_length) &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> n &lt;span style="color:#f92672">&amp;lt;-&lt;/span> data_period_length &lt;span style="color:#f92672">-&lt;/span> timesteps &lt;span style="color:#f92672">-&lt;/span> horizon &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> starts &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">seq&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, n, jump)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> starts &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">sample&lt;/span>(starts, size &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">length&lt;/span>(starts) &lt;span style="color:#f92672">*&lt;/span> sample_frac)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> starts &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">sort&lt;/span>(starts)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Cairo&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data_cairo &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data[City &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;Cairo&amp;#39;&lt;/span>, .(AvgTemperature)]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_data_cairo &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> purrr&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">map&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> starts,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">\&lt;/span>(i) &lt;span style="color:#a6e22e">array&lt;/span>(data_cairo[i&lt;span style="color:#f92672">:&lt;/span>i&lt;span style="color:#f92672">+&lt;/span>timesteps&lt;span style="color:#ae81ff">-1&lt;/span>, ]&lt;span style="color:#f92672">$&lt;/span>AvgTemperature, &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, timesteps, &lt;span style="color:#ae81ff">1&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_data_cairo &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">abind&lt;/span>(x_data_cairo, along &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_data_static_cairo &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">matrix&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#a6e22e">dim&lt;/span>(x_data_cairo)[1], &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> y_data_cairo &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> purrr&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">map&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> starts,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">\&lt;/span>(i) &lt;span style="color:#a6e22e">array&lt;/span>(data_cairo&lt;span style="color:#a6e22e">[&lt;/span>(i&lt;span style="color:#f92672">+&lt;/span>timesteps)&lt;span style="color:#f92672">:&lt;/span>(i&lt;span style="color:#f92672">+&lt;/span>timesteps&lt;span style="color:#f92672">+&lt;/span>horizon&lt;span style="color:#ae81ff">-1&lt;/span>), ]&lt;span style="color:#f92672">$&lt;/span>AvgTemperature, &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, horizon))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> y_data_cairo &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">abind&lt;/span>(y_data_cairo, along &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Helsinki&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data_helsinki &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data[City &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#39;Helsinki&amp;#39;&lt;/span>, .(AvgTemperature)]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_data_helsinki &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> purrr&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">map&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> starts,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">\&lt;/span>(i) &lt;span style="color:#a6e22e">array&lt;/span>(data_helsinki[i&lt;span style="color:#f92672">:&lt;/span>i&lt;span style="color:#f92672">+&lt;/span>timesteps&lt;span style="color:#ae81ff">-1&lt;/span>, ]&lt;span style="color:#f92672">$&lt;/span>AvgTemperature, &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, timesteps, &lt;span style="color:#ae81ff">1&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_data_helsinki &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">abind&lt;/span>(x_data_helsinki, along &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_data_static_helsinki &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">matrix&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#a6e22e">dim&lt;/span>(x_data_helsinki)[1], &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Complete data&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_data &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">abind&lt;/span>(x_data_cairo, x_data_helsinki, along &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_static_data &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">abind&lt;/span>(x_data_static_cairo, x_data_static_helsinki, along &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> right_order &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">if &lt;/span>(targets) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> y_data_helsinki &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> purrr&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">map&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> starts,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">\&lt;/span>(i) &lt;span style="color:#a6e22e">array&lt;/span>(data_helsinki&lt;span style="color:#a6e22e">[&lt;/span>(i&lt;span style="color:#f92672">+&lt;/span>timesteps)&lt;span style="color:#f92672">:&lt;/span>(i&lt;span style="color:#f92672">+&lt;/span>timesteps&lt;span style="color:#f92672">+&lt;/span>horizon&lt;span style="color:#ae81ff">-1&lt;/span>), ]&lt;span style="color:#f92672">$&lt;/span>AvgTemperature, &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>, horizon))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> y_data_helsinki &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">abind&lt;/span>(y_data_helsinki, along &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> y &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">abind&lt;/span>(y_data_cairo, y_data_helsinki, along &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">if &lt;/span>(.shuffle)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">shuffle&lt;/span>(x_data, x_static_data, y))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> else
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">list&lt;/span>(x_data, x_static_data, y))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> } else {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">if &lt;/span>(.shuffle)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">shuffle&lt;/span>(x_data, x_static_data))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> else
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">return&lt;/span>(&lt;span style="color:#a6e22e">list&lt;/span>(x_data, x_static_data))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Experiment configuration:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>TIMESTEPS &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">28&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>HORIZON_1 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>HORIZON_7 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">7&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>DYNAMIC_FEATURES &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>STATIC_FEATURES &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>RNN_UNITS &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">32&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>VOCABULARY_SIZE &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">2&lt;/span> &lt;span style="color:#75715e"># because we have two cities&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Importing &lt;code>keras&lt;/code>, we’re also loading multiple assignment operator from
+&lt;code>zeallot&lt;/code>, namely &lt;code>%&amp;lt;-%&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(keras)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>JUMP &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>SAMPLE_FRAC &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">0.5&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># HORIZON = 1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># Training data&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">c&lt;/span>(x_train_h1, x_static_train_h1, y_h1) &lt;span style="color:#f92672">%&amp;lt;-%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">prepare_data&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data &lt;span style="color:#f92672">=&lt;/span> train,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> timesteps &lt;span style="color:#f92672">=&lt;/span> TIMESTEPS,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> horizon &lt;span style="color:#f92672">=&lt;/span> HORIZON_1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> jump &lt;span style="color:#f92672">=&lt;/span> HORIZON_1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sample_frac &lt;span style="color:#f92672">=&lt;/span> SAMPLE_FRAC
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># Test data&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">c&lt;/span>(x_test_h1, x_static_test_h1) &lt;span style="color:#f92672">%&amp;lt;-%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">prepare_data&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data &lt;span style="color:#f92672">=&lt;/span> test,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> timesteps &lt;span style="color:#f92672">=&lt;/span> TIMESTEPS,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> horizon &lt;span style="color:#f92672">=&lt;/span> HORIZON_1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> jump &lt;span style="color:#f92672">=&lt;/span> HORIZON_1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sample_frac &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> targets &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">FALSE&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> .shuffle &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">FALSE&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># HORIZON = 7&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># Training data&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">c&lt;/span>(x_train_h7, x_static_train_h7, y_h7) &lt;span style="color:#f92672">%&amp;lt;-%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">prepare_data&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data &lt;span style="color:#f92672">=&lt;/span> train,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> timesteps &lt;span style="color:#f92672">=&lt;/span> TIMESTEPS,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> horizon &lt;span style="color:#f92672">=&lt;/span> HORIZON_7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> jump &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sample_frac &lt;span style="color:#f92672">=&lt;/span> SAMPLE_FRAC
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># Test data&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">c&lt;/span>(x_test_h7, x_static_test_h7) &lt;span style="color:#f92672">%&amp;lt;-%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">prepare_data&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> data &lt;span style="color:#f92672">=&lt;/span> test,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> timesteps &lt;span style="color:#f92672">=&lt;/span> TIMESTEPS,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> horizon &lt;span style="color:#f92672">=&lt;/span> HORIZON_7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> jump &lt;span style="color:#f92672">=&lt;/span> HORIZON_7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sample_frac &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> targets &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">FALSE&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> .shuffle &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">FALSE&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="conditional-rnn">Conditional RNN&lt;/h2>
+&lt;p>The idea of &lt;strong>conditional RNN&lt;/strong> is to initialize hidden states of the
+recurrent layer using specially prepared values, which indicate a
+specific type of the time series.&lt;/p>
+&lt;p>I let myself for some simplifications in these experiments, e.g.:&lt;/p>
+&lt;ul>
+&lt;li>data is not scaled&lt;/li>
+&lt;li>validation data is not used to prevent overfitting&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>experiment_conditional_rnn &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">function&lt;/span>(timesteps, horizon, rnn_units,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> vocabulary_size, dynamic_features, static_features,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> model, x_train, x_static_train, y, x_test, x_static_test){
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Model&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ts_input &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">layer_input&lt;/span>(shape &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">c&lt;/span>(timesteps, dynamic_features))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> static_input &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">layer_input&lt;/span>(shape &lt;span style="color:#f92672">=&lt;/span> static_features)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> embedding &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">layer_embedding&lt;/span>(input_dim &lt;span style="color:#f92672">=&lt;/span> vocabulary_size,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> output_dim &lt;span style="color:#f92672">=&lt;/span> rnn_units)(static_input)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> embedding &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">layer_lambda&lt;/span>(f &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">\&lt;/span>(x) x[,&lt;span style="color:#ae81ff">1&lt;/span>,])(embedding)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> rnn_layer &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">layer_gru&lt;/span>(units &lt;span style="color:#f92672">=&lt;/span> rnn_units, name &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;rnn&amp;#39;&lt;/span>)(ts_input, initial_state &lt;span style="color:#f92672">=&lt;/span> embedding)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># For LSTM layers we have to provide two hidden state values&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># rnn_layer &amp;lt;- &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># layer_gru(units = rnn_units, name = &amp;#39;rnn&amp;#39;)(ts_input, initial_state = list(embedding, embedding))&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> final_layer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">layer_dense&lt;/span>(units &lt;span style="color:#f92672">=&lt;/span> horizon, activation &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;linear&amp;#39;&lt;/span>)(rnn_layer)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Compiling&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> net &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">keras_model&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> inputs &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(ts_input, static_input),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> outputs &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(final_layer)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">compile&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> optimizer &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;adam&amp;#39;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> loss &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;mae&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Training&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> net &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">fit&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(x_train, x_static_train),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> y &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(y),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> epochs &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">50&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> batch_size &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">32&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Forecasting&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> net &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">predict&lt;/span>(&lt;span style="color:#a6e22e">list&lt;/span>(x_test, x_static_test))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_df &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">prepare_output&lt;/span>(fcast, x_static_test)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_df&lt;span style="color:#f92672">$&lt;/span>model &lt;span style="color:#f92672">&amp;lt;-&lt;/span> model
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">list&lt;/span>(net, fcast_df)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># HORIZON = 1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">c&lt;/span>(net_cond_h1, fcast_cond_h1) &lt;span style="color:#f92672">%&amp;lt;-%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">experiment_conditional_rnn&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Network&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> timesteps &lt;span style="color:#f92672">=&lt;/span> TIMESTEPS,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> vocabulary_size &lt;span style="color:#f92672">=&lt;/span> VOCABULARY_SIZE,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> dynamic_features &lt;span style="color:#f92672">=&lt;/span> DYNAMIC_FEATURES,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> static_features &lt;span style="color:#f92672">=&lt;/span> STATIC_FEATURES,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> horizon &lt;span style="color:#f92672">=&lt;/span> HORIZON_1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> rnn_units &lt;span style="color:#f92672">=&lt;/span> RNN_UNITS,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> model &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;cond_rnn_h1&amp;#39;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Data&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_train &lt;span style="color:#f92672">=&lt;/span> x_train_h1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_static_train &lt;span style="color:#f92672">=&lt;/span> x_static_train_h1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> y &lt;span style="color:#f92672">=&lt;/span> y_h1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_test &lt;span style="color:#f92672">=&lt;/span> x_test_h1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_static_test &lt;span style="color:#f92672">=&lt;/span> x_static_test_h1
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## Loaded Tensorflow version 2.8.0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># HORIZON = 7&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">c&lt;/span>(net_cond_h7, fcast_cond_h7) &lt;span style="color:#f92672">%&amp;lt;-%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">experiment_conditional_rnn&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Network&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> timesteps &lt;span style="color:#f92672">=&lt;/span> TIMESTEPS,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> vocabulary_size &lt;span style="color:#f92672">=&lt;/span> VOCABULARY_SIZE,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> dynamic_features &lt;span style="color:#f92672">=&lt;/span> DYNAMIC_FEATURES,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> static_features &lt;span style="color:#f92672">=&lt;/span> STATIC_FEATURES,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> horizon &lt;span style="color:#f92672">=&lt;/span> HORIZON_7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> rnn_units &lt;span style="color:#f92672">=&lt;/span> RNN_UNITS,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> model &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;cond_rnn_h7&amp;#39;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Data&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_train &lt;span style="color:#f92672">=&lt;/span> x_train_h7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_static_train &lt;span style="color:#f92672">=&lt;/span> x_static_train_h7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> y &lt;span style="color:#f92672">=&lt;/span> y_h7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_test &lt;span style="color:#f92672">=&lt;/span> x_test_h7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_static_test &lt;span style="color:#f92672">=&lt;/span> x_static_test_h7
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fcast_cond_cmp &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">bind_rows&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_cond_h1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_cond_h7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">select&lt;/span>(test, Date, name &lt;span style="color:#f92672">=&lt;/span> City, value &lt;span style="color:#f92672">=&lt;/span> AvgTemperature) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">mutate&lt;/span>(model &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;actual&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">ggplot&lt;/span>(fcast_cond_cmp) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">geom_line&lt;/span>(&lt;span style="color:#a6e22e">aes&lt;/span>(Date, value, col &lt;span style="color:#f92672">=&lt;/span> model)) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">facet_wrap&lt;/span>(&lt;span style="color:#f92672">~&lt;/span>name) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">theme_minimal&lt;/span>()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="index_files/figure-markdown_strict/cond.plot-1.png" alt="">&lt;/p>
+&lt;h2 id="simple-rnn">Simple RNN&lt;/h2>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>experiment_simple_rnn &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">function&lt;/span>(timesteps, horizon, rnn_units,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> model, x_train, y, x_test, x_static_test){
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Network architecture&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ts_input &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">layer_input&lt;/span>(shape &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">c&lt;/span>(timesteps, &lt;span style="color:#ae81ff">1&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> rnn_layer &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">layer_gru&lt;/span>(units &lt;span style="color:#f92672">=&lt;/span> rnn_units, name &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;rnn&amp;#39;&lt;/span>)(ts_input)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> final_layer &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">layer_dense&lt;/span>(units &lt;span style="color:#f92672">=&lt;/span> horizon, activation &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;linear&amp;#39;&lt;/span>)(rnn_layer)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Compiling&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> net &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">keras_model&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> inputs &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(ts_input),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> outputs &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(final_layer)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">compile&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> optimizer &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;adam&amp;#39;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> loss &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;mae&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Training &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> net &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">fit&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(x_train),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> y &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">list&lt;/span>(y),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> epochs &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">50&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> batch_size &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">32&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Forecasting&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> net &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">predict&lt;/span>(&lt;span style="color:#a6e22e">list&lt;/span>(x_test))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_df &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">prepare_output&lt;/span>(fcast, x_static_test)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_df&lt;span style="color:#f92672">$&lt;/span>model &lt;span style="color:#f92672">&amp;lt;-&lt;/span> model
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">list&lt;/span>(net, fcast_df)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># HORIZON = 1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">c&lt;/span>(net_simple_h1, fcast_simple_h1) &lt;span style="color:#f92672">%&amp;lt;-%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">experiment_simple_rnn&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Network&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> timesteps &lt;span style="color:#f92672">=&lt;/span> TIMESTEPS,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> horizon &lt;span style="color:#f92672">=&lt;/span> HORIZON_1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> rnn_units &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">32&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> model &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;simple_rnn_h1&amp;#39;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Data&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_train &lt;span style="color:#f92672">=&lt;/span> x_train_h1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> y &lt;span style="color:#f92672">=&lt;/span> y_h1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_test &lt;span style="color:#f92672">=&lt;/span> x_test_h1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_static_test &lt;span style="color:#f92672">=&lt;/span> x_static_test_h1
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># HORIZON = 7&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">c&lt;/span>(net_simple_h7, fcast_simple_h7) &lt;span style="color:#f92672">%&amp;lt;-%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">experiment_simple_rnn&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Network&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> timesteps &lt;span style="color:#f92672">=&lt;/span> TIMESTEPS,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> horizon &lt;span style="color:#f92672">=&lt;/span> HORIZON_7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> rnn_units &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">32&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> model &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;simple_rnn_h7&amp;#39;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Data&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_train &lt;span style="color:#f92672">=&lt;/span> x_train_h7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> y &lt;span style="color:#f92672">=&lt;/span> y_h7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_test &lt;span style="color:#f92672">=&lt;/span> x_test_h7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> x_static_test &lt;span style="color:#f92672">=&lt;/span> x_static_test_h7
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fcast_simple_cmp &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">bind_rows&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_simple_h1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_simple_h7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">select&lt;/span>(test, Date, name &lt;span style="color:#f92672">=&lt;/span> City, value &lt;span style="color:#f92672">=&lt;/span> AvgTemperature) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">mutate&lt;/span>(model &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;actual&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">ggplot&lt;/span>(fcast_simple_cmp) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">geom_line&lt;/span>(&lt;span style="color:#a6e22e">aes&lt;/span>(Date, value, col &lt;span style="color:#f92672">=&lt;/span> model)) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">facet_wrap&lt;/span>(&lt;span style="color:#f92672">~&lt;/span>name) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">theme_minimal&lt;/span>()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="index_files/figure-markdown_strict/simple.plot-1.png" alt="">&lt;/p>
+&lt;h2 id="summary">Summary&lt;/h2>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">library&lt;/span>(yardstick)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fcast_df &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">bind_rows&lt;/span>(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_xgboost,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_cond_h1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_cond_h7,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_simple_h1,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_simple_h7
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> )
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fcast_df &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fcast_df &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">left_join&lt;/span>(test &lt;span style="color:#f92672">%&amp;gt;%&lt;/span> &lt;span style="color:#a6e22e">select&lt;/span>(Date, City, AvgTemperature),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> by &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;Date&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;name&amp;#39;&lt;/span>&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;City&amp;#39;&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>fcast_df &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">group_by&lt;/span>(model) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">summarise&lt;/span>(mape &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">mape_vec&lt;/span>(AvgTemperature, value)) &lt;span style="color:#f92672">%&amp;gt;%&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> gt&lt;span style="color:#f92672">::&lt;/span>&lt;span style="color:#a6e22e">gt&lt;/span>()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div id="zpafsdmqom" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+&lt;style>html {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+&lt;p>#zpafsdmqom .gt_table {
+display: table;
+border-collapse: collapse;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 0;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_from_md &amp;gt; :first-child {
+margin-top: 0;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_from_md &amp;gt; :last-child {
+margin-bottom: 0;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_row_group_first td {
+border-top-width: 2px;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_first_summary_row.thick {
+border-top-width: 2px;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-left: 4px;
+padding-right: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_left {
+text-align: left;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_center {
+text-align: center;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_font_normal {
+font-weight: normal;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_font_bold {
+font-weight: bold;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_font_italic {
+font-style: italic;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_super {
+font-size: 65%;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_footnote_marks {
+font-style: italic;
+font-weight: normal;
+font-size: 75%;
+vertical-align: 0.4em;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_slash_mark {
+font-size: 0.7em;
+line-height: 0.7em;
+vertical-align: 0.15em;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_fraction_numerator {
+font-size: 0.6em;
+line-height: 0.6em;
+vertical-align: 0.45em;
+}&lt;/p>
+&lt;p>#zpafsdmqom .gt_fraction_denominator {
+font-size: 0.6em;
+line-height: 0.6em;
+vertical-align: -0.05em;
+}
+&lt;/style>&lt;/p>
+&lt;table class="gt_table">
+&lt;thead class="gt_col_headings">
+&lt;tr>
+&lt;th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">model&lt;/th>
+&lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">mape&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody class="gt_table_body">
+&lt;tr>&lt;td class="gt_row gt_left">cond_rnn_h1&lt;/td>
+&lt;td class="gt_row gt_right">34.32918&lt;/td>&lt;/tr>
+&lt;tr>&lt;td class="gt_row gt_left">cond_rnn_h7&lt;/td>
+&lt;td class="gt_row gt_right">31.92488&lt;/td>&lt;/tr>
+&lt;tr>&lt;td class="gt_row gt_left">simple_rnn_h1&lt;/td>
+&lt;td class="gt_row gt_right">34.44923&lt;/td>&lt;/tr>
+&lt;tr>&lt;td class="gt_row gt_left">simple_rnn_h7&lt;/td>
+&lt;td class="gt_row gt_right">32.86985&lt;/td>&lt;/tr>
+&lt;tr>&lt;td class="gt_row gt_left">xgboost&lt;/td>
+&lt;td class="gt_row gt_right">14.82363&lt;/td>&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;/div>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>plt &lt;span style="color:#f92672">&amp;lt;-&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">ggplot&lt;/span>(fcast_df) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">geom_line&lt;/span>(&lt;span style="color:#a6e22e">aes&lt;/span>(Date, value, col &lt;span style="color:#f92672">=&lt;/span> model)) &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">theme_minimal&lt;/span>() &lt;span style="color:#f92672">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">facet_wrap&lt;/span>(&lt;span style="color:#f92672">~&lt;/span>name)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="index_files/figure-markdown_strict/experiments-1.png" alt="">&lt;/p>
+&lt;h2 id="conclusions">Conclusions&lt;/h2>
+&lt;p>As we can see, there is technically no difference in terms of MAPE, when
+we are comparing results of &lt;strong>simple_rnn_h1&lt;/strong> and &lt;strong>cond_rnn_h1&lt;/strong>.
+When it comes to the RNN models with 7-day horizon, the diffrences are
+also negligible.&lt;/p>
+&lt;p>Our baseline model beats both simple and conditional RNN models. However, bear
+in mind that 1-timestep horizon is not a most realistic use case in most
+problems.&lt;/p></description></item></channel></rss>
