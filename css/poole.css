@@ -155,8 +155,7 @@ code {
   font-size: 85%;
   color: #b3555e;
   background-color: #f9f9f9;
-  border-radius: 3px;
-}
+  border-radius: 3px;}
 pre {
   display: block;
   margin-top: 0;
@@ -165,9 +164,10 @@ pre {
   font-size: .8rem;
   line-height: 1.4;
   white-space: pre;
-  white-space: pre-wrap;
-  word-break: break-all;
-  word-wrap: break-word;
+  /*white-space: pre-wrap*/;
+  overflow-x: scroll;
+  /*overflow-wrap: break-word;*/
+  /*  word-wrap: break-word;*/
   background-color: #f9f9f9;
 }
 pre code {
