@@ -1,41 +1,12 @@
-<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us>
-<head>
-<link href=https://gmpg.org/xfn/11 rel=profile>
-<meta charset=utf-8>
-<meta name=generator content="Hugo 0.93.2">
-<meta name=viewport content="width=device-width,initial-scale=1">
-<title>eponge: Keep Your Environment Clean &#183; krzjoa</title><meta name=description content>
-<link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png>
-<link rel="shortcut icon" href=/favicon.png>
-<link rel=stylesheet href=//use.fontawesome.com/releases/v5.14.0/css/all.css>
-<link type=text/css rel=stylesheet href=/css/print.css media=print>
-<link type=text/css rel=stylesheet href=/css/poole.css>
-<link type=text/css rel=stylesheet href=/css/syntax.css>
-<link type=text/css rel=stylesheet href=/css/hyde.css>
-<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
-</head><body class=theme-base-custom>
-<aside class=sidebar>
-<div class="container sidebar-sticky">
-<div class=sidebar-about>
-<a href=/><h1>krzjoa</h1></a>
-<p class=lead>
-</p></div><nav>
-<ul class=sidebar-nav>
-<li><a href=/>Home</a> </li><li><a href=/projects/> Projects </a></li><li><a href=/publications/> Publications </a></li></ul></nav><p>
-<a href=https://github.com/krzjoa rel=me><i class="fab fa-github fa-lg" aria-hidden=true></i></a>
+<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us><head><link href=https://gmpg.org/xfn/11 rel=profile><meta charset=utf-8><meta name=generator content="Hugo 0.99.1"><meta name=viewport content="width=device-width,initial-scale=1"><title>eponge: Keep Your Environment Clean &#183; krzjoa</title><meta name=description content><link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png><link rel="shortcut icon" href=/favicon.png><link rel=stylesheet href=//use.fontawesome.com/releases/v5.14.0/css/all.css><link type=text/css rel=stylesheet href=/css/print.css media=print><link type=text/css rel=stylesheet href=/css/poole.css><link type=text/css rel=stylesheet href=/css/syntax.css><link type=text/css rel=stylesheet href=/css/hyde.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700"></head><body class=theme-base-custom><aside class=sidebar><div class="container sidebar-sticky"><div class=sidebar-about><a href=/><h1>krzjoa</h1></a><p class=lead></p></div><nav><ul class=sidebar-nav><li><a href=/>Home</a></li><li><a href=/projects/>Projects</a></li><li><a href=/publications/>Publications</a></li></ul></nav><p><a href=https://github.com/krzjoa rel=me><i class="fab fa-github fa-lg" aria-hidden=true></i></a>
 <a href=https://linkedin.com/in/krzysztof-joachimiak rel=me><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a>
 <a href="https://scholar.google.com/citations?user=qNcWYHIAAAAJ%26hl" rel=me><i class="fas fa-graduation-cap fa-lg" aria-hidden=true></i></a>
 <a href=https://orcid.org/0000-0003-4780-7947 rel=me><i class="fab fa-orcid fa-lg" aria-hidden=true></i></a>
-<a href=/post/index.xml rel=me><i class="fas fa-rss fa-lg" aria-hidden=true></i></a>
-</p><p>&copy; 2022. All rights reserved.</p></div></aside><main class="content container">
-<div class=post>
-<h1>eponge: Keep Your Environment Clean</h1><time datetime=2020-05-10T00:00:00Z class=post-date>May 10, 2020</time>
+<a href=/post/index.xml rel=me><i class="fas fa-rss fa-lg" aria-hidden=true></i></a></p><p>&copy; 2022. All rights reserved.</p></div></aside><main class="content container"><div class=post><h1>eponge: Keep Your Environment Clean</h1><time datetime=2020-05-10T00:00:00Z class=post-date>May 10, 2020</time>
 <i class="fas fa-tags"></i>
 <a class="badge badge-tag" href=/tags/en>en</a>
 <a class="badge badge-tag" href=/tags/r>r</a>
-<a class="badge badge-tag" href=/tags/eponge>eponge</a>
-<br><br>
-<p><a href=https://krzjoa.github.io/matricks><img src=https://raw.githubusercontent.com/krzjoa/eponge/master/man/figures/logo.png align=left height=139 style=margin-right:20px></a>
+<a class="badge badge-tag" href=/tags/eponge>eponge</a><br><br><p><a href=https://krzjoa.github.io/matricks><img src=https://raw.githubusercontent.com/krzjoa/eponge/master/man/figures/logo.png align=left height=139 style=margin-right:20px></a>
 <code>eponge</code> is a small package, which facilitates selective object removal.
 It was released on
 <a href=https://cran.r-project.org/web/packages/eponge/index.html>CRAN</a> at
@@ -74,8 +45,7 @@ scratch, <code>eponge</code> do it for us:</p><div class=highlight><pre tabindex
 </span></span></code></pre></div><h2 id=removing-masking-objects>Removing masking objects</h2><p>As we know, homonime objects mask each other. If we want to get rid of
 such objects from our environment, the most convenient way to do that is
 <code>eponge</code>’s <code>erase_masking_*</code> function family. At the moment, it embraces
-two functions:</p><ul>
-<li><code>erase_masking</code></li><li><code>erase_masking_functions</code></li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>log <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>function</span>(x) <span style=color:#a6e22e>print</span>(<span style=color:#a6e22e>paste0</span>(<span style=color:#e6db74>&#34;Logging:&#34;</span>, x))
+two functions:</p><ul><li><code>erase_masking</code></li><li><code>erase_masking_functions</code></li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>log <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>function</span>(x) <span style=color:#a6e22e>print</span>(<span style=color:#a6e22e>paste0</span>(<span style=color:#e6db74>&#34;Logging:&#34;</span>, x))
 </span></span><span style=display:flex><span>cars <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>data.frame</span>(idx   <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span><span style=color:#f92672>:</span><span style=color:#ae81ff>10</span>,
 </span></span><span style=display:flex><span>                   speed <span style=color:#f92672>=</span> <span style=color:#a6e22e>runif</span>(<span style=color:#ae81ff>10</span>, <span style=color:#ae81ff>30</span>, <span style=color:#ae81ff>50</span>))
 </span></span><span style=display:flex><span>eponge<span style=color:#f92672>::</span><span style=color:#a6e22e>erase_masking</span>()

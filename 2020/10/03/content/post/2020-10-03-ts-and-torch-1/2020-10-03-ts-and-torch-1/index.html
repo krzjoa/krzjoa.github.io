@@ -1,42 +1,13 @@
-<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us>
-<head>
-<link href=https://gmpg.org/xfn/11 rel=profile>
-<meta charset=utf-8>
-<meta name=generator content="Hugo 0.93.2">
-<meta name=viewport content="width=device-width,initial-scale=1">
-<title>Time Series & torch #1 - Training a network to compute moving average &#183; krzjoa</title><meta name=description content>
-<link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png>
-<link rel="shortcut icon" href=/favicon.png>
-<link rel=stylesheet href=//use.fontawesome.com/releases/v5.14.0/css/all.css>
-<link type=text/css rel=stylesheet href=/css/print.css media=print>
-<link type=text/css rel=stylesheet href=/css/poole.css>
-<link type=text/css rel=stylesheet href=/css/syntax.css>
-<link type=text/css rel=stylesheet href=/css/hyde.css>
-<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
-</head><body class=theme-base-custom>
-<aside class=sidebar>
-<div class="container sidebar-sticky">
-<div class=sidebar-about>
-<a href=/><h1>krzjoa</h1></a>
-<p class=lead>
-</p></div><nav>
-<ul class=sidebar-nav>
-<li><a href=/>Home</a> </li><li><a href=/projects/> Projects </a></li><li><a href=/publications/> Publications </a></li></ul></nav><p>
-<a href=https://github.com/krzjoa rel=me><i class="fab fa-github fa-lg" aria-hidden=true></i></a>
+<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us><head><link href=https://gmpg.org/xfn/11 rel=profile><meta charset=utf-8><meta name=generator content="Hugo 0.99.1"><meta name=viewport content="width=device-width,initial-scale=1"><title>Time Series & torch #1 - Training a network to compute moving average &#183; krzjoa</title><meta name=description content><link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png><link rel="shortcut icon" href=/favicon.png><link rel=stylesheet href=//use.fontawesome.com/releases/v5.14.0/css/all.css><link type=text/css rel=stylesheet href=/css/print.css media=print><link type=text/css rel=stylesheet href=/css/poole.css><link type=text/css rel=stylesheet href=/css/syntax.css><link type=text/css rel=stylesheet href=/css/hyde.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700"></head><body class=theme-base-custom><aside class=sidebar><div class="container sidebar-sticky"><div class=sidebar-about><a href=/><h1>krzjoa</h1></a><p class=lead></p></div><nav><ul class=sidebar-nav><li><a href=/>Home</a></li><li><a href=/projects/>Projects</a></li><li><a href=/publications/>Publications</a></li></ul></nav><p><a href=https://github.com/krzjoa rel=me><i class="fab fa-github fa-lg" aria-hidden=true></i></a>
 <a href=https://linkedin.com/in/krzysztof-joachimiak rel=me><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a>
 <a href="https://scholar.google.com/citations?user=qNcWYHIAAAAJ%26hl" rel=me><i class="fas fa-graduation-cap fa-lg" aria-hidden=true></i></a>
 <a href=https://orcid.org/0000-0003-4780-7947 rel=me><i class="fab fa-orcid fa-lg" aria-hidden=true></i></a>
-<a href=/post/index.xml rel=me><i class="fas fa-rss fa-lg" aria-hidden=true></i></a>
-</p><p>&copy; 2022. All rights reserved.</p></div></aside><main class="content container">
-<div class=post>
-<h1>Time Series & torch #1 - Training a network to compute moving average</h1><time datetime=2020-10-03T00:00:00Z class=post-date>Oct 3, 2020</time>
+<a href=/post/index.xml rel=me><i class="fas fa-rss fa-lg" aria-hidden=true></i></a></p><p>&copy; 2022. All rights reserved.</p></div></aside><main class="content container"><div class=post><h1>Time Series & torch #1 - Training a network to compute moving average</h1><time datetime=2020-10-03T00:00:00Z class=post-date>Oct 3, 2020</time>
 <i class="fas fa-tags"></i>
 <a class="badge badge-tag" href=/tags/en>en</a>
 <a class="badge badge-tag" href=/tags/r>r</a>
 <a class="badge badge-tag" href=/tags/torch>torch</a>
-<a class="badge badge-tag" href=/tags/ts-and-torch>ts-and-torch</a>
-<br><br>
-<p><a><img src=/post/2020-10-03-ts-and-torch-1/torch_ts_1.png align=center></a>
+<a class="badge badge-tag" href=/tags/ts-and-torch>ts-and-torch</a><br><br><p><a><img src=/post/2020-10-03-ts-and-torch-1/torch_ts_1.png align=center></a>
 In the previous year, I published <a href=https://krzjoa.github.io/2019/12/28/pytorch-ts-v1.html>a
 post</a>, which as
 I hoped, was the first tutorial of the series describing how to
@@ -68,18 +39,12 @@ transformation. First of all, let’s present the <code>shampoo</code> dataset.<
 </code></pre><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span><span style=color:#a6e22e>ggplot</span>(shampoo) <span style=color:#f92672>+</span>
 </span></span><span style=display:flex><span>  <span style=color:#a6e22e>geom_line</span>(<span style=color:#a6e22e>aes</span>(x <span style=color:#f92672>=</span> n, y <span style=color:#f92672>=</span> Sales)) <span style=color:#f92672>+</span>
 </span></span><span style=display:flex><span>  <span style=color:#a6e22e>ggtitle</span>(<span style=color:#e6db74>&#34;Shampoo dataset&#34;</span>)
-</span></span></code></pre></div><center>
-<img src=/post/2020-10-03-ts-and-torch-1//shampoo.plot-1.png>
-</center>
-<p>In this plot we can see an increasing trend, but in this excercise, data
+</span></span></code></pre></div><center><img src=/post/2020-10-03-ts-and-torch-1//shampoo.plot-1.png></center><p>In this plot we can see an increasing trend, but in this excercise, data
 characterics make no diffeence for us.</p><h3 id=3-1-d-convolution-in-pytorch-lightning-quick-intro-or-reminder>3. 1-d convolution in PyTorch: lightning-quick intro (or reminder)</h3><p>In the case of univariate time series, one-dimensional convolution is a
 sliding window applied over time series, an operation which consist of
 multiplications and additions. It was intuitively illustrated on the gif
-below.</p><center>
-<img src=/post/2020-10-03-ts-and-torch-1//conv1d.gif width=400>
-<p><strong>Source:
-<a href=https://blog.floydhub.com/reading-minds-with-deep-learning/ class=uri><a href=https://blog.floydhub.com/reading-minds-with-deep-learning/>https://blog.floydhub.com/reading-minds-with-deep-learning/</a></a></strong></p></center>
-<p>As you can see, output depend on input and kernel values. Defining
+below.</p><center><img src=/post/2020-10-03-ts-and-torch-1//conv1d.gif width=400><p><strong>Source:
+<a href=https://blog.floydhub.com/reading-minds-with-deep-learning/ class=uri><a href=https://blog.floydhub.com/reading-minds-with-deep-learning/>https://blog.floydhub.com/reading-minds-with-deep-learning/</a></a></strong></p></center><p>As you can see, output depend on input and kernel values. Defining
 proper kernel, we can apply the operation we want. For example, using a
 (0.5, 0.5) kernel, it will give us a two-element moving average. To test
 that, let’s do a simple experiment.</p><h3 id=4-computing-moving-average-with-datatable>4. Computing moving average with <code>data.table</code></h3><p>Among its many features, <code>data.table</code> offers a set of ‘fast’ functions
@@ -101,9 +66,7 @@ so the first element has no value.</p><div class=highlight><pre tabindex=0 style
 </span></span></code></pre></div><p>Let’s stop here for a moment. If you are not familiar with deep learning
 frameworks, you would be quite confused because of this <code>reshape</code>
 operation. What did we do above? We created a <strong>3-dimensional tensor</strong>;
-each number in <code>reshape</code> function describes respectively:</p><ol>
-<li>number of samples</li><li>number of channels</li><li>length of time series</li></ol><p>Meaning of this values requires some explanation.</p><ol>
-<li><strong>Number of samples</strong> is the number of time series we are working
+each number in <code>reshape</code> function describes respectively:</p><ol><li>number of samples</li><li>number of channels</li><li>length of time series</li></ol><p>Meaning of this values requires some explanation.</p><ol><li><strong>Number of samples</strong> is the number of time series we are working
 on. As we want to perform computations for one time series only, the
 value must equal one.</li><li><strong>Number of channels</strong> is is the number of <strong>features</strong> or
 (independent) <strong>variables</strong>. We don’t have any parallel variables
