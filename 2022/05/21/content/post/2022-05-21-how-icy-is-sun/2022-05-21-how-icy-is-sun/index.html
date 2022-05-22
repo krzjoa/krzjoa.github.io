@@ -1,0 +1,270 @@
+<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us><head><link href=https://gmpg.org/xfn/11 rel=profile><meta charset=utf-8><meta name=generator content="Hugo 0.99.1"><meta name=viewport content="width=device-width,initial-scale=1"><title>How icy is sun, how fiery is snow? Playing with word embedding vectors &#183; krzjoa</title><meta name=description content><link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png><link rel="shortcut icon" href=/favicon.png><link rel=stylesheet href=//use.fontawesome.com/releases/v5.14.0/css/all.css><link type=text/css rel=stylesheet href=/css/print.css media=print><link type=text/css rel=stylesheet href=/css/poole.css><link type=text/css rel=stylesheet href=/css/syntax.css><link type=text/css rel=stylesheet href=/css/hyde.css><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+<script type=text/x-mathjax-config>
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+            processEscapes: true,
+            processEnvironments: true
+        },
+        // Center justify equations in code and markdown cells. Elsewhere
+        // we use CSS to left justify single line equations in code cells.
+        // https://groups.google.com/g/mathjax-users/c/FgCBLdT15nM
+        displayAlign: 'center',
+        "HTML-CSS": {
+            styles: {
+              '.MathJax_Display': {"margin": 0},
+              ".MathJax .mo, .MathJax .mi": {color: "black ! important"}
+            },
+            linebreaks: { automatic: true }
+        }
+    });
+    </script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id=MathJax-script async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script>
+<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700"></head><body class=theme-base-custom><aside class=sidebar><div class="container sidebar-sticky"><div class=sidebar-about><a href=/><h1>krzjoa</h1></a><p class=lead></p></div><nav><ul class=sidebar-nav><li><a href=/>Home</a></li><li><a href=/projects/>Projects</a></li><li><a href=/publications/>Publications</a></li></ul></nav><p><a href=https://github.com/krzjoa rel=me><i class="fab fa-github fa-lg" aria-hidden=true></i></a>
+<a href=https://linkedin.com/in/krzysztof-joachimiak rel=me><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a>
+<a href="https://scholar.google.com/citations?user=qNcWYHIAAAAJ%26hl" rel=me><i class="fas fa-graduation-cap fa-lg" aria-hidden=true></i></a>
+<a href=https://orcid.org/0000-0003-4780-7947 rel=me><i class="fab fa-orcid fa-lg" aria-hidden=true></i></a>
+<a href=/post/index.xml rel=me><i class="fas fa-rss fa-lg" aria-hidden=true></i></a></p><p>&copy; 2022. All rights reserved.</p></div></aside><main class="content container"><div class=post><h1>How icy is sun, how fiery is snow? Playing with word embedding vectors</h1><time datetime=2022-05-21T00:00:00Z class=post-date>May 21, 2022</time>
+<i class="fas fa-tags"></i>
+<a class="badge badge-tag" href=/tags/en>en</a>
+<a class="badge badge-tag" href=/tags/python>python</a>
+<a class="badge badge-tag" href=/tags/word-embedding>word embedding</a>
+<a class="badge badge-tag" href=/tags/nlp>nlp</a>
+<a class="badge badge-tag" href=/tags/math>math</a><br><br><h1 id=how-icy-is-sun-how-fiery-is-snow-playing-with-word-embedding-vectors>How icy is sun, how fiery is snow? Playing with word embedding vectors</h1><p>We all know old, good and hackneyed examples, that are typically used to intuitively explain, what the <strong>word embedding</strong> technique is. We almost always come across a chart presenting a simplified, 2-dimensional vector representation of the words <strong>queen</strong> and <strong>king</strong>, which are distant from each other similarly as the words <strong>woman</strong> and <strong>man</strong>.</p><p>Today, I&rsquo;d like to go one step further and explore the meaning of the distance between two arbitrary selected vectors. It this particular case - distance between <strong>ice</strong> and <strong>fire</strong>.</p><h2 id=motivation>Motivation</h2><p>Assume for the moment we have an embedding in the 2-dimensional space. It&rsquo;s not a realistic case, because in most cases such low-dimensional embedding wouldn&rsquo;t fulfill its purpose. So, we have a bunch of vectors or points, described with two coordinates. We choose two such vectors, say <strong>ice</strong> and <strong>fire</strong>, as mentioned above.</p><p><img src=/post/2022-05-21-how-icy-is-sun/word-embedding_files/plot_1.png alt="Drawn using https://www.geogebra.org/m/JMMKv7cx"></p><center><i>Drawn using: <a href=https://www.geogebra.org/m/JMMKv7cx>Geogebra</a></i></center><p>Treating the straight line passing trough these points as a new axis, we project the rest of the points onto this line. <strong>The midpoint</strong> between &ldquo;ice&rdquo; and &ldquo;fire&rdquo; can be treated as the origin (&ldquo;point 0&rdquo;) of the new axis.</p><p><img src=/post/2022-05-21-how-icy-is-sun/word-embedding_files/plot_3.png alt="Drawn using https://www.geogebra.org/m/JMMKv7cx"></p><center><i>Drawn using: <a href=https://www.geogebra.org/m/JMMKv7cx>Geogebra</a></i></center><p>I will call the <strong>ice</strong> and <strong>fire</strong> points <strong>poles</strong>, to express that they show us, what is the expected meaning of being &ldquo;<em>negativemost</em>&rdquo; and &ldquo;<em>positivemost</em>&rdquo;.
+Briefly - I expect that embedding vectors (poinst) for &ldquo;cold&rdquo; words such as &ldquo;winter&rdquo; will get a negative value on this new axis, while &ldquo;warm&rdquo; words - positive values.
+In this context it means that positive-valued points are those ones, that have their projections on the &ldquo;right&rdquo; side of the of the new axis.</p><p>Values obtained for each point are the distances from the projections to the midpoint (with sign).</p><h2 id=math--code-behind>Math & code behind</h2><p>One of the most convenient ways to get <strong>embedding vectors</strong> for natural language is to use pre-trained models distributed with <a href=https://spacy.io/><strong>spacy</strong></a> library.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> numpy <span style=color:#66d9ef>as</span> np
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> numpy.typing <span style=color:#66d9ef>as</span> npt
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> spacy
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> matplotlib.pyplot <span style=color:#66d9ef>as</span> plt
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> functools <span style=color:#f92672>import</span> reduce
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> operator <span style=color:#f92672>import</span> add
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># Installing en_core_web_mdn</span>
+</span></span><span style=display:flex><span>nlp <span style=color:#f92672>=</span> spacy<span style=color:#f92672>.</span>load(<span style=color:#e6db74>&#39;en_core_web_md&#39;</span>)
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>fire <span style=color:#f92672>=</span> nlp(<span style=color:#e6db74>&#39;fire&#39;</span>)
+</span></span><span style=display:flex><span>ice <span style=color:#f92672>=</span> nlp(<span style=color:#e6db74>&#39;ice&#39;</span>)
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>len(fire<span style=color:#f92672>.</span>vector)
+</span></span></code></pre></div><pre><code>300
+</code></pre><p>A couple of simple function calls, but there is a lot work done behind the scene. We can use <strong>nlp</strong> object to process whole sentences (or documents) at once. For now, we only need to process single words.</p><h3 id=midpoint---origin-of-the-new-axis>Midpoint - origin of the new axis</h3><p>We will use a <strong>midpoint</strong> between two initial points as the origin of the our new axis.
+It can be calculated with the following formula:</p><center>$ M = (\frac{x + x_{1}}{2}, \frac{y + y_{1}}{2}, \frac{z + z_{1}}{2}, ...) $</center><p>Writing that as a function:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>midpoint</span>(x: npt<span style=color:#f92672>.</span>NDArray, y: npt<span style=color:#f92672>.</span>NDArray) <span style=color:#f92672>-&gt;</span> npt<span style=color:#f92672>.</span>NDArray:
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (len(x) <span style=color:#f92672>!=</span> len(y)):
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>raise</span> <span style=color:#a6e22e>ValueError</span>(
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>f</span><span style=color:#e6db74>&#39;Vectors come from different spaces! &#39;</span> <span style=color:#f92672>+</span> 
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>f</span><span style=color:#e6db74>&#39;x: </span><span style=color:#e6db74>{</span>len(x)<span style=color:#e6db74>}</span><span style=color:#e6db74> dimensions, y: </span><span style=color:#e6db74>{</span>len(y)<span style=color:#e6db74>}</span><span style=color:#e6db74> dimensions&#39;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> (x <span style=color:#f92672>+</span> y) <span style=color:#f92672>/</span> <span style=color:#ae81ff>2</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># midpoint(np.array([2, 3]), np.array([-1, 20]))</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># midpoint(np.array([2, 3]), np.array([-1, 20, -45]))</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>mid <span style=color:#f92672>=</span> midpoint(fire<span style=color:#f92672>.</span>vector, ice<span style=color:#f92672>.</span>vector)
+</span></span></code></pre></div><h3 id=plotting-function>Plotting function</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>plot</span>(points, lines, labels):
+</span></span><span style=display:flex><span>    points_x <span style=color:#f92672>=</span> [x[<span style=color:#ae81ff>0</span>] <span style=color:#66d9ef>for</span> x <span style=color:#f92672>in</span> points]
+</span></span><span style=display:flex><span>    points_y <span style=color:#f92672>=</span> [x[<span style=color:#ae81ff>1</span>] <span style=color:#66d9ef>for</span> x <span style=color:#f92672>in</span> points]
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Lines</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> l <span style=color:#f92672>in</span> lines:
+</span></span><span style=display:flex><span>        plt<span style=color:#f92672>.</span>plot([l[<span style=color:#ae81ff>0</span>][<span style=color:#ae81ff>0</span>], l[<span style=color:#ae81ff>1</span>][<span style=color:#ae81ff>0</span>]], [l[<span style=color:#ae81ff>0</span>][<span style=color:#ae81ff>1</span>], l[<span style=color:#ae81ff>1</span>][<span style=color:#ae81ff>1</span>]])
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Labels</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> coords, lbl <span style=color:#f92672>in</span> zip(points, labels):
+</span></span><span style=display:flex><span>        plt<span style=color:#f92672>.</span>text(coords[<span style=color:#ae81ff>0</span>], coords[<span style=color:#ae81ff>1</span>], lbl)
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Points</span>
+</span></span><span style=display:flex><span>    plt<span style=color:#f92672>.</span>plot(points_x, points_y, <span style=color:#e6db74>&#39;.&#39;</span>)
+</span></span><span style=display:flex><span>    plt<span style=color:#f92672>.</span>grid()
+</span></span><span style=display:flex><span>    plt<span style=color:#f92672>.</span>axhline(linewidth<span style=color:#f92672>=</span><span style=color:#ae81ff>1</span>, color<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;black&#39;</span>)
+</span></span><span style=display:flex><span>    plt<span style=color:#f92672>.</span>axvline(linewidth<span style=color:#f92672>=</span><span style=color:#ae81ff>1</span>, color<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;black&#39;</span>)
+</span></span><span style=display:flex><span>    plt<span style=color:#f92672>.</span>axis(<span style=color:#e6db74>&#39;equal&#39;</span>)
+</span></span><span style=display:flex><span>    plt<span style=color:#f92672>.</span>show()
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># Points lying on the straight line</span>
+</span></span><span style=display:flex><span>A <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>array([<span style=color:#f92672>-</span><span style=color:#ae81ff>10</span>, <span style=color:#ae81ff>2</span>])
+</span></span><span style=display:flex><span>B <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>array([<span style=color:#ae81ff>5</span>, <span style=color:#ae81ff>18</span>]) <span style=color:#75715e># 18</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># a = np.array([2, 2])</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># b = np.array([-2, -2])</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>M <span style=color:#f92672>=</span> midpoint(A, B)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>C <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>array([<span style=color:#f92672>-</span><span style=color:#ae81ff>6</span>, <span style=color:#ae81ff>15</span>])
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>points <span style=color:#f92672>=</span> [A, B, M, C]
+</span></span><span style=display:flex><span>lines  <span style=color:#f92672>=</span> [[A, B]]
+</span></span><span style=display:flex><span>labels <span style=color:#f92672>=</span> [<span style=color:#e6db74>&#39;A&#39;</span>, <span style=color:#e6db74>&#39;B&#39;</span>, <span style=color:#e6db74>&#39;M&#39;</span>, <span style=color:#e6db74>&#39;C&#39;</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>plot(points, lines, labels)
+</span></span></code></pre></div><p><img src=/post/2022-05-21-how-icy-is-sun/word-embedding_files/word-embedding_23_0.png alt=png></p><p>As we can see, the line doesn&rsquo;t pass trough the origin. We have to apply <strong>affine transformation</strong> to shift the whole space, placing <strong>midpoint AB</strong> at (0, 0). If we do so, we can easily find orthogonal projection of the point C on the line &lsquo;marked&rsquo; by the <strong>B vector</strong>. After we shift the space, the segment $MB$ becomes a vector as it has its start in the origin.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>transform_matrix <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>eye(<span style=color:#ae81ff>3</span>)
+</span></span><span style=display:flex><span>transform_matrix[<span style=color:#ae81ff>0</span>:<span style=color:#ae81ff>2</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>] <span style=color:#f92672>=</span> <span style=color:#f92672>-</span>M
+</span></span><span style=display:flex><span>transform_matrix
+</span></span></code></pre></div><pre><code>array([[  1. ,   0. ,   2.5],
+       [  0. ,   1. , -10. ],
+       [  0. ,   0. ,   1. ]])
+</code></pre><p>If you&rsquo;d like to know more details, how to construct the transformation matrix, see for example <a href=https://articulatedrobotics.xyz/5-transformation_matrices/>Affine Transformation Matrices</a>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># tranformed_a = affine_transform_matrix @ np.vstack(a.T, [1])</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>extend_with_one</span>(vec):
+</span></span><span style=display:flex><span>    vec <span style=color:#f92672>=</span> vec[np<span style=color:#f92672>.</span>newaxis]<span style=color:#f92672>.</span>T
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> np<span style=color:#f92672>.</span>vstack([vec, [<span style=color:#ae81ff>1</span>]])  
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>transposed  <span style=color:#f92672>=</span> [extend_with_one(p) <span style=color:#66d9ef>for</span> p <span style=color:#f92672>in</span> points]
+</span></span><span style=display:flex><span>transformed <span style=color:#f92672>=</span> [transform_matrix <span style=color:#f92672>@</span> vec <span style=color:#66d9ef>for</span> vec <span style=color:#f92672>in</span> transposed]
+</span></span><span style=display:flex><span><span style=color:#75715e># Removing last dimension with &#39;1&#39;</span>
+</span></span><span style=display:flex><span>transformed <span style=color:#f92672>=</span> [vec[<span style=color:#ae81ff>0</span>:<span style=color:#ae81ff>2</span>] <span style=color:#66d9ef>for</span> vec <span style=color:#f92672>in</span> transformed]
+</span></span><span style=display:flex><span>aff_A, aff_B, aff_M, aff_C <span style=color:#f92672>=</span> transformed
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>lines  <span style=color:#f92672>=</span> [[aff_A, aff_B]]
+</span></span><span style=display:flex><span>labels <span style=color:#f92672>=</span> [<span style=color:#e6db74>&#39;shifted_A&#39;</span>, <span style=color:#e6db74>&#39;shifted_B&#39;</span>, <span style=color:#e6db74>&#39;shifted_M&#39;</span>, <span style=color:#e6db74>&#39;shifted_C&#39;</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>plot(transformed, lines, labels)
+</span></span></code></pre></div><p><img src=/post/2022-05-21-how-icy-is-sun/word-embedding_files/word-embedding_27_0.png alt=png></p><h3 id=scalar-projection>Scalar projection</h3><p>We want to compute the <a href=https://en.wikipedia.org/wiki/Scalar_projection>scalar projection</a> of $\bf{v}$ on $\bf{w}$ using the left-hand side of the following equation:</p><center>${\hat{\bf{w}}}^{T}\bf{v} = |\bf{v}| cos\theta $</center><p>When $\theta$ is the angle between $\bf{w}$ and $\bf{v}$, and $\hat{\bf{w}}$ is the <strong>unit vector</strong>, namely:</p><center>$\hat{\bf{w}} = \frac{\bf{w}}{|\bf{w}|} $</center><p>See also:</p><ol><li><a href=https://mathinsight.org/dot_product>The dot product</a></li><li><a href="https://www.youtube.com/watch?v=LyGKycYT2v0&list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&index=9&t=216s">Dot products duality by 3Blue1Brown</a></li></ol><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>unit_vec <span style=color:#f92672>=</span> (aff_B) <span style=color:#f92672>/</span> np<span style=color:#f92672>.</span>linalg<span style=color:#f92672>.</span>norm(aff_B)
+</span></span><span style=display:flex><span>scalar_product <span style=color:#f92672>=</span> unit_vec<span style=color:#f92672>.</span>T <span style=color:#f92672>@</span> aff_C
+</span></span><span style=display:flex><span>scalar_product
+</span></span></code></pre></div><pre><code>array([[1.25389207]])
+</code></pre><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># We compute projection of C to draw a plot</span>
+</span></span><span style=display:flex><span>proj_C <span style=color:#f92672>=</span> unit_vec <span style=color:#f92672>*</span> scalar_product
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># Plot </span>
+</span></span><span style=display:flex><span>points <span style=color:#f92672>=</span> transformed <span style=color:#f92672>+</span> [proj_C]
+</span></span><span style=display:flex><span>lines  <span style=color:#f92672>=</span> [[aff_A, aff_B], [aff_C, proj_C]]
+</span></span><span style=display:flex><span>labels <span style=color:#f92672>=</span> [<span style=color:#e6db74>&#39;shifted_A&#39;</span>, <span style=color:#e6db74>&#39;shifted_B&#39;</span>, <span style=color:#e6db74>&#39;shifted_mid_A_B&#39;</span>, <span style=color:#e6db74>&#39;shifted_C&#39;</span>, <span style=color:#e6db74>&#39;proj_C&#39;</span>]
+</span></span><span style=display:flex><span>plot(points, lines, labels)
+</span></span></code></pre></div><p><img src=/post/2022-05-21-how-icy-is-sun/word-embedding_files/word-embedding_33_0.png alt=png></p><h2 id=axis-class>Axis class</h2><p>Rewriting all as a function</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>axis</span>:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self, negative_pole: npt<span style=color:#f92672>.</span>NDArray, positive_pole: npt<span style=color:#f92672>.</span>NDArray):
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>dims <span style=color:#f92672>=</span> len(negative_pole)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Original values</span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>negative_pole <span style=color:#f92672>=</span> negative_pole 
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>positive_pole <span style=color:#f92672>=</span> positive_pole
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>midpoint <span style=color:#f92672>=</span> _midpoint(negative_pole, positive_pole)  
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Transformation</span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>transform <span style=color:#f92672>=</span> _transformation_matrix(self<span style=color:#f92672>.</span>dims, self<span style=color:#f92672>.</span>midpoint)       
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>shifted_negative_pole <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>_shift(negative_pole)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>shifted_positive_pole <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>_shift(positive_pole)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>unit_vector <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>shifted_positive_pole <span style=color:#f92672>/</span> np<span style=color:#f92672>.</span>linalg<span style=color:#f92672>.</span>norm(self<span style=color:#f92672>.</span>shifted_positive_pole)      <span style=color:#75715e># shifted_midpoint is (0, 0, ...) </span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __call__(self, vector: npt<span style=color:#f92672>.</span>NDArray):
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (len(vector) <span style=color:#f92672>!=</span> self<span style=color:#f92672>.</span>dims):
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>raise</span> <span style=color:#a6e22e>ValueError</span>(
+</span></span><span style=display:flex><span>                <span style=color:#e6db74>f</span><span style=color:#e6db74>&#39;Vector length is </span><span style=color:#e6db74>{</span>len(vector)<span style=color:#e6db74>}</span><span style=color:#e6db74>, but it should equal </span><span style=color:#e6db74>{</span>self<span style=color:#f92672>.</span>dims<span style=color:#e6db74>}</span><span style=color:#e6db74>&#39;</span> 
+</span></span><span style=display:flex><span>            )
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        shifted_vector <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>_shift(vector)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> (self<span style=color:#f92672>.</span>unit_vector<span style=color:#f92672>.</span>T <span style=color:#f92672>@</span> shifted_vector)[<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>]
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>plot</span>(self, <span style=color:#f92672>*</span>args, title <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Embedding vectors&#34;</span>, figsize <span style=color:#f92672>=</span> (<span style=color:#ae81ff>10</span>, <span style=color:#ae81ff>5</span>), 
+</span></span><span style=display:flex><span>             poles <span style=color:#f92672>=</span> {<span style=color:#e6db74>&#39;negative&#39;</span>: {<span style=color:#e6db74>&#39;label&#39;</span>: <span style=color:#e6db74>&#39;Negative pole&#39;</span>, <span style=color:#e6db74>&#39;color&#39;</span>: <span style=color:#e6db74>&#39;blue&#39;</span>}, 
+</span></span><span style=display:flex><span>                      <span style=color:#e6db74>&#39;positive&#39;</span>: {<span style=color:#e6db74>&#39;label&#39;</span>: <span style=color:#e6db74>&#39;Positive pole&#39;</span>, <span style=color:#e6db74>&#39;color&#39;</span>:<span style=color:#e6db74>&#39;red&#39;</span>}}):
+</span></span><span style=display:flex><span>   
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Init plot</span>
+</span></span><span style=display:flex><span>        fig, ax <span style=color:#f92672>=</span> plt<span style=color:#f92672>.</span>subplots(figsize<span style=color:#f92672>=</span>figsize, constrained_layout<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>)
+</span></span><span style=display:flex><span>        ax<span style=color:#f92672>.</span>set(title<span style=color:#f92672>=</span>title)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Horizontal line       </span>
+</span></span><span style=display:flex><span>        neg_value <span style=color:#f92672>=</span> self(self<span style=color:#f92672>.</span>negative_pole)
+</span></span><span style=display:flex><span>        pos_value <span style=color:#f92672>=</span> self(self<span style=color:#f92672>.</span>positive_pole)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        all_values <span style=color:#f92672>=</span> reduce(add, [a[<span style=color:#e6db74>&#39;values&#39;</span>] <span style=color:#66d9ef>for</span> a <span style=color:#f92672>in</span> args])
+</span></span><span style=display:flex><span>        all_values <span style=color:#f92672>=</span> all_values <span style=color:#f92672>+</span> [neg_value, pos_value]
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        ax<span style=color:#f92672>.</span>plot(all_values, np<span style=color:#f92672>.</span>zeros_like(all_values), <span style=color:#e6db74>&#34;-o&#34;</span>,
+</span></span><span style=display:flex><span>        color<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;k&#34;</span>, markerfacecolor<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;w&#34;</span>)  <span style=color:#75715e># Baseline and markers on it.</span>
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Generate colours if not defined</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> group <span style=color:#f92672>in</span> args:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            values <span style=color:#f92672>=</span> group[<span style=color:#e6db74>&#39;values&#39;</span>]
+</span></span><span style=display:flex><span>            labels <span style=color:#f92672>=</span> group[<span style=color:#e6db74>&#39;labels&#39;</span>]
+</span></span><span style=display:flex><span>            color  <span style=color:#f92672>=</span> group[<span style=color:#e6db74>&#39;color&#39;</span>]
+</span></span><span style=display:flex><span>            
+</span></span><span style=display:flex><span>            levels <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>tile([<span style=color:#f92672>-</span><span style=color:#ae81ff>5</span>, <span style=color:#ae81ff>5</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>3</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>],
+</span></span><span style=display:flex><span>                 int(np<span style=color:#f92672>.</span>ceil(len(values)<span style=color:#f92672>/</span><span style=color:#ae81ff>6</span>)))[:len(values)]
+</span></span><span style=display:flex><span>            
+</span></span><span style=display:flex><span>            ax<span style=color:#f92672>.</span>vlines(values, <span style=color:#ae81ff>0</span>, levels, color<span style=color:#f92672>=</span>color)  
+</span></span><span style=display:flex><span>            vert <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>array([<span style=color:#e6db74>&#39;top&#39;</span>, <span style=color:#e6db74>&#39;bottom&#39;</span>])[(levels <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>0</span>)<span style=color:#f92672>.</span>astype(int)]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> d, l, r, va <span style=color:#f92672>in</span> zip(values, levels, labels, vert):
+</span></span><span style=display:flex><span>                ax<span style=color:#f92672>.</span>annotate(r, xy<span style=color:#f92672>=</span>(d, l), xytext<span style=color:#f92672>=</span>(<span style=color:#ae81ff>1</span>, np<span style=color:#f92672>.</span>sign(l)<span style=color:#f92672>*</span><span style=color:#ae81ff>3</span>),
+</span></span><span style=display:flex><span>                            textcoords<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;offset points&#34;</span>, va<span style=color:#f92672>=</span>va, ha<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;right&#34;</span>)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Show poles</span>
+</span></span><span style=display:flex><span>        neg_pole <span style=color:#f92672>=</span> poles[<span style=color:#e6db74>&#39;negative&#39;</span>]
+</span></span><span style=display:flex><span>        pos_pole <span style=color:#f92672>=</span> poles[<span style=color:#e6db74>&#39;positive&#39;</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        ax<span style=color:#f92672>.</span>vlines(neg_value, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>4</span>, neg_pole[<span style=color:#e6db74>&#39;color&#39;</span>])  
+</span></span><span style=display:flex><span>        ax<span style=color:#f92672>.</span>annotate(neg_pole[<span style=color:#e6db74>&#39;label&#39;</span>], xy<span style=color:#f92672>=</span>(neg_value, <span style=color:#ae81ff>4</span>), xytext<span style=color:#f92672>=</span>(<span style=color:#ae81ff>4</span>, np<span style=color:#f92672>.</span>sign(<span style=color:#ae81ff>4</span>)<span style=color:#f92672>*</span><span style=color:#ae81ff>3</span>),
+</span></span><span style=display:flex><span>            textcoords<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;offset points&#34;</span>, va<span style=color:#f92672>=</span>va, ha<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;right&#34;</span>, weight<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;bold&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        ax<span style=color:#f92672>.</span>vlines(pos_value, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>4</span>, color<span style=color:#f92672>=</span>pos_pole[<span style=color:#e6db74>&#39;color&#39;</span>])  
+</span></span><span style=display:flex><span>        ax<span style=color:#f92672>.</span>annotate(pos_pole[<span style=color:#e6db74>&#39;label&#39;</span>], xy<span style=color:#f92672>=</span>(pos_value, <span style=color:#ae81ff>4</span>), xytext<span style=color:#f92672>=</span>(<span style=color:#ae81ff>4</span>, np<span style=color:#f92672>.</span>sign(<span style=color:#ae81ff>4</span>)<span style=color:#f92672>*</span><span style=color:#ae81ff>3</span>),
+</span></span><span style=display:flex><span>            textcoords<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;offset points&#34;</span>, va<span style=color:#f92672>=</span>va, ha<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;right&#34;</span>, weight<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;bold&#39;</span>)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Show the plot</span>
+</span></span><span style=display:flex><span>        ax<span style=color:#f92672>.</span>yaxis<span style=color:#f92672>.</span>set_visible(<span style=color:#66d9ef>False</span>)
+</span></span><span style=display:flex><span>        ax<span style=color:#f92672>.</span>spines[[<span style=color:#e6db74>&#34;left&#34;</span>, <span style=color:#e6db74>&#34;top&#34;</span>, <span style=color:#e6db74>&#34;right&#34;</span>]]<span style=color:#f92672>.</span>set_visible(<span style=color:#66d9ef>False</span>)
+</span></span><span style=display:flex><span>        ax<span style=color:#f92672>.</span>margins(y<span style=color:#f92672>=</span><span style=color:#ae81ff>0.1</span>)
+</span></span><span style=display:flex><span>        plt<span style=color:#f92672>.</span>show()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>_shift</span>(self, vector: npt<span style=color:#f92672>.</span>NDArray):
+</span></span><span style=display:flex><span>        extended_vector <span style=color:#f92672>=</span> _extend_with_one(vector)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> (self<span style=color:#f92672>.</span>transform <span style=color:#f92672>@</span> extended_vector)[<span style=color:#ae81ff>0</span>:self<span style=color:#f92672>.</span>dims]
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>_extend_with_one</span>(vector: npt<span style=color:#f92672>.</span>NDArray) <span style=color:#f92672>-&gt;</span> npt<span style=color:#f92672>.</span>NDArray:
+</span></span><span style=display:flex><span>    vector <span style=color:#f92672>=</span> vector[np<span style=color:#f92672>.</span>newaxis]<span style=color:#f92672>.</span>T
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> np<span style=color:#f92672>.</span>vstack([vector, [<span style=color:#ae81ff>1</span>]])      
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>_transformation_matrix</span>(dims: int, midpoint: npt<span style=color:#f92672>.</span>NDArray) <span style=color:#f92672>-&gt;</span> npt<span style=color:#f92672>.</span>NDArray:
+</span></span><span style=display:flex><span>    mat <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>eye(dims <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>    mat[<span style=color:#ae81ff>0</span>:dims, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>] <span style=color:#f92672>=</span> <span style=color:#f92672>-</span>midpoint
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> mat   
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>_midpoint</span>(x: npt<span style=color:#f92672>.</span>NDArray, y: npt<span style=color:#f92672>.</span>NDArray) <span style=color:#f92672>-&gt;</span> npt<span style=color:#f92672>.</span>NDArray:
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (len(x) <span style=color:#f92672>!=</span> len(y)):
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>raise</span> <span style=color:#a6e22e>ValueError</span>(
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>f</span><span style=color:#e6db74>&#39;Vectors come from different spaces! &#39;</span> <span style=color:#f92672>+</span> 
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>f</span><span style=color:#e6db74>&#39;x: </span><span style=color:#e6db74>{</span>len(x)<span style=color:#e6db74>}</span><span style=color:#e6db74> dimensions, y: </span><span style=color:#e6db74>{</span>len(y)<span style=color:#e6db74>}</span><span style=color:#e6db74> dimensions&#39;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> (x <span style=color:#f92672>+</span> y) <span style=color:#f92672>/</span> <span style=color:#ae81ff>2</span>
+</span></span></code></pre></div><p>Last quick check with a simplified example:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># Points lying on the straight line</span>
+</span></span><span style=display:flex><span>A <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>array([<span style=color:#f92672>-</span><span style=color:#ae81ff>10</span>, <span style=color:#ae81ff>2</span>])
+</span></span><span style=display:flex><span>B <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>array([<span style=color:#ae81ff>5</span>, <span style=color:#ae81ff>18</span>]) <span style=color:#75715e># 18</span>
+</span></span><span style=display:flex><span>C <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>array([<span style=color:#f92672>-</span><span style=color:#ae81ff>6</span>, <span style=color:#ae81ff>15</span>])
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>axis_a_b <span style=color:#f92672>=</span> axis(A, B)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>points <span style=color:#f92672>=</span> [A, B, C, axis_a_b<span style=color:#f92672>.</span>midpoint]
+</span></span><span style=display:flex><span>shifted_points <span style=color:#f92672>=</span> [axis_a_b<span style=color:#f92672>.</span>_shift(p) <span style=color:#66d9ef>for</span> p <span style=color:#f92672>in</span> points]
+</span></span><span style=display:flex><span>proj_C <span style=color:#f92672>=</span> axis_a_b(C) <span style=color:#f92672>*</span> axis_a_b<span style=color:#f92672>.</span>unit_vector
+</span></span><span style=display:flex><span>shifted_points <span style=color:#f92672>=</span> shifted_points <span style=color:#f92672>+</span> [proj_C]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>shifted_A, shifted_B, shifted_C, shifted_M, _  <span style=color:#f92672>=</span> shifted_points
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>lines  <span style=color:#f92672>=</span> [[shifted_A, shifted_B], [shifted_C, proj_C]]
+</span></span><span style=display:flex><span>labels <span style=color:#f92672>=</span> [<span style=color:#e6db74>&#39;shifted_A&#39;</span>, <span style=color:#e6db74>&#39;shifted_B&#39;</span>, <span style=color:#e6db74>&#39;shifted_C&#39;</span>, <span style=color:#e6db74>&#39;shifted_M&#39;</span>, <span style=color:#e6db74>&#39;proj_C&#39;</span>]
+</span></span><span style=display:flex><span>plot(shifted_points, lines, labels)
+</span></span></code></pre></div><p><img src=word-embedding_files/word-embedding_38_0.png alt=png></p><h2 id=experiment-with-embeddings>Experiment with embeddings</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>ice_fire_axis <span style=color:#f92672>=</span> axis(ice<span style=color:#f92672>.</span>vector, fire<span style=color:#f92672>.</span>vector)
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># Ice</span>
+</span></span><span style=display:flex><span>ice_value <span style=color:#f92672>=</span> ice_fire_axis(ice<span style=color:#f92672>.</span>vector)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Fire</span>
+</span></span><span style=display:flex><span>fire_value <span style=color:#f92672>=</span> ice_fire_axis(fire<span style=color:#f92672>.</span>vector)
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>cold <span style=color:#f92672>=</span> [<span style=color:#e6db74>&#39;polar&#39;</span>, <span style=color:#e6db74>&#39;snow&#39;</span>, <span style=color:#e6db74>&#39;winter&#39;</span>, <span style=color:#e6db74>&#39;fridge&#39;</span>, <span style=color:#e6db74>&#39;Antarctica&#39;</span>, <span style=color:#e6db74>&#39;freeze&#39;</span>]
+</span></span><span style=display:flex><span>warm <span style=color:#f92672>=</span> [<span style=color:#e6db74>&#39;tropical&#39;</span>, <span style=color:#e6db74>&#39;sun&#39;</span>, <span style=color:#e6db74>&#39;summer&#39;</span>, <span style=color:#e6db74>&#39;oven&#39;</span>, <span style=color:#e6db74>&#39;Africa&#39;</span>, <span style=color:#e6db74>&#39;flame&#39;</span>]
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>cold_vecs <span style=color:#f92672>=</span> [nlp(w)<span style=color:#f92672>.</span>vector <span style=color:#66d9ef>for</span> w <span style=color:#f92672>in</span> cold]
+</span></span><span style=display:flex><span>warm_vecs <span style=color:#f92672>=</span> [nlp(w)<span style=color:#f92672>.</span>vector <span style=color:#66d9ef>for</span> w <span style=color:#f92672>in</span> warm]
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>cold_values <span style=color:#f92672>=</span> [ice_fire_axis(p) <span style=color:#66d9ef>for</span> p <span style=color:#f92672>in</span> cold_vecs]
+</span></span><span style=display:flex><span>warm_values <span style=color:#f92672>=</span> [ice_fire_axis(p) <span style=color:#66d9ef>for</span> p <span style=color:#f92672>in</span> warm_vecs]
+</span></span><span style=display:flex><span>warm_values
+</span></span></code></pre></div><pre><code>[-0.179010129140625,
+ 0.7686063030627324,
+ 0.21483235444847368,
+ 0.5769307333087565,
+ 0.830039105765312,
+ 2.751032938467553]
+</code></pre><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>all_values <span style=color:#f92672>=</span> cold_values <span style=color:#f92672>+</span> warm_values <span style=color:#f92672>+</span> [ice_value, fire_value]
+</span></span><span style=display:flex><span>all_labels <span style=color:#f92672>=</span> cold <span style=color:#f92672>+</span> warm
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>ice_fire_axis<span style=color:#f92672>.</span>plot(
+</span></span><span style=display:flex><span>        {<span style=color:#e6db74>&#39;values&#39;</span>: cold_values, <span style=color:#e6db74>&#39;labels&#39;</span>: cold, <span style=color:#e6db74>&#39;color&#39;</span>: <span style=color:#e6db74>&#39;tab:blue&#39;</span>},
+</span></span><span style=display:flex><span>        {<span style=color:#e6db74>&#39;values&#39;</span>: warm_values, <span style=color:#e6db74>&#39;labels&#39;</span>: warm, <span style=color:#e6db74>&#39;color&#39;</span>: <span style=color:#e6db74>&#39;tab:red&#39;</span>},
+</span></span><span style=display:flex><span>        poles <span style=color:#f92672>=</span> {<span style=color:#e6db74>&#39;negative&#39;</span>: {<span style=color:#e6db74>&#39;label&#39;</span>: <span style=color:#e6db74>&#39;ice&#39;</span>, <span style=color:#e6db74>&#39;color&#39;</span>: <span style=color:#e6db74>&#39;blue&#39;</span>}, 
+</span></span><span style=display:flex><span>                 <span style=color:#e6db74>&#39;positive&#39;</span>: {<span style=color:#e6db74>&#39;label&#39;</span>: <span style=color:#e6db74>&#39;ice&#39;</span>, <span style=color:#e6db74>&#39;color&#39;</span>: <span style=color:#e6db74>&#39;red&#39;</span>}}
+</span></span><span style=display:flex><span>    )   
+</span></span></code></pre></div><p><img src=/post/2022-05-21-how-icy-is-sun/word-embedding_files/word-embedding_46_0.png alt=png></p><h2 id=conclusions>Conclusions</h2><p>As we can see, in this case the meaning of the distance between &ldquo;ice&rdquo; and &ldquo;fire&rdquo; looks as expected. &ldquo;Cold words&rdquo; are closer to the <em>negative pole</em> while the &ldquo;warm words* - to the <em>positive pole</em>.</p><p>To do a similar experiment by yourself, you can use my <a href=https://github.com/krzjoa/salto>salto</a> package.</p></div></main></body></html>
