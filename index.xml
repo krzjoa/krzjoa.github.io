@@ -2927,8 +2927,8 @@ document.getElementById("defaultOpen").click();
 &lt;/script>
 &lt;/head>
 &lt;br/>
-&lt;p>&lt;button class="tablink" onclick="openPage('R', this)" id="defaultOpen">R&lt;/button>
-&lt;button class="tablink" onclick="openPage('Python', this)" >Python&lt;/button>
+&lt;p>&lt;button class="tablink" onclick="openPage('Python', this)" >Python&lt;/button>
+&lt;button class="tablink" onclick="openPage('R', this)" id="defaultOpen">R&lt;/button>
 &lt;button class="tablink" onclick="openPage('Datasets', this)">Datasets&lt;/button>&lt;/p>
 &lt;div id="R" class="tabcontent">
 &lt;table>
@@ -2974,6 +2974,10 @@ document.getElementById("defaultOpen").click();
 &lt;tr>
 &lt;td>&lt;a href="https://github.com/krzjoa/kaggle-metrics">&lt;img src='https://raw.githubusercontent.com/krzjoa/kaggle-metrics/master/img/kmlogo.png' width="100" style="margin-right: 20px" />&lt;/td>
 &lt;td>&lt;a href = "https://github.com/krzjoa/kaggle-metrics">&lt;b>kaggle-metrics&lt;/b>&lt;/a>&lt;br>Metrics for Kaggle competitions&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;a href="https://github.com/krzjoa/salto">&lt;img src='https://raw.githubusercontent.com/krzjoa/salto/main/img/salto-logo.png' width="100" style="margin-right: 20px" />&lt;/td>
+&lt;td>&lt;a href = "https://github.com/krzjoa/salto">&lt;b>salto&lt;/b>&lt;/a>&lt;br>Playing with embedding vectors&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;/td>
