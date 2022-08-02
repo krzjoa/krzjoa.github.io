@@ -2930,8 +2930,8 @@ document.getElementById("defaultOpen").click();
 &lt;/script>
 &lt;/head>
 &lt;br/>
-&lt;p>&lt;button class="tablink" onclick="openPage('Python', this)" >Python&lt;/button>
-&lt;button class="tablink" onclick="openPage('R', this)" id="defaultOpen">R&lt;/button>
+&lt;p>&lt;button class="tablink" onclick="openPage('Python', this)" id="defaultOpen">Python&lt;/button>
+&lt;button class="tablink" onclick="openPage('R', this)">R&lt;/button>
 &lt;button class="tablink" onclick="openPage('Datasets', this)">Datasets&lt;/button>&lt;/p>
 &lt;div id="R" class="tabcontent">
 &lt;table>
@@ -2985,6 +2985,10 @@ document.getElementById("defaultOpen").click();
 &lt;tr>
 &lt;td>&lt;/td>
 &lt;td>&lt;a href = "https://github.com/krzjoa/sciquence">&lt;b>sciquence&lt;/b>&lt;/a> &lt;br>Miscellaneous algorithms for processing sequences and time series&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;a href="https://github.com/krzjoa/wolne_lektury">&lt;img src='https://raw.githubusercontent.com/krzjoa/wolne_lektury/main/img/wl_logo.png' width="100" style="margin-right: 20px" />&lt;/td>
+&lt;td>&lt;a href = "https://github.com/krzjoa/wolne_lektury">&lt;b>wolne_lektury&lt;/b>&lt;/a>&lt;br>An unofficial REST API client for Wolne Lektury&lt;/td>
 &lt;/tr>
 &lt;/thead>
 &lt;/table>
