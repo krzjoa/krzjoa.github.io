@@ -2945,6 +2945,10 @@ document.getElementById("defaultOpen").click();
 &lt;td>&lt;a href = "https://github.com/krzjoa/awesome-r-dataviz">&lt;b>awesome-r-dataviz&lt;/b>&lt;/a>&lt;br>Curated resources for Data Visualization in R.&lt;/td>
 &lt;/tr>
 &lt;tr>
+&lt;td>&lt;a href="https://krzjoa.github.io/m5">&lt;img src='https://raw.githubusercontent.com/krzjoa/m5/master/man/figures/logo-small.png' width="100" style="margin-right: 20px" />&lt;/td>
+&lt;td>&lt;a href = "https://github.com/krzjoa/m5">&lt;b>m5&lt;/b>&lt;/a>&lt;br>M5 Walmart Challenge Data&lt;/td>
+&lt;/tr>
+&lt;tr>
 &lt;td>&lt;a href="https://krzjoa.github.io/matricks">&lt;img src='https://raw.githubusercontent.com/krzjoa/matricks/master/man/figures/logo.png' width="100" style="margin-right: 20px" />&lt;/td>
 &lt;td>&lt;a href = "https://github.com/krzjoa/matricks">&lt;b>matricks&lt;/b>&lt;/a>&lt;br>Useful tricks for matrix manipulation&lt;/td>
 &lt;/tr>
