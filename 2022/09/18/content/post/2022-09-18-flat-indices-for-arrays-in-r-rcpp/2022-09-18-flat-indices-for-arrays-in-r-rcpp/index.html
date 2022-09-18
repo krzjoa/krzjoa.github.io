@@ -27,7 +27,7 @@
 <a href=https://orcid.org/0000-0003-4780-7947 rel=me><i class="fab fa-orcid fa-lg" aria-hidden=true></i></a>
 <a href=/post/index.xml rel=me><i class="fas fa-rss fa-lg" aria-hidden=true></i></a></p><p>&copy; 2022. All rights reserved.</p></div></aside><main class="content container"><div class=post><h1>Flat indices for arrays in R/Rcpp</h1><time datetime=2022-09-18T00:00:00Z class=post-date>Sep 18, 2022</time>
 <i class="fas fa-tags"></i>
-<a class="badge badge-tag" href=/tags/rcpp>rcpp</a><br><br><p><a><img src=/post/2022-09-18-flat-indices-for-arrays-in-r-rcpp/flat_array_v2.jpg align=center></a></p><p>Although <strong>3-dimensional</strong> arrays are not the most common object used among
+<a class="badge badge-tag" href=/tags/r>r</a><br><br><p><a><img src=/post/2022-09-18-flat-indices-for-arrays-in-r-rcpp/flat_array_v2.jpg align=center></a></p><p>Although <strong>3-dimensional</strong> arrays are not the most common object used among
 the R projects, which are dominated by <code>data.frame</code>-like objects. However, when
 we&rsquo;re starting to work with <strong>deep learning</strong>, (e.g. using <a href=https://tensorflow.rstudio.com/reference/keras/><code>{keras}</code></a>),
 we can run into such objects many times, especially in fields like <strong>time series forecasting</strong> or <strong>NLP</strong>.</p><p>The question I&rsquo;d like to answer in this post is how to find &lsquo;flat&rsquo; equivalent of the
