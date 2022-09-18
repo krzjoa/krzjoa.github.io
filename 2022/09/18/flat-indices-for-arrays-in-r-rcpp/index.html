@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.92.2" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Flat indices for arrays in R/Rcpp &middot; krzjoa</title>
+  <meta name="description" content="" />
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.14.0/css/all.css">
+
+    
+  <link type="text/css" rel="stylesheet" href="/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="/css/hyde.css">
+
+  
+
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+            processEscapes: true,
+            processEnvironments: true
+        },
+        // Center justify equations in code and markdown cells. Elsewhere
+        // we use CSS to left justify single line equations in code cells.
+        // https://groups.google.com/g/mathjax-users/c/FgCBLdT15nM
+        displayAlign: 'center',
+        "HTML-CSS": {
+            styles: {
+              '.MathJax_Display': {"margin": 0},
+              ".MathJax .mo, .MathJax .mi": {color: "black ! important"}
+            },
+            linebreaks: { automatic: true }
+        }
+    });
+    </script>
+    
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
+
+
+  
+  
+</head>
+
+  <body class="theme-base-custom ">
+  <aside class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="/"><h1>krzjoa</h1></a>
+      <p class="lead">
+         
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="/">Home</a> </li>
+        <li><a href="/2022/09/18/flat-indices-for-arrays-in-r-rcpp/"> Flat indices for arrays in R/Rcpp </a></li><li><a href="/projects/"> Projects </a></li><li><a href="/publications/"> Publications </a></li>
+      </ul>
+  </nav>
+
+       <p>
+
+  
+	
+	
+	
+	<a href="https://github.com/krzjoa" rel="me"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a>
+	
+	
+	
+	
+	
+	
+	
+	<a href="https://linkedin.com/in/krzysztof-joachimiak" rel="me"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a>
+	
+	
+	<a href="https://scholar.google.com/citations?user=qNcWYHIAAAAJ%26hl" rel="me"><i class="fas fa-graduation-cap fa-lg" aria-hidden="true"></i></a>
+	
+	
+	
+	
+	
+	
+	
+	
+	<a href="https://orcid.org/0000-0003-4780-7947" rel="me"><i class="fab fa-orcid fa-lg" aria-hidden="true"></i></a>
+	
+	
+	
+	
+	
+	<a href="/post/index.xml" rel="me"><i class="fas fa-rss fa-lg" aria-hidden="true"></i></a>
+	
+
+
+  </p>
+
+
+    <p>&copy; 2022. All rights reserved.</p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>Flat indices for arrays in R/Rcpp</h1>
+  
+  <time datetime=2022-09-18T00:00:00Z class="post-date">Sep 18, 2022</time>
+    
+    
+      
+      
+           <i class="fas fa-tags"></i>
+          
+          <a class="badge badge-tag" href="/tags/r">r</a>
+           
+      
+          <a class="badge badge-tag" href="/tags/rcpp">rcpp</a>
+          
+      
+    <br/><br/>
+    
+    
+  
+<script src="/2022/09/18/flat-indices-for-arrays-in-r-rcpp/index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>Although <strong>3-dimensional</strong> arrays are not the most common object used in among
+the R projects, which are dominated by <code>data.frame</code>-like objects. However, when
+we’re starting working with *deep learning<strong>, (e.g. using <a href="https://tensorflow.rstudio.com/reference/keras/"><code>{keras}</code></a>),
+we can run into such objects many times, especially in fields like </strong>time series forecasting<strong> or </strong>NLP**.</p>
+<p>The question I’d like to answer is this post is how to find ‘flat’ equivalent of the
+three-element index for the <strong>3-dimensional</strong> arrays.</p>
+<div id="problem" class="section level2">
+<h2>Problem</h2>
+<p>Let’s create a sample array to present the problem.</p>
+<pre class="r"><code>data &lt;- array(0, c(20, 7, 5))</code></pre>
+<p>Each array object and matrix object in R can be subscripted in two ways:</p>
+<ul>
+<li><strong>using indices for all the existing dimensions</strong></li>
+</ul>
+<pre class="r"><code>data[12, 3, 1] &lt;- 7
+data[12, 3, 1]</code></pre>
+<pre><code>## [1] 7</code></pre>
+<pre class="r"><code>data[12,,] </code></pre>
+<pre><code>##      [,1] [,2] [,3] [,4] [,5]
+## [1,]    0    0    0    0    0
+## [2,]    0    0    0    0    0
+## [3,]    7    0    0    0    0
+## [4,]    0    0    0    0    0
+## [5,]    0    0    0    0    0
+## [6,]    0    0    0    0    0
+## [7,]    0    0    0    0    0</code></pre>
+<ul>
+<li><strong>using a single index</strong></li>
+</ul>
+<p>In this approach the array is treated as a <strong>flat vector</strong>, so I named this kind of
+indexing a <strong>flat index</strong>.</p>
+<pre class="r"><code>data[123] &lt;- 8
+data[123]</code></pre>
+<pre><code>## [1] 8</code></pre>
+<p><strong>But how we can easily tranform the first type of indexing into the second one</strong>?</p>
+</div>
+<div id="solution" class="section level2">
+<h2>Solution</h2>
+<p>The solution generalized to the <span class="math inline">\(n\)</span>-dimensional case can be expressed as:</p>
+<center>
+<span class="math inline">\([x_1, x_2, x_3, ..., x_n] = \\ x_1 + (x_2 -1)d_1 + (x_3 -1 )d_1d_2 + ... + (x_n -1)\prod_{j = 1}^{n-1}d_j\)</span>
+</center>
+<p>and more concisely as:</p>
+<center>
+<span class="math inline">\([x_1, x_2, x_3, ..., x_n] = x_1 + \sum_{i=2}^{n}x_i\prod_{j = 1}^{i-1}d_j\)</span>
+</center>
+<p>where <span class="math inline">\(x_i\)</span> means i-th index and <span class="math inline">\(d_i\)</span> i-th dimension size.</p>
+<p>In R code;</p>
+<pre class="r"><code>#&#39; Get an index you can use access an array element at once 
+#&#39; [x, y, z] = x + (y - 1) * x_dim + (z - 1) * x_dim * y_dim
+#&#39; [x, y] = x + (y-1) * x_dim
+#&#39;
+#&#39; @param dim_sizes Dimensions sizes
+#&#39; @param dim_indices Indices
+flat_index &lt;- function(dim_sizes, dim_indices){
+  dim_indices[1] + sum((dim_indices[-1] - 1) * cumprod(dim_sizes[-length(dim_sizes)]))
+}</code></pre>
+<pre class="r"><code># Example 1
+arr &lt;- array(0, c(4,5,6,7))
+arr[1,2,3,4] &lt;- 777
+
+flat_index(c(4,5,6,7), c(1,2,3,4))</code></pre>
+<pre><code>## [1] 405</code></pre>
+<pre class="r"><code>which(arr == 777)</code></pre>
+<pre><code>## [1] 405</code></pre>
+<pre class="r"><code># Example 2
+arr2 &lt;- array(0, c(32,10,5))
+arr2[12,8,4] &lt;- 777
+
+flat_index( c(32,10,5), c(12,8,4))</code></pre>
+<pre><code>## [1] 1196</code></pre>
+<pre class="r"><code>which(arr2 == 777)</code></pre>
+<pre><code>## [1] 1196</code></pre>
+<p>In <strong>Rcpp</strong>, you can use the following code snippet (for 3-dimensional arrays):</p>
+<pre class="{c++}"><code>// In C++ transformed to the zero-based index
+int flat_index(int dim1, int dim2,
+               int idx1, int idx2, int idx3){
+  return idx1 + idx2 * dim1 + idx3 * dim1 * dim2;
+}</code></pre>
+</div>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>
