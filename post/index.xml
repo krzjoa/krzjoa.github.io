@@ -1,76 +1,86 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on krzjoa</title><link>/post/</link><description>Recent content in Posts on krzjoa</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 18 Sep 2022 00:00:00 +0000</lastBuildDate><atom:link href="/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Flat indices for arrays in R/Rcpp</title><author>joachimiak.krzysztof@gmail.com (Krzysztof Joachimiak)</author><link>/2022/09/18/content/post/2022-09-18-flat-indices-for-arrays-in-r-rcpp/2022-09-18-flat-indices-for-arrays-in-r-rcpp/</link><pubDate>Sun, 18 Sep 2022 00:00:00 +0000</pubDate><guid>/2022/09/18/content/post/2022-09-18-flat-indices-for-arrays-in-r-rcpp/2022-09-18-flat-indices-for-arrays-in-r-rcpp/</guid><description>&lt;p>&lt;a>&lt;img src='/post/2022-09-18-flat-indices-for-arrays-in-r-rcpp/flat_array_v2.jpg' align="center"/>&lt;/a>&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on krzjoa</title><link>/post/</link><description>Recent content in Posts on krzjoa</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 19 Sep 2022 00:00:00 +0000</lastBuildDate><atom:link href="/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Flat indices for arrays in R/Rcpp</title><author>joachimiak.krzysztof@gmail.com (Krzysztof Joachimiak)</author><link>/2022/09/19/flat-indices-for-arrays-in-r/rcpp/</link><pubDate>Mon, 19 Sep 2022 00:00:00 +0000</pubDate><guid>/2022/09/19/flat-indices-for-arrays-in-r/rcpp/</guid><description>
+&lt;script src="/2022/09/19/flat-indices-for-arrays-in-r/rcpp/index_files/header-attrs/header-attrs.js">&lt;/script>
 &lt;p>Although &lt;strong>3-dimensional&lt;/strong> arrays are not the most common object used among
 the R projects, which are dominated by &lt;code>data.frame&lt;/code>-like objects. However, when
-we&amp;rsquo;re starting to work with &lt;strong>deep learning&lt;/strong>, (e.g. using &lt;a href="https://tensorflow.rstudio.com/reference/keras/">&lt;code>{keras}&lt;/code>&lt;/a>),
+we’re starting to work with &lt;strong>deep learning&lt;/strong>, (e.g. using &lt;a href="https://tensorflow.rstudio.com/reference/keras/">&lt;code>{keras}&lt;/code>&lt;/a>),
 we can run into such objects many times, especially in fields like &lt;strong>time series forecasting&lt;/strong> or &lt;strong>NLP&lt;/strong>.&lt;/p>
-&lt;p>The question I&amp;rsquo;d like to answer in this post is how to find &amp;lsquo;flat&amp;rsquo; equivalent of the
+&lt;p>The question I’d like to answer in this post is how to find ‘flat’ equivalent of the
 three-element index for the &lt;strong>3-dimensional&lt;/strong> arrays.&lt;/p>
-&lt;h2 id="problem">Problem&lt;/h2>
-&lt;p>Let&amp;rsquo;s create a sample array to present the problem.&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>data &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">array&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">20&lt;/span>, &lt;span style="color:#ae81ff">7&lt;/span>, &lt;span style="color:#ae81ff">5&lt;/span>))
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>To get the single element, an array can be subscripted in two ways:&lt;/p>
+&lt;div id="problem" class="section level2">
+&lt;h2>Problem&lt;/h2>
+&lt;p>Let’s create a sample array to present the problem.&lt;/p>
+&lt;pre class="r">&lt;code>data &amp;lt;- array(0, c(20, 7, 5))&lt;/code>&lt;/pre>
+&lt;p>To get the single element, an array can be subscripted in two ways:&lt;/p>
 &lt;ul>
 &lt;li>&lt;strong>using indices for all the existing dimensions&lt;/strong>&lt;/li>
 &lt;/ul>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>data[12, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">7&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>data[12, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">1&lt;/span>]
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;pre tabindex="0">&lt;code>## [1] 7
-&lt;/code>&lt;/pre>&lt;ul>
+&lt;pre class="r">&lt;code>data[12, 3, 1] &amp;lt;- 7
+data[12, 3, 1]&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 7&lt;/code>&lt;/pre>
+&lt;ul>
 &lt;li>&lt;strong>using a single index&lt;/strong>&lt;/li>
 &lt;/ul>
 &lt;p>In this approach the array is treated as a &lt;strong>flat vector&lt;/strong>, so I named this kind of
 indexing &lt;strong>flat index&lt;/strong>.&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>data[123] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">8&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>data[123]
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;pre tabindex="0">&lt;code>## [1] 8
-&lt;/code>&lt;/pre>&lt;p>&lt;strong>But how we can easily tranform the first type of indexing into the second one?&lt;/strong>&lt;/p>
-&lt;h2 id="solution">Solution&lt;/h2>
-&lt;p>The solution generalized to the $n$-dimensional case can be expressed as:&lt;/p>
-&lt;center>$[x_1, x_2, x_3, ..., x_n] = x_1 + \sum_{i=2}^{n}x_i\prod_{j = 1}^{i-1}d_j$&lt;/center>
-&lt;p>where $x_i$ means i-th index and $d_i$ i-th dimension size. This solution takes into account the 1-based indexing which is used in R.&lt;/p>
-&lt;h2 id="example">Example&lt;/h2>
-&lt;p>Suppose we have an array with the same dimesnions as shown above: $(20, 7, 5)$.
-We&amp;rsquo;d like to access an element at index $(11, 3, 2)$.&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>example &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">array&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">20&lt;/span>, &lt;span style="color:#ae81ff">7&lt;/span>, &lt;span style="color:#ae81ff">5&lt;/span>))
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>example[11, &lt;span style="color:#ae81ff">3&lt;/span>, &lt;span style="color:#ae81ff">2&lt;/span>] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">7&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>We calculate the &lt;em>flat index&lt;/em> according to the aforementioned schema.&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>flat_idx &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">11&lt;/span> &lt;span style="color:#f92672">+&lt;/span> (&lt;span style="color:#ae81ff">3&lt;/span> &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#ae81ff">20&lt;/span> &lt;span style="color:#f92672">+&lt;/span> (&lt;span style="color:#ae81ff">2&lt;/span> &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#ae81ff">20&lt;/span> &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#ae81ff">7&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>example[flat_idx]
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;pre tabindex="0">&lt;code>## [1] 7
-&lt;/code>&lt;/pre>&lt;h2 id="code-snippets">Code snippets&lt;/h2>
+&lt;pre class="r">&lt;code>data[123] &amp;lt;- 8
+data[123]&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 8&lt;/code>&lt;/pre>
+&lt;p>&lt;strong>But how we can easily tranform the first type of indexing into the second one?&lt;/strong>&lt;/p>
+&lt;/div>
+&lt;div id="solution" class="section level2">
+&lt;h2>Solution&lt;/h2>
+&lt;p>The solution generalized to the &lt;span class="math inline">\(n\)&lt;/span>-dimensional case can be expressed as:&lt;/p>
+&lt;center>
+&lt;span class="math inline">\([x_1, x_2, x_3, ..., x_n] = x_1 + \sum_{i=2}^{n}x_i\prod_{j = 1}^{i-1}d_j\)&lt;/span>
+&lt;/center>
+&lt;p>where &lt;span class="math inline">\(x_i\)&lt;/span> means i-th index and &lt;span class="math inline">\(d_i\)&lt;/span> i-th dimension size. This solution takes into account the 1-based indexing which is used in R.&lt;/p>
+&lt;/div>
+&lt;div id="example" class="section level2">
+&lt;h2>Example&lt;/h2>
+&lt;p>Suppose we have an array with the same dimesnions as shown above: &lt;span class="math inline">\((20, 7, 5)\)&lt;/span>.
+We’d like to access an element at index &lt;span class="math inline">\((11, 3, 2)\)&lt;/span>.&lt;/p>
+&lt;pre class="r">&lt;code>example &amp;lt;- array(0, c(20, 7, 5))
+example[11, 3, 2] &amp;lt;- 7&lt;/code>&lt;/pre>
+&lt;p>We calculate the &lt;em>flat index&lt;/em> according to the aforementioned schema.&lt;/p>
+&lt;pre class="r">&lt;code>flat_idx &amp;lt;- 11 + (3 - 1) * 20 + (2 - 1) * 20 * 7
+example[flat_idx]&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 7&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="code-snippets" class="section level2">
+&lt;h2>Code snippets&lt;/h2>
 &lt;p>In R code;&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#&amp;#39; Get an index you can use access an array element at once &lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#&amp;#39; [x, y, z] = x + (y - 1) * x_dim + (z - 1) * x_dim * y_dim&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#&amp;#39; [x, y] = x + (y-1) * x_dim&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#&amp;#39; @param dim_sizes Dimensions sizes&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#&amp;#39; @param dim_indices Indices&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>flat_index &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">function&lt;/span>(dim_sizes, dim_indices){
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> dim_indices[1] &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#a6e22e">sum&lt;/span>((dim_indices[&lt;span style="color:#ae81ff">-1&lt;/span>] &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>) &lt;span style="color:#f92672">*&lt;/span> &lt;span style="color:#a6e22e">cumprod&lt;/span>(dim_sizes[&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#a6e22e">length&lt;/span>(dim_sizes)]))
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># Example 1&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>arr &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">array&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">4&lt;/span>,&lt;span style="color:#ae81ff">5&lt;/span>,&lt;span style="color:#ae81ff">6&lt;/span>,&lt;span style="color:#ae81ff">7&lt;/span>))
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>arr[1,&lt;span style="color:#ae81ff">2&lt;/span>,&lt;span style="color:#ae81ff">3&lt;/span>,&lt;span style="color:#ae81ff">4&lt;/span>] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">777&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">flat_index&lt;/span>(&lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">4&lt;/span>,&lt;span style="color:#ae81ff">5&lt;/span>,&lt;span style="color:#ae81ff">6&lt;/span>,&lt;span style="color:#ae81ff">7&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">2&lt;/span>,&lt;span style="color:#ae81ff">3&lt;/span>,&lt;span style="color:#ae81ff">4&lt;/span>))
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;pre tabindex="0">&lt;code>## [1] 405
-&lt;/code>&lt;/pre>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">which&lt;/span>(arr &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">777&lt;/span>)
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;pre tabindex="0">&lt;code>## [1] 405
-&lt;/code>&lt;/pre>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># Example 2&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>arr2 &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#a6e22e">array&lt;/span>(&lt;span style="color:#ae81ff">0&lt;/span>, &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">32&lt;/span>,&lt;span style="color:#ae81ff">10&lt;/span>,&lt;span style="color:#ae81ff">5&lt;/span>))
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>arr2[12,&lt;span style="color:#ae81ff">8&lt;/span>,&lt;span style="color:#ae81ff">4&lt;/span>] &lt;span style="color:#f92672">&amp;lt;-&lt;/span> &lt;span style="color:#ae81ff">777&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">flat_index&lt;/span>( &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">32&lt;/span>,&lt;span style="color:#ae81ff">10&lt;/span>,&lt;span style="color:#ae81ff">5&lt;/span>), &lt;span style="color:#a6e22e">c&lt;/span>(&lt;span style="color:#ae81ff">12&lt;/span>,&lt;span style="color:#ae81ff">8&lt;/span>,&lt;span style="color:#ae81ff">4&lt;/span>))
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;pre tabindex="0">&lt;code>## [1] 1196
-&lt;/code>&lt;/pre>&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-r" data-lang="r">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a6e22e">which&lt;/span>(arr2 &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#ae81ff">777&lt;/span>)
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;pre tabindex="0">&lt;code>## [1] 1196
-&lt;/code>&lt;/pre>&lt;p>In &lt;strong>Rcpp&lt;/strong>, you can use the following code snippet (for 3-dimensional arrays):&lt;/p>
-&lt;pre tabindex="0">&lt;code>// In C++ transformed to the zero-based index
+&lt;pre class="r">&lt;code>#&amp;#39; Get an index you can use access an array element at once
+#&amp;#39; [x, y, z] = x + (y - 1) * x_dim + (z - 1) * x_dim * y_dim
+#&amp;#39; [x, y] = x + (y-1) * x_dim
+#&amp;#39;
+#&amp;#39; @param dim_sizes Dimensions sizes
+#&amp;#39; @param dim_indices Indices
+flat_index &amp;lt;- function(dim_sizes, dim_indices){
+dim_indices[1] + sum((dim_indices[-1] - 1) * cumprod(dim_sizes[-length(dim_sizes)]))
+}&lt;/code>&lt;/pre>
+&lt;pre class="r">&lt;code># Example 1
+arr &amp;lt;- array(0, c(4,5,6,7))
+arr[1,2,3,4] &amp;lt;- 777
+flat_index(c(4,5,6,7), c(1,2,3,4))&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 405&lt;/code>&lt;/pre>
+&lt;pre class="r">&lt;code>which(arr == 777)&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 405&lt;/code>&lt;/pre>
+&lt;pre class="r">&lt;code># Example 2
+arr2 &amp;lt;- array(0, c(32,10,5))
+arr2[12,8,4] &amp;lt;- 777
+flat_index( c(32,10,5), c(12,8,4))&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 1196&lt;/code>&lt;/pre>
+&lt;pre class="r">&lt;code>which(arr2 == 777)&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 1196&lt;/code>&lt;/pre>
+&lt;p>In &lt;strong>Rcpp&lt;/strong>, you can use the following code snippet (for 3-dimensional arrays):&lt;/p>
+&lt;pre class="c">&lt;code>// In C++ transformed to the zero-based index
 int flat_index(int dim1, int dim2,
 int idx1, int idx2, int idx3){
 return idx1 + idx2 * dim1 + idx3 * dim1 * dim2;
-}
-&lt;/code>&lt;/pre></description></item><item><title>How icy is sun, how fiery is snow? Playing with word embedding vectors</title><author>joachimiak.krzysztof@gmail.com (Krzysztof Joachimiak)</author><link>/2022/05/21/content/post/2022-05-21-how-icy-is-sun/</link><pubDate>Sat, 21 May 2022 00:00:00 +0000</pubDate><guid>/2022/05/21/content/post/2022-05-21-how-icy-is-sun/</guid><description>&lt;p>We all know old, good and hackneyed examples, that are typically used to intuitively explain, what the &lt;strong>word embedding&lt;/strong> technique is. We almost always come across a chart presenting a simplified, 2-dimensional vector representation of the words &lt;strong>queen&lt;/strong> and &lt;strong>king&lt;/strong>, which are distant from each other similarly as the words &lt;strong>woman&lt;/strong> and &lt;strong>man&lt;/strong>.&lt;/p>
+}&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## gcc -std=gnu99 -std=gnu11 -I&amp;quot;/usr/share/R/include&amp;quot; -DNDEBUG -fpic -g -O2 -fdebug-prefix-map=/build/r-base-i2PIHO/r-base-4.1.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g -c c1ddfbdaded6.c -o c1ddfbdaded6.o
+## gcc -std=gnu99 -std=gnu11 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o c1ddfbdaded6.so c1ddfbdaded6.o -L/usr/lib/R/lib -lR&lt;/code>&lt;/pre>
+&lt;/div></description></item><item><title>How icy is sun, how fiery is snow? Playing with word embedding vectors</title><author>joachimiak.krzysztof@gmail.com (Krzysztof Joachimiak)</author><link>/2022/05/21/content/post/2022-05-21-how-icy-is-sun/</link><pubDate>Sat, 21 May 2022 00:00:00 +0000</pubDate><guid>/2022/05/21/content/post/2022-05-21-how-icy-is-sun/</guid><description>&lt;p>We all know old, good and hackneyed examples, that are typically used to intuitively explain, what the &lt;strong>word embedding&lt;/strong> technique is. We almost always come across a chart presenting a simplified, 2-dimensional vector representation of the words &lt;strong>queen&lt;/strong> and &lt;strong>king&lt;/strong>, which are distant from each other similarly as the words &lt;strong>woman&lt;/strong> and &lt;strong>man&lt;/strong>.&lt;/p>
 &lt;p>Today, I&amp;rsquo;d like to go one step further and explore the meaning of the mutual position of two arbitrary selected vectors. It this particular case - relation between the &lt;strong>ice&lt;/strong>-and-&lt;strong>fire&lt;/strong> pair and the rest of the vectors.&lt;/p>
 &lt;h2 id="motivation">Motivation&lt;/h2>
 &lt;p>Assume for the moment we have an embedding in the 2-dimensional space. It&amp;rsquo;s not a realistic case, because normally such low-dimensional embedding wouldn&amp;rsquo;t fulfill its purpose. So, we have a bunch of vectors or points, described with two coordinates. We choose two such vectors, say &lt;strong>ice&lt;/strong> and &lt;strong>fire&lt;/strong>, as mentioned above.&lt;/p>

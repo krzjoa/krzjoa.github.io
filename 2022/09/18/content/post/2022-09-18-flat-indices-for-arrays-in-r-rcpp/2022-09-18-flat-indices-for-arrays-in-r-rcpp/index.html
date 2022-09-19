@@ -1,5 +1,32 @@
-<!doctype html><html xmlns=http://www.w3.org/1999/xhtml xml:lang=en-us lang=en-us><head><link href=https://gmpg.org/xfn/11 rel=profile><meta charset=utf-8><meta name=generator content="Hugo 0.103.0"><meta name=viewport content="width=device-width,initial-scale=1"><title>Flat indices for arrays in R/Rcpp &#183; krzjoa</title><meta name=description content><link rel=apple-touch-icon-precomposed sizes=144x144 href=/apple-touch-icon-144-precomposed.png><link rel="shortcut icon" href=/favicon.png><link rel=stylesheet href=//use.fontawesome.com/releases/v5.14.0/css/all.css><link type=text/css rel=stylesheet href=/css/print.css media=print><link type=text/css rel=stylesheet href=/css/poole.css><link type=text/css rel=stylesheet href=/css/syntax.css><link type=text/css rel=stylesheet href=/css/hyde.css><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-<script type=text/x-mathjax-config>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.92.2" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Flat indices for arrays in R/Rcpp &middot; krzjoa</title>
+  <meta name="description" content="" />
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.14.0/css/all.css">
+
+    
+  <link type="text/css" rel="stylesheet" href="/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="/css/hyde.css">
+
+  
+
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    
+    <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
         tex2jax: {
             inlineMath: [ ['$','$'], ["\\(","\\)"] ],
@@ -19,60 +46,179 @@
             linebreaks: { automatic: true }
         }
     });
-    </script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id=MathJax-script async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script>
-<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700"></head><body class=theme-base-custom><aside class=sidebar><div class="container sidebar-sticky"><div class=sidebar-about><a href=/><h1>krzjoa</h1></a><p class=lead></p></div><nav><ul class=sidebar-nav><li><a href=/>Home</a></li><li><a href=/projects/>Projects</a></li><li><a href=/publications/>Publications</a></li></ul></nav><p><a href=https://github.com/krzjoa rel=me><i class="fab fa-github fa-lg" aria-hidden=true></i></a>
-<a href=https://linkedin.com/in/krzysztof-joachimiak rel=me><i class="fab fa-linkedin fa-lg" aria-hidden=true></i></a>
-<a href="https://scholar.google.com/citations?user=qNcWYHIAAAAJ%26hl" rel=me><i class="fas fa-graduation-cap fa-lg" aria-hidden=true></i></a>
-<a href=https://orcid.org/0000-0003-4780-7947 rel=me><i class="fab fa-orcid fa-lg" aria-hidden=true></i></a>
-<a href=/post/index.xml rel=me><i class="fas fa-rss fa-lg" aria-hidden=true></i></a></p><p>&copy; 2022. All rights reserved.</p></div></aside><main class="content container"><div class=post><h1>Flat indices for arrays in R/Rcpp</h1><time datetime=2022-09-18T00:00:00Z class=post-date>Sep 18, 2022</time>
-<i class="fas fa-tags"></i>
-<a class="badge badge-tag" href=/tags/r>r</a><br><br><p><a><img src=/post/2022-09-18-flat-indices-for-arrays-in-r-rcpp/flat_array_v2.jpg align=center></a></p><p>Although <strong>3-dimensional</strong> arrays are not the most common object used among
+    </script>
+    
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
+
+
+  
+  
+</head>
+
+  <body class="theme-base-custom ">
+  <aside class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="/"><h1>krzjoa</h1></a>
+      <p class="lead">
+         
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="/">Home</a> </li>
+        <li><a href="/projects/"> Projects </a></li><li><a href="/publications/"> Publications </a></li>
+      </ul>
+  </nav>
+
+       <p>
+
+  
+	
+	
+	
+	<a href="https://github.com/krzjoa" rel="me"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a>
+	
+	
+	
+	
+	
+	
+	
+	<a href="https://linkedin.com/in/krzysztof-joachimiak" rel="me"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a>
+	
+	
+	<a href="https://scholar.google.com/citations?user=qNcWYHIAAAAJ%26hl" rel="me"><i class="fas fa-graduation-cap fa-lg" aria-hidden="true"></i></a>
+	
+	
+	
+	
+	
+	
+	
+	
+	<a href="https://orcid.org/0000-0003-4780-7947" rel="me"><i class="fab fa-orcid fa-lg" aria-hidden="true"></i></a>
+	
+	
+	
+	
+	
+	<a href="/post/index.xml" rel="me"><i class="fas fa-rss fa-lg" aria-hidden="true"></i></a>
+	
+
+
+  </p>
+
+
+    <p>&copy; 2022. All rights reserved.</p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>Flat indices for arrays in R/Rcpp</h1>
+  
+  <time datetime=2022-09-18T00:00:00Z class="post-date">Sep 18, 2022</time>
+    
+    
+      
+      
+           <i class="fas fa-tags"></i>
+          
+          <a class="badge badge-tag" href="/tags/r">r</a>
+          
+      
+    <br/><br/>
+    
+    
+  <p><a><img src='/post/2022-09-18-flat-indices-for-arrays-in-r-rcpp/flat_array_v2.jpg' align="center"/></a></p>
+<p>Although <strong>3-dimensional</strong> arrays are not the most common object used among
 the R projects, which are dominated by <code>data.frame</code>-like objects. However, when
-we&rsquo;re starting to work with <strong>deep learning</strong>, (e.g. using <a href=https://tensorflow.rstudio.com/reference/keras/><code>{keras}</code></a>),
-we can run into such objects many times, especially in fields like <strong>time series forecasting</strong> or <strong>NLP</strong>.</p><p>The question I&rsquo;d like to answer in this post is how to find &lsquo;flat&rsquo; equivalent of the
-three-element index for the <strong>3-dimensional</strong> arrays.</p><h2 id=problem>Problem</h2><p>Let&rsquo;s create a sample array to present the problem.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>data <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>array</span>(<span style=color:#ae81ff>0</span>, <span style=color:#a6e22e>c</span>(<span style=color:#ae81ff>20</span>, <span style=color:#ae81ff>7</span>, <span style=color:#ae81ff>5</span>))
-</span></span></code></pre></div><p>To get the single element, an array can be subscripted in two ways:</p><ul><li><strong>using indices for all the existing dimensions</strong></li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>data[12, <span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>1</span>] <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>7</span>
-</span></span><span style=display:flex><span>data[12, <span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>1</span>]
-</span></span></code></pre></div><pre tabindex=0><code>## [1] 7
-</code></pre><ul><li><strong>using a single index</strong></li></ul><p>In this approach the array is treated as a <strong>flat vector</strong>, so I named this kind of
-indexing <strong>flat index</strong>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>data[123] <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>8</span>
-</span></span><span style=display:flex><span>data[123]
-</span></span></code></pre></div><pre tabindex=0><code>## [1] 8
-</code></pre><p><strong>But how we can easily tranform the first type of indexing into the second one?</strong></p><h2 id=solution>Solution</h2><p>The solution generalized to the $n$-dimensional case can be expressed as:</p><center>$[x_1, x_2, x_3, ..., x_n] = x_1 + \sum_{i=2}^{n}x_i\prod_{j = 1}^{i-1}d_j$</center><p>where $x_i$ means i-th index and $d_i$ i-th dimension size. This solution takes into account the 1-based indexing which is used in R.</p><h2 id=example>Example</h2><p>Suppose we have an array with the same dimesnions as shown above: $(20, 7, 5)$.
-We&rsquo;d like to access an element at index $(11, 3, 2)$.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>example <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>array</span>(<span style=color:#ae81ff>0</span>, <span style=color:#a6e22e>c</span>(<span style=color:#ae81ff>20</span>, <span style=color:#ae81ff>7</span>, <span style=color:#ae81ff>5</span>))
-</span></span><span style=display:flex><span>example[11, <span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>2</span>] <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>7</span>
-</span></span></code></pre></div><p>We calculate the <em>flat index</em> according to the aforementioned schema.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span>flat_idx <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>11</span> <span style=color:#f92672>+</span> (<span style=color:#ae81ff>3</span> <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>*</span> <span style=color:#ae81ff>20</span> <span style=color:#f92672>+</span> (<span style=color:#ae81ff>2</span> <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>*</span> <span style=color:#ae81ff>20</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>7</span>
-</span></span><span style=display:flex><span>example[flat_idx]
-</span></span></code></pre></div><pre tabindex=0><code>## [1] 7
-</code></pre><h2 id=code-snippets>Code snippets</h2><p>In R code;</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span><span style=color:#75715e>#&#39; Get an index you can use access an array element at once </span>
-</span></span><span style=display:flex><span><span style=color:#75715e>#&#39; [x, y, z] = x + (y - 1) * x_dim + (z - 1) * x_dim * y_dim</span>
-</span></span><span style=display:flex><span><span style=color:#75715e>#&#39; [x, y] = x + (y-1) * x_dim</span>
-</span></span><span style=display:flex><span><span style=color:#75715e>#&#39;</span>
-</span></span><span style=display:flex><span><span style=color:#75715e>#&#39; @param dim_sizes Dimensions sizes</span>
-</span></span><span style=display:flex><span><span style=color:#75715e>#&#39; @param dim_indices Indices</span>
-</span></span><span style=display:flex><span>flat_index <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>function</span>(dim_sizes, dim_indices){
-</span></span><span style=display:flex><span>  dim_indices[1] <span style=color:#f92672>+</span> <span style=color:#a6e22e>sum</span>((dim_indices[<span style=color:#ae81ff>-1</span>] <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>) <span style=color:#f92672>*</span> <span style=color:#a6e22e>cumprod</span>(dim_sizes[<span style=color:#f92672>-</span><span style=color:#a6e22e>length</span>(dim_sizes)]))
-</span></span><span style=display:flex><span>}
-</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span><span style=color:#75715e># Example 1</span>
-</span></span><span style=display:flex><span>arr <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>array</span>(<span style=color:#ae81ff>0</span>, <span style=color:#a6e22e>c</span>(<span style=color:#ae81ff>4</span>,<span style=color:#ae81ff>5</span>,<span style=color:#ae81ff>6</span>,<span style=color:#ae81ff>7</span>))
-</span></span><span style=display:flex><span>arr[1,<span style=color:#ae81ff>2</span>,<span style=color:#ae81ff>3</span>,<span style=color:#ae81ff>4</span>] <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>777</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#a6e22e>flat_index</span>(<span style=color:#a6e22e>c</span>(<span style=color:#ae81ff>4</span>,<span style=color:#ae81ff>5</span>,<span style=color:#ae81ff>6</span>,<span style=color:#ae81ff>7</span>), <span style=color:#a6e22e>c</span>(<span style=color:#ae81ff>1</span>,<span style=color:#ae81ff>2</span>,<span style=color:#ae81ff>3</span>,<span style=color:#ae81ff>4</span>))
-</span></span></code></pre></div><pre tabindex=0><code>## [1] 405
-</code></pre><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span><span style=color:#a6e22e>which</span>(arr <span style=color:#f92672>==</span> <span style=color:#ae81ff>777</span>)
-</span></span></code></pre></div><pre tabindex=0><code>## [1] 405
-</code></pre><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span><span style=color:#75715e># Example 2</span>
-</span></span><span style=display:flex><span>arr2 <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>array</span>(<span style=color:#ae81ff>0</span>, <span style=color:#a6e22e>c</span>(<span style=color:#ae81ff>32</span>,<span style=color:#ae81ff>10</span>,<span style=color:#ae81ff>5</span>))
-</span></span><span style=display:flex><span>arr2[12,<span style=color:#ae81ff>8</span>,<span style=color:#ae81ff>4</span>] <span style=color:#f92672>&lt;-</span> <span style=color:#ae81ff>777</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#a6e22e>flat_index</span>( <span style=color:#a6e22e>c</span>(<span style=color:#ae81ff>32</span>,<span style=color:#ae81ff>10</span>,<span style=color:#ae81ff>5</span>), <span style=color:#a6e22e>c</span>(<span style=color:#ae81ff>12</span>,<span style=color:#ae81ff>8</span>,<span style=color:#ae81ff>4</span>))
-</span></span></code></pre></div><pre tabindex=0><code>## [1] 1196
-</code></pre><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-r data-lang=r><span style=display:flex><span><span style=color:#a6e22e>which</span>(arr2 <span style=color:#f92672>==</span> <span style=color:#ae81ff>777</span>)
-</span></span></code></pre></div><pre tabindex=0><code>## [1] 1196
-</code></pre><p>In <strong>Rcpp</strong>, you can use the following code snippet (for 3-dimensional arrays):</p><pre tabindex=0><code>// In C++ transformed to the zero-based index
+we&rsquo;re starting to work with <strong>deep learning</strong>, (e.g. using <a href="https://tensorflow.rstudio.com/reference/keras/"><code>{keras}</code></a>),
+we can run into such objects many times, especially in fields like <strong>time series forecasting</strong> or <strong>NLP</strong>.</p>
+<p>The question I&rsquo;d like to answer in this post is how to find &lsquo;flat&rsquo; equivalent of the
+three-element index for the <strong>3-dimensional</strong> arrays.</p>
+<h2 id="problem">Problem</h2>
+<p>Let&rsquo;s create a sample array to present the problem.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">data <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">array</span>(<span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">5</span>))
+</code></pre></div><p>To get the single element, an array can be subscripted in two ways:</p>
+<ul>
+<li><strong>using indices for all the existing dimensions</strong></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">data[12, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span>] <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">7</span>
+data[12, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span>]
+</code></pre></div><pre tabindex="0"><code>## [1] 7
+</code></pre><ul>
+<li><strong>using a single index</strong></li>
+</ul>
+<p>In this approach the array is treated as a <strong>flat vector</strong>, so I named this kind of
+indexing <strong>flat index</strong>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">data[123] <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">8</span>
+data[123]
+</code></pre></div><pre tabindex="0"><code>## [1] 8
+</code></pre><p><strong>But how we can easily tranform the first type of indexing into the second one?</strong></p>
+<h2 id="solution">Solution</h2>
+<p>The solution generalized to the $n$-dimensional case can be expressed as:</p>
+<center>$[x_1, x_2, x_3, ..., x_n] = x_1 + \sum_{i=2}^{n}x_i\prod_{j = 1}^{i-1}d_j$</center>  
+<p>where $x_i$ means i-th index and $d_i$ i-th dimension size. This solution takes into account the 1-based indexing which is used in R.</p>
+<h2 id="example">Example</h2>
+<p>Suppose we have an array with the same dimesnions as shown above: $(20, 7, 5)$.
+We&rsquo;d like to access an element at index $(11, 3, 2)$.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">example <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">array</span>(<span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">5</span>))
+example[11, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">2</span>] <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">7</span>
+</code></pre></div><p>We calculate the <em>flat index</em> according to the aforementioned schema.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">flat_idx <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">11</span> <span style="color:#f92672">+</span> (<span style="color:#ae81ff">3</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">*</span> <span style="color:#ae81ff">20</span> <span style="color:#f92672">+</span> (<span style="color:#ae81ff">2</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">*</span> <span style="color:#ae81ff">20</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">7</span>
+example[flat_idx]
+</code></pre></div><pre tabindex="0"><code>## [1] 7
+</code></pre><h2 id="code-snippets">Code snippets</h2>
+<p>In R code;</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#75715e">#&#39; Get an index you can use access an array element at once </span>
+<span style="color:#75715e">#&#39; [x, y, z] = x + (y - 1) * x_dim + (z - 1) * x_dim * y_dim</span>
+<span style="color:#75715e">#&#39; [x, y] = x + (y-1) * x_dim</span>
+<span style="color:#75715e">#&#39;</span>
+<span style="color:#75715e">#&#39; @param dim_sizes Dimensions sizes</span>
+<span style="color:#75715e">#&#39; @param dim_indices Indices</span>
+flat_index <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">function</span>(dim_sizes, dim_indices){
+  dim_indices[1] <span style="color:#f92672">+</span> <span style="color:#a6e22e">sum</span>((dim_indices[<span style="color:#ae81ff">-1</span>] <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">*</span> <span style="color:#a6e22e">cumprod</span>(dim_sizes[<span style="color:#f92672">-</span><span style="color:#a6e22e">length</span>(dim_sizes)]))
+}
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#75715e"># Example 1</span>
+arr <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">array</span>(<span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">7</span>))
+arr[1,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>] <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">777</span>
+
+<span style="color:#a6e22e">flat_index</span>(<span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">7</span>), <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>))
+</code></pre></div><pre tabindex="0"><code>## [1] 405
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#a6e22e">which</span>(arr <span style="color:#f92672">==</span> <span style="color:#ae81ff">777</span>)
+</code></pre></div><pre tabindex="0"><code>## [1] 405
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#75715e"># Example 2</span>
+arr2 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">array</span>(<span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">32</span>,<span style="color:#ae81ff">10</span>,<span style="color:#ae81ff">5</span>))
+arr2[12,<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">4</span>] <span style="color:#f92672">&lt;-</span> <span style="color:#ae81ff">777</span>
+
+<span style="color:#a6e22e">flat_index</span>( <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">32</span>,<span style="color:#ae81ff">10</span>,<span style="color:#ae81ff">5</span>), <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">12</span>,<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">4</span>))
+</code></pre></div><pre tabindex="0"><code>## [1] 1196
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#a6e22e">which</span>(arr2 <span style="color:#f92672">==</span> <span style="color:#ae81ff">777</span>)
+</code></pre></div><pre tabindex="0"><code>## [1] 1196
+</code></pre><p>In <strong>Rcpp</strong>, you can use the following code snippet (for 3-dimensional arrays):</p>
+<pre tabindex="0"><code class="language-{c" data-lang="{c">// In C++ transformed to the zero-based index
 int flat_index(int dim1, int dim2,
                int idx1, int idx2, int idx3){
   return idx1 + idx2 * dim1 + idx3 * dim1 * dim2;
 }
-</code></pre></div></main></body></html>
+</code></pre>
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>
