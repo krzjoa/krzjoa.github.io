@@ -1,105 +1,81 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Rcpp on krzjoa</title>
-    <link>/tags/rcpp/</link>
-    <description>Recent content in Rcpp on krzjoa</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Sun, 18 Sep 2022 00:00:00 +0000</lastBuildDate><atom:link href="/tags/rcpp/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Flat indices for arrays in R/Rcpp</title>
-      <author>joachimiak.krzysztof@gmail.com (Krzysztof Joachimiak)</author>
-      <link>/2022/09/18/flat-indices-for-arrays-in-r-rcpp/</link>
-      <pubDate>Sun, 18 Sep 2022 00:00:00 +0000</pubDate>
-      
-      <guid>/2022/09/18/flat-indices-for-arrays-in-r-rcpp/</guid>
-      <description>
-&lt;script src=&#34;/2022/09/18/flat-indices-for-arrays-in-r-rcpp/index_files/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
-
-
-&lt;p&gt;Although &lt;strong&gt;3-dimensional&lt;/strong&gt; arrays are not the most common object used in among
-the R projects, which are dominated by &lt;code&gt;data.frame&lt;/code&gt;-like objects. However, when
-we’re starting working with *deep learning&lt;strong&gt;, (e.g. using &lt;a href=&#34;https://tensorflow.rstudio.com/reference/keras/&#34;&gt;&lt;code&gt;{keras}&lt;/code&gt;&lt;/a&gt;),
-we can run into such objects many times, especially in fields like &lt;/strong&gt;time series forecasting&lt;strong&gt; or &lt;/strong&gt;NLP**.&lt;/p&gt;
-&lt;p&gt;The question I’d like to answer is this post is how to find ‘flat’ equivalent of the
-three-element index for the &lt;strong&gt;3-dimensional&lt;/strong&gt; arrays.&lt;/p&gt;
-&lt;div id=&#34;problem&#34; class=&#34;section level2&#34;&gt;
-&lt;h2&gt;Problem&lt;/h2&gt;
-&lt;p&gt;Let’s create a sample array to present the problem.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;data &amp;lt;- array(0, c(20, 7, 5))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Each array object and matrix object in R can be subscripted in two ways:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;using indices for all the existing dimensions&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;data[12, 3, 1] &amp;lt;- 7
-data[12, 3, 1]&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 7&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;data[12,,] &lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;##      [,1] [,2] [,3] [,4] [,5]
-## [1,]    0    0    0    0    0
-## [2,]    0    0    0    0    0
-## [3,]    7    0    0    0    0
-## [4,]    0    0    0    0    0
-## [5,]    0    0    0    0    0
-## [6,]    0    0    0    0    0
-## [7,]    0    0    0    0    0&lt;/code&gt;&lt;/pre&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;using a single index&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;In this approach the array is treated as a &lt;strong&gt;flat vector&lt;/strong&gt;, so I named this kind of
-indexing a &lt;strong&gt;flat index&lt;/strong&gt;.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;data[123] &amp;lt;- 8
-data[123]&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 8&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;strong&gt;But how we can easily tranform the first type of indexing into the second one&lt;/strong&gt;?&lt;/p&gt;
-&lt;/div&gt;
-&lt;div id=&#34;solution&#34; class=&#34;section level2&#34;&gt;
-&lt;h2&gt;Solution&lt;/h2&gt;
-&lt;p&gt;The solution generalized to the &lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt;-dimensional case can be expressed as:&lt;/p&gt;
-&lt;center&gt;
-&lt;span class=&#34;math inline&#34;&gt;\([x_1, x_2, x_3, ..., x_n] = \\ x_1 + (x_2 -1)d_1 + (x_3 -1 )d_1d_2 + ... + (x_n -1)\prod_{j = 1}^{n-1}d_j\)&lt;/span&gt;
-&lt;/center&gt;
-&lt;p&gt;and more concisely as:&lt;/p&gt;
-&lt;center&gt;
-&lt;span class=&#34;math inline&#34;&gt;\([x_1, x_2, x_3, ..., x_n] = x_1 + \sum_{i=2}^{n}x_i\prod_{j = 1}^{i-1}d_j\)&lt;/span&gt;
-&lt;/center&gt;
-&lt;p&gt;where &lt;span class=&#34;math inline&#34;&gt;\(x_i\)&lt;/span&gt; means i-th index and &lt;span class=&#34;math inline&#34;&gt;\(d_i\)&lt;/span&gt; i-th dimension size.&lt;/p&gt;
-&lt;p&gt;In R code;&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;#&amp;#39; Get an index you can use access an array element at once 
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Rcpp on krzjoa</title><link>/tags/rcpp/</link><description>Recent content in Rcpp on krzjoa</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 19 Sep 2022 00:00:00 +0000</lastBuildDate><atom:link href="/tags/rcpp/index.xml" rel="self" type="application/rss+xml"/><item><title>Flat indices for arrays in R/Rcpp</title><author>joachimiak.krzysztof@gmail.com (Krzysztof Joachimiak)</author><link>/2022/09/19/flat-indices-for-arrays-in-r/rcpp/</link><pubDate>Mon, 19 Sep 2022 00:00:00 +0000</pubDate><guid>/2022/09/19/flat-indices-for-arrays-in-r/rcpp/</guid><description>
+&lt;script src="/2022/09/19/flat-indices-for-arrays-in-r/rcpp/index_files/header-attrs/header-attrs.js">&lt;/script>
+&lt;p>Although &lt;strong>3-dimensional&lt;/strong> arrays are not the most common object used among
+the R projects, which are dominated by &lt;code>data.frame&lt;/code>-like objects. However, when
+we’re starting to work with &lt;strong>deep learning&lt;/strong>, (e.g. using &lt;a href="https://tensorflow.rstudio.com/reference/keras/">&lt;code>{keras}&lt;/code>&lt;/a>),
+we can run into such objects many times, especially in fields like &lt;strong>time series forecasting&lt;/strong> or &lt;strong>NLP&lt;/strong>.&lt;/p>
+&lt;p>The question I’d like to answer in this post is how to find ‘flat’ equivalent of the
+three-element index for the &lt;strong>3-dimensional&lt;/strong> arrays.&lt;/p>
+&lt;div id="problem" class="section level2">
+&lt;h2>Problem&lt;/h2>
+&lt;p>Let’s create a sample array to present the problem.&lt;/p>
+&lt;pre class="r">&lt;code>data &amp;lt;- array(0, c(20, 7, 5))&lt;/code>&lt;/pre>
+&lt;p>To get the single element, an array can be subscripted in two ways:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>using indices for all the existing dimensions&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;pre class="r">&lt;code>data[12, 3, 1] &amp;lt;- 7
+data[12, 3, 1]&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 7&lt;/code>&lt;/pre>
+&lt;ul>
+&lt;li>&lt;strong>using a single index&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>In this approach the array is treated as a &lt;strong>flat vector&lt;/strong>, so I named this kind of
+indexing &lt;strong>flat index&lt;/strong>.&lt;/p>
+&lt;pre class="r">&lt;code>data[123] &amp;lt;- 8
+data[123]&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 8&lt;/code>&lt;/pre>
+&lt;p>&lt;strong>But how we can easily tranform the first type of indexing into the second one?&lt;/strong>&lt;/p>
+&lt;/div>
+&lt;div id="solution" class="section level2">
+&lt;h2>Solution&lt;/h2>
+&lt;p>The solution generalized to the &lt;span class="math inline">\(n\)&lt;/span>-dimensional case can be expressed as:&lt;/p>
+&lt;center>
+&lt;span class="math inline">\([x_1, x_2, x_3, ..., x_n] = x_1 + \sum_{i=2}^{n}x_i\prod_{j = 1}^{i-1}d_j\)&lt;/span>
+&lt;/center>
+&lt;p>where &lt;span class="math inline">\(x_i\)&lt;/span> means i-th index and &lt;span class="math inline">\(d_i\)&lt;/span> i-th dimension size. This solution takes into account the 1-based indexing which is used in R.&lt;/p>
+&lt;/div>
+&lt;div id="example" class="section level2">
+&lt;h2>Example&lt;/h2>
+&lt;p>Suppose we have an array with the same dimesnions as shown above: &lt;span class="math inline">\((20, 7, 5)\)&lt;/span>.
+We’d like to access an element at index &lt;span class="math inline">\((11, 3, 2)\)&lt;/span>.&lt;/p>
+&lt;pre class="r">&lt;code>example &amp;lt;- array(0, c(20, 7, 5))
+example[11, 3, 2] &amp;lt;- 7&lt;/code>&lt;/pre>
+&lt;p>We calculate the &lt;em>flat index&lt;/em> according to the aforementioned schema.&lt;/p>
+&lt;pre class="r">&lt;code>flat_idx &amp;lt;- 11 + (3 - 1) * 20 + (2 - 1) * 20 * 7
+example[flat_idx]&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 7&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="code-snippets" class="section level2">
+&lt;h2>Code snippets&lt;/h2>
+&lt;p>In R code;&lt;/p>
+&lt;pre class="r">&lt;code>#&amp;#39; Get an index you can use access an array element at once
 #&amp;#39; [x, y, z] = x + (y - 1) * x_dim + (z - 1) * x_dim * y_dim
 #&amp;#39; [x, y] = x + (y-1) * x_dim
 #&amp;#39;
 #&amp;#39; @param dim_sizes Dimensions sizes
 #&amp;#39; @param dim_indices Indices
 flat_index &amp;lt;- function(dim_sizes, dim_indices){
-  dim_indices[1] + sum((dim_indices[-1] - 1) * cumprod(dim_sizes[-length(dim_sizes)]))
-}&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Example 1
+dim_indices[1] + sum((dim_indices[-1] - 1) * cumprod(dim_sizes[-length(dim_sizes)]))
+}&lt;/code>&lt;/pre>
+&lt;pre class="r">&lt;code># Example 1
 arr &amp;lt;- array(0, c(4,5,6,7))
 arr[1,2,3,4] &amp;lt;- 777
-
-flat_index(c(4,5,6,7), c(1,2,3,4))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 405&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;which(arr == 777)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 405&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# Example 2
+flat_index(c(4,5,6,7), c(1,2,3,4))&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 405&lt;/code>&lt;/pre>
+&lt;pre class="r">&lt;code>which(arr == 777)&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 405&lt;/code>&lt;/pre>
+&lt;pre class="r">&lt;code># Example 2
 arr2 &amp;lt;- array(0, c(32,10,5))
 arr2[12,8,4] &amp;lt;- 777
-
-flat_index( c(32,10,5), c(12,8,4))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 1196&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;which(arr2 == 777)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 1196&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;In &lt;strong&gt;Rcpp&lt;/strong&gt;, you can use the following code snippet (for 3-dimensional arrays):&lt;/p&gt;
-&lt;pre class=&#34;{c++}&#34;&gt;&lt;code&gt;// In C++ transformed to the zero-based index
+flat_index( c(32,10,5), c(12,8,4))&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 1196&lt;/code>&lt;/pre>
+&lt;pre class="r">&lt;code>which(arr2 == 777)&lt;/code>&lt;/pre>
+&lt;pre>&lt;code>## [1] 1196&lt;/code>&lt;/pre>
+&lt;p>In &lt;strong>Rcpp&lt;/strong>, you can use the following code snippet (for 3-dimensional arrays):&lt;/p>
+&lt;pre class="c">&lt;code>// In C++ transformed to the zero-based index
 int flat_index(int dim1, int dim2,
-               int idx1, int idx2, int idx3){
-  return idx1 + idx2 * dim1 + idx3 * dim1 * dim2;
-}&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-</description>
-    </item>
-    
-  </channel>
-</rss>
+int idx1, int idx2, int idx3){
+return idx1 + idx2 * dim1 + idx3 * dim1 * dim2;
+}&lt;/code>&lt;/pre>
+&lt;/div></description></item></channel></rss>
