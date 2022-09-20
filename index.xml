@@ -26,7 +26,7 @@ indexing &lt;strong>flat index&lt;/strong>.&lt;/p>
 &lt;/code>&lt;/pre>&lt;p>&lt;strong>But how we can easily tranform the first type of indexing into the second one?&lt;/strong>&lt;/p>
 &lt;h2 id="solution">Solution&lt;/h2>
 &lt;p>The solution generalized to the $n$-dimensional case can be expressed as:&lt;/p>
-&lt;center>$[x_1, x_2, x_3, ..., x_n] = x_1 + \sum_{i=2}^{n}x_i\prod_{j = 1}^{i-1}d_j$&lt;/center>
+&lt;center>$[x_1, x_2, x_3, ..., x_n] = x_1 + \sum_{i=2}^{n}(x_i-1)\prod_{j = 1}^{i-1}d_j$&lt;/center>
 &lt;p>where $x_i$ means i-th index and $d_i$ i-th dimension size. This solution takes into account the 1-based indexing which is used in R.&lt;/p>
 &lt;h2 id="example">Example&lt;/h2>
 &lt;p>Suppose we have an array with the same dimesnions as shown above: $(20, 7, 5)$.
